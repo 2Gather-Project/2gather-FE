@@ -1,14 +1,17 @@
 import { Stack } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
+import { EventsList } from '../components/EventsList';
 
 // import { ScreenContent } from '~/components/ScreenContent';
 
 export default function Explore() {
+
+
   return (
     <>
       <Stack.Screen options={{ title: 'Explore' }} />
       <View style={styles.container}>
-        {/* <ScreenContent path="app/(tabs)/two.tsx" title="Tab Two" /> */}
+        <EventsList />
       </View>
     </>
   );
