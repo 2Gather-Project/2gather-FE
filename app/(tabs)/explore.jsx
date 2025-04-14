@@ -3,19 +3,16 @@ import RNPickerSelect from 'react-native-picker-select';
 import { StyleSheet, Text, View } from 'react-native';
 import { EventsList } from '../components/EventsList';
 import { useState } from 'react';
-import Dropdown from "../components/Dropdown";
-
-// import { ScreenContent } from '~/components/ScreenContent';
+import DropdownComponent from '../components/Dropdown';
 
 export default function Explore() {
-
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState('');
   return (
     <>
       <Stack.Screen options={{ title: 'Explore' }} />
       <View style={styles.container}>
-        <Dropdown title= " Category Filter"/>
-        <Dropdown title= "Sort_by"/>
+        <DropdownComponent title="Category Filter" />
+        <DropdownComponent title="Sort By" />
         <EventsList />
       </View>
     </>

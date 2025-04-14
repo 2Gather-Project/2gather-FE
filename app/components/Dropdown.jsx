@@ -14,18 +14,14 @@ const data = [
   { label: 'Item 8', value: '8' },
 ];
 
-const DropdownComponent = ({title}) => {
-    console.log("title",title)
+const DropdownComponent = ({ title }) => {
+  console.log('title', title);
   const [value, setValue] = useState(null);
   const [isFocus, setIsFocus] = useState(false);
 
   const renderLabel = () => {
     if (value || isFocus) {
-      return (
-        <Text style={[styles.label, isFocus && { color: 'blue' }]}>
-          {title}
-        </Text>
-      );
+      return <Text style={[styles.label, isFocus && { color: 'blue' }]}>{title}</Text>;
     }
     return null;
   };
@@ -44,12 +40,12 @@ const DropdownComponent = ({title}) => {
         maxHeight={300}
         labelField="label"
         valueField="value"
-        placeholder={!isFocus ? {title} : '...'}
+        placeholder={!isFocus ? title : '...'}
         searchPlaceholder="Search..."
         value={value}
         onFocus={() => setIsFocus(true)}
         onBlur={() => setIsFocus(false)}
-        onChange={item => {
+        onChange={(item) => {
           setValue(item.value);
           setIsFocus(false);
         }}

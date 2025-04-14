@@ -1,107 +1,99 @@
-// import { FlatList, View } from "react-native"
 import React from 'react';
-import { EventCard } from "./EventCard";
-import { FlatList, StyleSheet, Text, View } from 'react-native';
-
-
+import { EventCard } from './EventCard';
+import { FlatList, StyleSheet, View } from 'react-native';
 
 export const EventsList = () => {
   const events = [
     {
       creator_id: 1,
-      title: "Come and visit the Natural History Museum with me!",
-      description: "Visit the museum and chat about history and life.",
-      location: "London",
-      time: "13:00:00",
-      created_at: "2025-04-14",
+      title: 'Come and visit the Natural History Museum with me!',
+      description: 'Visit the museum and chat about history and life.',
+      location: 'London',
+      time: '13:00:00',
+      created_at: '2025-04-14',
     },
     {
       creator_id: 2,
-      title: "Coffee and a chat",
-      description: "Lets gossip!",
-      location: "Nottingham",
-      time: "14:00:00",
-      created_at: "2025-04-26",
+      title: 'Coffee and a chat',
+      description: 'Lets gossip!',
+      location: 'Nottingham',
+      time: '14:00:00',
+      created_at: '2025-04-26',
     },
     {
       creator_id: 3,
-      title: "Board game cafe",
+      title: 'Board game cafe',
       description: "I'll beat you of course ;)",
-      location: "Lincoln",
-      time: "15:00:00",
-      created_at: "2025-04-26",
+      location: 'Lincoln',
+      time: '15:00:00',
+      created_at: '2025-04-26',
     },
     {
       creator_id: 4,
-      title: "Coffee & Coding",
-      description:
-        "Pair up with another dev or hobbyist to work on your side projects at a café.",
-      location: "London",
-      time: "13:00:00",
-      created_at: "2025-04-20",
+      title: 'Coffee & Coding',
+      description: 'Pair up with another dev or hobbyist to work on your side projects at a café.',
+      location: 'London',
+      time: '13:00:00',
+      created_at: '2025-04-20',
     },
     {
       creator_id: 5,
-      title: "Sketch & Chill",
-      description:
-        "Bring a sketchpad and hang out at a scenic spot, sketching and chatting.",
-      location: "Edinburgh",
-      time: "14:00:00",
-      created_at: "2025-04-20",
+      title: 'Sketch & Chill',
+      description: 'Bring a sketchpad and hang out at a scenic spot, sketching and chatting.',
+      location: 'Edinburgh',
+      time: '14:00:00',
+      created_at: '2025-04-20',
     },
     {
       creator_id: 6,
-      title: "Street Food Lunch",
-      description:
-        "Grab a bite and discover new flavors together at the city’s food market.",
-      location: "Manchester",
-      time: "14:15:00",
-      created_at: "2025-04-26",
+      title: 'Street Food Lunch',
+      description: 'Grab a bite and discover new flavors together at the city’s food market.',
+      location: 'Manchester',
+      time: '14:15:00',
+      created_at: '2025-04-26',
     },
     {
       creator_id: 7,
-      title: "Bookshop Hangout",
+      title: 'Bookshop Hangout',
       description:
-        "Browse books and chat about your favorite reads at a local independent bookstore.",
-      location: "Bristol",
-      time: "11:00:00",
-      created_at: "2025-04-14",
+        'Browse books and chat about your favorite reads at a local independent bookstore.',
+      location: 'Bristol',
+      time: '11:00:00',
+      created_at: '2025-04-14',
     },
   ];
-
-
-
 
   return (
     <>
       <View style={styles.container}>
-        <FlatList style={{ width: "100%" }} data={events}
-
-          renderItem={({ item }) => <EventCard title={item.title} description={item.description} location={item.location} time={item.time}/>}
-          keyExtractor={item => item.creator_id}
+        <FlatList
+          style={{ width: '100%' }}
+          data={events}
+          renderItem={({ item }) => (
+            <EventCard
+              title={item.title}
+              location={item.location}
+              time={item.time}
+              id={item.creator_id}
+            />
+          )}
+          keyExtractor={(item) => item.creator_id}
         />
       </View>
-
     </>
-
-  )
-}
-
+  );
+};
 
 const styles = StyleSheet.create({
-
   container: {
     flex: 1,
-    alignItems: "center",
+    alignItems: 'center',
     paddingTop: 22,
-    width: "100%"
+    width: '100%',
   },
   item: {
     flex: 1,
-    // padding: 10,
+    padding: 10,
     fontSize: 18,
-    // height: 110,
-    // width: 100,
-    // margin: 4,
   },
 });
