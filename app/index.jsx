@@ -28,16 +28,16 @@ const styles = StyleSheet.create({
         justifyContent: 'center'
     },
     actionLinkText: {
-        color: '#d7fc03',
+        color: 'white',
         fontWeight: 'bold',
     },
     actionButton: {
-        backgroundColor: '#e91e63',
+        backgroundColor: '#003049',
         padding: 12,
         borderRadius: 8,
         flex: 1,
         marginHorizontal: 8,
-        alignItems: 'center',
+        textAlign: 'center'
 
     },
     actionsSection: {
