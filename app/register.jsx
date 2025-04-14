@@ -46,7 +46,7 @@ const Register = () => {
                 />
 
                 <TouchableOpacity>
-                    <Link href="(tabs)" style={[styles.button, styles.buttonText]}>Create Account</Link>
+                    <Link href="/create-profile" style={[styles.button, styles.buttonText]}>Create Account</Link>
                 </TouchableOpacity>
             </View>
 
