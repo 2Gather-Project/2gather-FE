@@ -14,12 +14,10 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color }) => <Ionicons name="home" color={color}  size={24}/>,
+          tabBarIcon: ({ color }) => <Ionicons name="home" color={color} size={24} />,
           headerRight: () => (
-            <Ionicons name="person-circle-outline" color="#333"  size={36}/>
-            // <Link href="/modal" asChild>
-            //   <HeaderButton />
-            // </Link>
+            <Ionicons name="person-circle-outline" color="#333" size={36} />
+
           ),
         }}
       />
@@ -27,12 +25,10 @@ export default function TabLayout() {
         name="explore"
         options={{
           title: 'Explore',
-          tabBarIcon: ({ color }) => <Ionicons name="calendar" color={color} size={24}/>,
+          tabBarIcon: ({ color }) => <Ionicons name="calendar" color={color} size={24} />,
           headerRight: () => (
-            <Ionicons name="person-circle-outline" color="#333"  size={36}/>
-            // <Link href="/modal" asChild>
-            //   <HeaderButton />
-            // </Link>
+            <Ionicons name="person-circle-outline" color="#333" size={36} />
+
           ),
         }}
       />
@@ -40,9 +36,9 @@ export default function TabLayout() {
         name="connections"
         options={{
           title: 'Connections',
-          tabBarIcon: ({ color }) => <Ionicons name="people-outline" color={color} size={24}/>,
+          tabBarIcon: ({ color }) => <Ionicons name="people-outline" color={color} size={24} />,
           headerRight: () => (
-            <Ionicons name="person-circle-outline" color="#333"  size={36}/>
+            <Ionicons name="person-circle-outline" color="#333" size={36} />
             // <Link href="/modal" asChild>
             //   <HeaderButton />
             // </Link>
@@ -53,9 +49,9 @@ export default function TabLayout() {
         name="messages"
         options={{
           title: 'Messages',
-          tabBarIcon: ({ color }) => <AntDesign name="message1" color={color} size={24}/>,
+          tabBarIcon: ({ color }) => <AntDesign name="message1" color={color} size={24} />,
           headerRight: () => (
-            <Ionicons name="person-circle-outline" color="#333"  size={36}/>
+            <Ionicons name="person-circle-outline" color="#333" size={36} />
             // <Link href="/modal" asChild>
             //   <HeaderButton />
             // </Link>
