@@ -18,8 +18,6 @@ const Login = () => {
                     placeholder="Password"
 
                 />
-
-
                 <Link href="(tabs)" style={[styles.button, styles.buttonText]}>Log In</Link>
                 <Link href="(tabs)" style={[styles.button, styles.buttonText, { backgroundColor: '#669BBC', color: 'white' }]}>Google</Link>
 
