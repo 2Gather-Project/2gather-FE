@@ -21,6 +21,7 @@ const Login = () => {
 
 
                 <Link href="(tabs)" style={[styles.button, styles.buttonText]}>Log In</Link>
+                <Link href="(tabs)" style={[styles.button, styles.buttonText, { backgroundColor: '#669BBC', color: 'white' }]}>Google</Link>
 
             </View>
 
@@ -60,24 +61,25 @@ const styles = StyleSheet.create({
         width: '100%',
     },
     button: {
-        backgroundColor: '#e91e63',
+        backgroundColor: '#003049',
         padding: 16,
         borderRadius: 8,
         alignItems: 'center',
         marginTop: 16,
+        textAlign: 'center'
     },
     buttonText: {
         color: '#fff',
         fontWeight: 'bold',
         fontSize: 16,
-        textAlign: 'center'
+
     },
     footer: {
         flexDirection: 'row',
         marginTop: 32,
     },
     link: {
-        color: '#e91e63',
+        color: '#C1121F',
         fontWeight: 'bold',
     },
 });
