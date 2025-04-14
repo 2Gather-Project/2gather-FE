@@ -1,10 +1,16 @@
-import { Link, Tabs } from 'expo-router';
-
+import { Link, Tabs, useRouter } from 'expo-router';
+import { TouchableOpacity } from 'react-native';
 // import { HeaderButton } from '../../components/HeaderButton';
 // import { TabBarIcon } from '../../components/TabBarIcon';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 
 export default function TabLayout() {
+  const router = useRouter();
+
+  const goToProfile = () => {
+    router.push('/profile');
+  };
+
   return (
     <Tabs
       screenOptions={{
@@ -16,8 +22,9 @@ export default function TabLayout() {
           title: 'Home',
           tabBarIcon: ({ color }) => <Ionicons name="home" color={color} size={24} />,
           headerRight: () => (
-            <Ionicons name="person-circle-outline" color="#333" size={36} />
-
+            <TouchableOpacity onPress={goToProfile} style={{ marginRight: 15 }}>
+              <Ionicons name="person-circle-outline" color="#333" size={36} />
+            </TouchableOpacity>
           ),
         }}
       />
@@ -27,8 +34,9 @@ export default function TabLayout() {
           title: 'Explore',
           tabBarIcon: ({ color }) => <Ionicons name="calendar" color={color} size={24} />,
           headerRight: () => (
-            <Ionicons name="person-circle-outline" color="#333" size={36} />
-
+            <TouchableOpacity onPress={goToProfile} style={{ marginRight: 15 }}>
+              <Ionicons name="person-circle-outline" color="#333" size={36} />
+            </TouchableOpacity>
           ),
         }}
       />
@@ -38,7 +46,9 @@ export default function TabLayout() {
           title: 'Connections',
           tabBarIcon: ({ color }) => <Ionicons name="people-outline" color={color} size={24} />,
           headerRight: () => (
-            <Ionicons name="person-circle-outline" color="#333" size={36} />
+            <TouchableOpacity onPress={goToProfile} style={{ marginRight: 15 }}>
+              <Ionicons name="person-circle-outline" color="#333" size={36} />
+            </TouchableOpacity>
             // <Link href="/modal" asChild>
             //   <HeaderButton />
             // </Link>
@@ -51,7 +61,9 @@ export default function TabLayout() {
           title: 'Messages',
           tabBarIcon: ({ color }) => <AntDesign name="message1" color={color} size={24} />,
           headerRight: () => (
-            <Ionicons name="person-circle-outline" color="#333" size={36} />
+            <TouchableOpacity onPress={goToProfile} style={{ marginRight: 15 }}>
+              <Ionicons name="person-circle-outline" color="#333" size={36} />
+            </TouchableOpacity>
             // <Link href="/modal" asChild>
             //   <HeaderButton />
             // </Link>
