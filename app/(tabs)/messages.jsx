@@ -6,7 +6,6 @@ export default function Messages() {
     <>
       <Stack.Screen options={{ title: 'Messages' }} />
       <View style={styles.container}>
-        {/* <ScreenContent path="app/(tabs)/two.tsx" title="Tab Two" /> */}
       </View>
     </>
   );

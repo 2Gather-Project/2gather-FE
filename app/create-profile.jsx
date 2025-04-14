@@ -68,6 +68,18 @@ const ProfileForm = () => {
                     </View>
                 </View>
 
+                {/* Are you 18?*/}
+                <View style={styles.inputGroup}>
+                    <Text style={styles.label}>Are you 18 or over?</Text>
+                    <View style={styles.optionsContainer}>
+                        <TouchableOpacity style={styles.optionButton}>
+                            <Text style={styles.optionText}>yes</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.optionButton}>
+                            <Text style={styles.optionText}>no, bye</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
                 {/* Save Button */}
                 <TouchableOpacity >
                     <Link href="(tabs)" style={styles.safeButton}>Save</Link>
