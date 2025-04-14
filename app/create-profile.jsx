@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
         textAlign: 'center'
     },
     formContainer: {
-        backgroundColor: '#edf2fa',
+        backgroundColor: 'white',
         borderRadius: 12,
         padding: 16,
         borderWidth: 1,
@@ -172,11 +172,12 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     safeButton: {
-        backgroundColor: '#669BBC',
+        backgroundColor: '#003049',
         padding: 12,
         borderRadius: 8,
         flex: 1,
         marginHorizontal: 8,
-        textAlign: 'center'
+        textAlign: 'center',
+        color: 'white'
     },
 });
