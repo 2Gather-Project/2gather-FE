@@ -1,8 +1,7 @@
-import React from 'react';
-import { EventCard } from './EventCard';
+import EventCard from './EventCard';
 import { FlatList, StyleSheet, View } from 'react-native';
 
-export const EventsList = () => {
+export default function EventsList() {
   const events = [
     {
       creator_id: 1,
@@ -82,7 +81,7 @@ export const EventsList = () => {
       </View>
     </>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
