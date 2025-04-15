@@ -15,7 +15,6 @@ const data = [
 ];
 
 const DropdownComponent = ({ title }) => {
-  console.log('title', title);
   const [value, setValue] = useState(null);
   const [isFocus, setIsFocus] = useState(false);
 

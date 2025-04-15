@@ -1,8 +1,9 @@
-import { Link } from 'expo-router';
-import { Text, View, Image, StyleSheet } from 'react-native';
+import { Link } from '@react-navigation/native';
+import { useNavigation } from 'expo-router';
+import { Text, View, Image, StyleSheet, TouchableOpacity } from 'react-native';
 
-export const EventCard = ({ title, location, time, id }) => {
-  console.log(time, 'time');
+export default function EventCard({ title, location, time, id }) {
+  const navigation = useNavigation();
   return (
     <>
       <View style={styles.container}>
@@ -13,16 +14,23 @@ export const EventCard = ({ title, location, time, id }) => {
           />
         </View>
         <View style={styles.text}>
-          <Link href={`/events/${id}`}>
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate('SingleEvent', {
+                event_id: id,
+              })
+            }>
+            {/* <Link screen="SingleEvent" params={{ id: id }}> */}
             <Text style={styles.title}>{title}</Text>
-          </Link>
+            {/* </Link> */}
+          </TouchableOpacity>
           <Text>{time}</Text>
           <Text>{location}</Text>
         </View>
       </View>
     </>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
