@@ -13,7 +13,7 @@ export default function TabLayout() {
 
 
   const goToHostedEvents = () => {
-    router.push('/hostedEvents');
+    router.push('/HostedEvents');
   };
 
   return (
