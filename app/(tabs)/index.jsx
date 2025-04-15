@@ -28,7 +28,6 @@ export default function Home() {
         <Text>Find events near you</Text>
       </View>
 
-
       <View style={styles.featuredSection}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Featured Events</Text>

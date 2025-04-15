@@ -1,5 +1,5 @@
 import { Link, Tabs, useRouter } from 'expo-router';
-import { TouchableOpacity } from 'react-native';
+import { TouchableOpacity, View, StyleSheet, Text } from 'react-native';
 // import { HeaderButton } from '../../components/HeaderButton';
 // import { TabBarIcon } from '../../components/TabBarIcon';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
@@ -11,6 +11,11 @@ export default function TabLayout() {
     router.push('/profile');
   };
 
+
+  const goToCreateEvent = () => {
+    router.push('/createEvent');
+  };
+
   return (
     <Tabs
       screenOptions={{
@@ -19,12 +24,20 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
+
           tabBarIcon: ({ color }) => <Ionicons name="home" color={color} size={24} />,
           headerRight: () => (
-            <TouchableOpacity onPress={goToProfile} style={{ marginRight: 15 }}>
-              <Ionicons name="person-circle-outline" color="#333" size={36} />
-            </TouchableOpacity>
+            <View style={{ flexDirection: 'row', padding: '20px', alignItems: 'center' }}>
+
+              <TouchableOpacity onPress={goToCreateEvent} style={styles.createButton}>
+                <Text style={styles.createButtonText}>Create Event</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={goToProfile} style={{ marginRight: 15, marginLeft: 15 }}>
+                <Ionicons name="person-circle-outline" color="#333" size={36} />
+              </TouchableOpacity>
+
+            </View>
           ),
         }}
       />
@@ -73,3 +86,21 @@ export default function TabLayout() {
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+
+  createButton: {
+    backgroundColor: '#C1121F',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    paddingRight: 30,
+
+  },
+  createButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+
+  }
+
+})
