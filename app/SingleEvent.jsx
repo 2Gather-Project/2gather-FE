@@ -16,6 +16,7 @@ export default SingleEvent = () => {
     time: '13:00:00',
     created_at: '2025-04-14',
   };
+
   const navigation = useNavigation();
   const route = useRoute();
   const [isError, setIsError] = useState();
@@ -56,7 +57,7 @@ export default SingleEvent = () => {
   return (
     <>
       <View style={styles.button}>
-        <Button onPress={() => router.push("/explore")} title={<Ionicons name="arrow-back" color="white" size={15} /> }/>
+        <Button onPress={() => router.push("/explore")} title="Go Back"/>
       </View>
       <View style={styles.container}>
         <View style={styles.imageContainer} >
@@ -87,7 +88,6 @@ export default SingleEvent = () => {
           <Button onPress={handleAttendance} color="green" title="Attend"></Button>
           <Button onPress={handleCancelation} color="#C1121F" title='Cancel attendance'></Button>
         </View>
-
       </View>
     </>
   );
@@ -111,14 +111,9 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   text: {
-    // flexWrap: 'wrap',
-    // flex: 2,
-    // flexDirection: 'column',
-    // flexWrap: 'wrap',
-    // display: 'flex',
+
     justifyContent: "flex-start",
-    // alignItems: 'center',
-    // overflow: 'visible',
+  
   },
   title: {
     flexDirection: 'column',
@@ -129,7 +124,7 @@ const styles = StyleSheet.create({
   button: {
     alignContent: "flex-end",
     padding: 20,
-    width: 90
+    width: 150
   },
   attendanceButtons: {
     display: "flex",

@@ -20,9 +20,7 @@ export default function EventCard({ title, location, time, id }) {
                 event_id: id,
               })
             }>
-            {/* <Link screen="SingleEvent" params={{ id: id }}> */}
             <Text style={styles.title}>{title}</Text>
-            {/* </Link> */}
           </Pressable>
           <Text>{time}</Text>
           <Text>{location}</Text>
