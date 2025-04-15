@@ -1,7 +1,6 @@
 import { Stack } from 'expo-router';
-import RNPickerSelect from 'react-native-picker-select';
-import { StyleSheet, Text, View } from 'react-native';
-import { EventsList } from '../components/EventsList';
+import { StyleSheet, View } from 'react-native';
+import EventsList from '../components/EventsList';
 import { useState } from 'react';
 import DropdownComponent from '../components/Dropdown';
 

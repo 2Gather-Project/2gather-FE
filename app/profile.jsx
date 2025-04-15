@@ -16,7 +16,7 @@ export default function Profile() {
     usingAppFor: '',
     jobTitle: '',
     petOwner: 'no',
-    beveragePreference: 'coffee'
+    beveragePreference: 'coffee',
   });
 
   const handleLogout = () => {
@@ -26,7 +26,7 @@ export default function Profile() {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen 
+      <Stack.Screen
         options={{
           title: 'Profile',
           headerStyle: {
@@ -35,10 +35,10 @@ export default function Profile() {
           headerTintColor: '#003049',
           headerRight: () => (
             <TouchableOpacity onPress={() => setIsEditing(!isEditing)}>
-              <Ionicons 
-                name={isEditing ? "checkmark-outline" : "pencil-outline"} 
-                size={24} 
-                color="#669BBC" 
+              <Ionicons
+                name={isEditing ? 'checkmark-outline' : 'pencil-outline'}
+                size={24}
+                color="#669BBC"
               />
             </TouchableOpacity>
           ),
@@ -47,14 +47,13 @@ export default function Profile() {
 
       <ScrollView style={styles.scrollView}>
         <View style={styles.profileContainer}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.floatingEditButton}
-            onPress={() => setIsEditing(!isEditing)}
-          >
-            <Ionicons 
-              name={isEditing ? "checkmark-outline" : "pencil-outline"} 
-              size={24} 
-              color="white" 
+            onPress={() => setIsEditing(!isEditing)}>
+            <Ionicons
+              name={isEditing ? 'checkmark-outline' : 'pencil-outline'}
+              size={24}
+              color="white"
             />
           </TouchableOpacity>
 
@@ -69,7 +68,12 @@ export default function Profile() {
             <View style={styles.formContainer}>
               <View style={styles.inputGroup}>
                 <View style={styles.labelContainer}>
-                  <Ionicons name="document-text-outline" size={18} color="#C1121F" style={styles.fieldIcon} />
+                  <Ionicons
+                    name="document-text-outline"
+                    size={18}
+                    color="#C1121F"
+                    style={styles.fieldIcon}
+                  />
                   <Text style={styles.label}>Bio</Text>
                 </View>
                 <TextInput
@@ -77,7 +81,7 @@ export default function Profile() {
                   multiline
                   editable={isEditing}
                   value={profile.bio}
-                  onChangeText={(text) => setProfile({...profile, bio: text})}
+                  onChangeText={(text) => setProfile({ ...profile, bio: text })}
                   placeholder="Write something about yourself..."
                   placeholderTextColor="#AAAAAA"
                 />
@@ -89,19 +93,28 @@ export default function Profile() {
                 { label: 'Location', key: 'location', icon: 'location-outline' },
                 { label: 'Personality', key: 'personality', icon: 'sparkles-outline' },
                 { label: 'Favourite food', key: 'favoriteFood', icon: 'restaurant-outline' },
-                { label: "I'm using this app for...", key: 'usingAppFor', icon: 'help-circle-outline' },
+                {
+                  label: "I'm using this app for...",
+                  key: 'usingAppFor',
+                  icon: 'help-circle-outline',
+                },
                 { label: 'Job Title', key: 'jobTitle', icon: 'briefcase-outline' },
               ].map((field) => (
                 <View key={field.key} style={styles.inputGroup}>
                   <View style={styles.labelContainer}>
-                    <Ionicons name={field.icon} size={18} color="#C1121F" style={styles.fieldIcon} />
+                    <Ionicons
+                      name={field.icon}
+                      size={18}
+                      color="#C1121F"
+                      style={styles.fieldIcon}
+                    />
                     <Text style={styles.label}>{field.label}</Text>
                   </View>
                   <TextInput
                     style={styles.input}
                     editable={isEditing}
                     value={profile[field.key]}
-                    onChangeText={(text) => setProfile({...profile, [field.key]: text})}
+                    onChangeText={(text) => setProfile({ ...profile, [field.key]: text })}
                     placeholderTextColor="#AAAAAA"
                   />
                 </View>
@@ -113,50 +126,79 @@ export default function Profile() {
                   <Text style={styles.label}>Pet owner?</Text>
                 </View>
                 <View style={styles.toggleContainer}>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={[
                       styles.toggleButton,
-                      profile.petOwner === 'yes' && styles.toggleButtonActive
+                      profile.petOwner === 'yes' && styles.toggleButtonActive,
                     ]}
-                    onPress={() => isEditing && setProfile({...profile, petOwner: 'yes'})}
-                  >
-                    <Text style={profile.petOwner === 'yes' ? styles.toggleTextActive : styles.toggleText}>yes</Text>
+                    onPress={() => isEditing && setProfile({ ...profile, petOwner: 'yes' })}>
+                    <Text
+                      style={
+                        profile.petOwner === 'yes' ? styles.toggleTextActive : styles.toggleText
+                      }>
+                      yes
+                    </Text>
                   </TouchableOpacity>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={[
                       styles.toggleButton,
-                      profile.petOwner === 'no' && styles.toggleButtonActive
+                      profile.petOwner === 'no' && styles.toggleButtonActive,
                     ]}
-                    onPress={() => isEditing && setProfile({...profile, petOwner: 'no'})}
-                  >
-                    <Text style={profile.petOwner === 'no' ? styles.toggleTextActive : styles.toggleText}>no</Text>
+                    onPress={() => isEditing && setProfile({ ...profile, petOwner: 'no' })}>
+                    <Text
+                      style={
+                        profile.petOwner === 'no' ? styles.toggleTextActive : styles.toggleText
+                      }>
+                      no
+                    </Text>
                   </TouchableOpacity>
                 </View>
               </View>
 
               <View style={styles.inputGroup}>
                 <View style={styles.labelContainer}>
-                  <Ionicons name="cafe-outline" size={18} color="#C1121F" style={styles.fieldIcon} />
+                  <Ionicons
+                    name="cafe-outline"
+                    size={18}
+                    color="#C1121F"
+                    style={styles.fieldIcon}
+                  />
                   <Text style={styles.label}>Coffee or tea?</Text>
                 </View>
                 <View style={styles.toggleContainer}>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={[
                       styles.toggleButton,
-                      profile.beveragePreference === 'coffee' && styles.toggleButtonActive
+                      profile.beveragePreference === 'coffee' && styles.toggleButtonActive,
                     ]}
-                    onPress={() => isEditing && setProfile({...profile, beveragePreference: 'coffee'})}
-                  >
-                    <Text style={profile.beveragePreference === 'coffee' ? styles.toggleTextActive : styles.toggleText}>coffee</Text>
+                    onPress={() =>
+                      isEditing && setProfile({ ...profile, beveragePreference: 'coffee' })
+                    }>
+                    <Text
+                      style={
+                        profile.beveragePreference === 'coffee'
+                          ? styles.toggleTextActive
+                          : styles.toggleText
+                      }>
+                      coffee
+                    </Text>
                   </TouchableOpacity>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={[
                       styles.toggleButton,
-                      profile.beveragePreference === 'tea' && styles.toggleButtonActive
+                      profile.beveragePreference === 'tea' && styles.toggleButtonActive,
                     ]}
-                    onPress={() => isEditing && setProfile({...profile, beveragePreference: 'tea'})}
-                  >
-                    <Text style={profile.beveragePreference === 'tea' ? styles.toggleTextActive : styles.toggleText}>tea</Text>
+                    onPress={() =>
+                      isEditing && setProfile({ ...profile, beveragePreference: 'tea' })
+                    }>
+                    <Text
+                      style={
+                        profile.beveragePreference === 'tea'
+                          ? styles.toggleTextActive
+                          : styles.toggleText
+                      }>
+                      tea
+                    </Text>
                   </TouchableOpacity>
                 </View>
               </View>
