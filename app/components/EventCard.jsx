@@ -1,6 +1,6 @@
 import { Link } from '@react-navigation/native';
 import { useNavigation } from 'expo-router';
-import { Text, View, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { Text, View, Image, StyleSheet, TouchableOpacity, Pressable } from 'react-native';
 
 export default function EventCard({ title, location, time, id }) {
   const navigation = useNavigation();
@@ -14,7 +14,7 @@ export default function EventCard({ title, location, time, id }) {
           />
         </View>
         <View style={styles.text}>
-          <TouchableOpacity
+          <Pressable
             onPress={() =>
               navigation.navigate('SingleEvent', {
                 event_id: id,
@@ -23,7 +23,7 @@ export default function EventCard({ title, location, time, id }) {
             {/* <Link screen="SingleEvent" params={{ id: id }}> */}
             <Text style={styles.title}>{title}</Text>
             {/* </Link> */}
-          </TouchableOpacity>
+          </Pressable>
           <Text>{time}</Text>
           <Text>{location}</Text>
         </View>
