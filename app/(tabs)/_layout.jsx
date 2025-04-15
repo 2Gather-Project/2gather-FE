@@ -12,8 +12,8 @@ export default function TabLayout() {
   };
 
 
-  const goToCreateEvent = () => {
-    router.push('/createEvent');
+  const goToHostedEvents = () => {
+    router.push('/hostedEvents');
   };
 
   return (
@@ -24,13 +24,14 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-
+          title: 'Home',
+          headerTitleAlign: 'left',
           tabBarIcon: ({ color }) => <Ionicons name="home" color={color} size={24} />,
           headerRight: () => (
             <View style={{ flexDirection: 'row', padding: '20px', alignItems: 'center' }}>
 
-              <TouchableOpacity onPress={goToCreateEvent} style={styles.createButton}>
-                <Text style={styles.createButtonText}>Create Event</Text>
+              <TouchableOpacity onPress={goToHostedEvents} style={styles.createButton}>
+                <Text style={styles.createButtonText}>Hosted Events</Text>
               </TouchableOpacity>
 
               <TouchableOpacity onPress={goToProfile} style={{ marginRight: 15, marginLeft: 15 }}>
@@ -77,10 +78,16 @@ export default function TabLayout() {
             <TouchableOpacity onPress={goToProfile} style={{ marginRight: 15 }}>
               <Ionicons name="person-circle-outline" color="#333" size={36} />
             </TouchableOpacity>
-            // <Link href="/modal" asChild>
-            //   <HeaderButton />
-            // </Link>
+
           ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="create-event"
+        options={{
+          title: 'New Event',
+          tabBarIcon: ({ color }) => <Ionicons name="create-outline" color={color} size={24} />,
         }}
       />
     </Tabs>
@@ -91,15 +98,16 @@ const styles = StyleSheet.create({
 
   createButton: {
     backgroundColor: '#C1121F',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
     borderRadius: 5,
-    paddingRight: 30,
 
+    textAlign: 'center'
   },
   createButtonText: {
     color: 'white',
     fontWeight: 'bold',
+    fontSize: 12,
 
   }
 

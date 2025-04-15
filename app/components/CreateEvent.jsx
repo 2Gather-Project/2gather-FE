@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
     StyleSheet,
     View,
@@ -7,10 +7,13 @@ import {
     TouchableOpacity,
     ScrollView,
     SafeAreaView,
-    Platform
+    Platform,
+
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
+
+import { AntDesign } from '@expo/vector-icons';
 
 export default function CreateEvent() {
     const router = useRouter();
@@ -86,10 +89,17 @@ export default function CreateEvent() {
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
 
-                <Text style={styles.pageTitle}>New Event</Text>
+                <Text style={styles.pageTitle}>Create your new event</Text>
             </View>
 
             <ScrollView style={styles.form}>
+
+
+                <TouchableOpacity style={{ flexDirection: 'column', alignItems: 'center' }}>
+                    <AntDesign name="picture" color="#333" size={45} />
+                    <Text style={styles.addPictureText}>Add event picture</Text>
+                </TouchableOpacity>
+
                 <Text style={styles.label}>Event Title</Text>
                 <TextInput
                     style={styles.input}
@@ -199,6 +209,8 @@ const styles = StyleSheet.create({
         padding: 20,
         borderBottomWidth: 1,
         borderBottomColor: '#eee',
+        justifyContent: 'center',
+        width: '100%'
     },
     logoContainer: {
         width: 60,
@@ -217,6 +229,8 @@ const styles = StyleSheet.create({
     pageTitle: {
         fontSize: 24,
         fontWeight: 'bold',
+        textAlign: 'center',
+        color: '#003049'
     },
     form: {
         flex: 1,
@@ -285,5 +299,12 @@ const styles = StyleSheet.create({
         padding: 10,
         marginBottom: 15,
         backgroundColor: '#f9f9f9',
-    }
+    },
+    addPictureText: {
+        marginTop: 8,
+        fontSize: 14,
+        color: '#333',
+        alignContent: 'center',
+
+    },
 });
