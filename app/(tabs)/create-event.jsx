@@ -1,12 +1,12 @@
 import { Stack } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
-
-export default function () {
+import CreateEvent from '../components/CreateEvent';
+export default function newEvent() {
   return (
     <>
-      <Stack.Screen options={{ title: 'Connections' }} />
+      <Stack.Screen options={{ title: 'New Event' }} />
       <View style={styles.container}>
-        {/* <ScreenContent path="app/(tabs)/two.tsx" title="Tab Two" /> */}
+        <CreateEvent />
       </View>
     </>
   );

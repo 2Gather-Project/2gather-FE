@@ -5,26 +5,33 @@ import {
     TouchableOpacity,
     StyleSheet,
     ScrollView,
-    Image
+
 } from 'react-native';
 import { Link } from 'expo-router';
+import { AntDesign } from '@expo/vector-icons';
+import { useState } from 'react';
 
-import addImage from '../assets/add-image.jpg'
 
 const ProfileForm = () => {
+
+    const [isPetOwner, setIsPetOwner] = useState(null);
+    const [beveragePreference, setBeveragePreference] = useState(null);
+    const [isAdult, setIsAdult] = useState(null);
+
+
     return (
         <ScrollView contentContainerStyle={styles.container}>
             <Text style={styles.title}>Create your profile</Text>
             <View style={styles.formContainer}>
                 {/* Profile Picture */}
-                <View style={{ flexDirection: 'column', alignItems: 'center' }}>
-                    <TouchableOpacity>
-                        <Image source={addImage} style={styles.img} />
 
-                        <Text style={styles.addPictureText}>Add profile picture</Text>
-                    </TouchableOpacity>
 
-                </View>
+                <TouchableOpacity style={{ flexDirection: 'column', alignItems: 'center' }}>
+                    <AntDesign name="picture" color="#333" size={45} />
+                    <Text style={styles.addPictureText}>Add profile picture</Text>
+                </TouchableOpacity>
+
+
                 {/* Bio */}
                 <View style={styles.inputGroup}>
                     <Text style={styles.label}>Bio</Text>
@@ -46,11 +53,29 @@ const ProfileForm = () => {
                 <View style={styles.inputGroup}>
                     <Text style={styles.label}>Are you a pet owner?</Text>
                     <View style={styles.optionsContainer}>
-                        <TouchableOpacity style={styles.optionButton}>
-                            <Text style={styles.optionText}>yes</Text>
+                        <TouchableOpacity
+                            style={[
+                                styles.optionButton,
+                                isPetOwner === 'yes' && styles.selectedOption
+                            ]}
+                            onPress={() => setIsPetOwner('yes')}
+                        >
+                            <Text style={[
+                                styles.optionText,
+                                isPetOwner === 'yes' && styles.selectedOptionText
+                            ]}>yes</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.optionButton}>
-                            <Text style={styles.optionText}>no</Text>
+                        <TouchableOpacity
+                            style={[
+                                styles.optionButton,
+                                isPetOwner === 'no' && styles.selectedOption
+                            ]}
+                            onPress={() => setIsPetOwner('no')}
+                        >
+                            <Text style={[
+                                styles.optionText,
+                                isPetOwner === 'no' && styles.selectedOptionText
+                            ]}>no</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -59,11 +84,29 @@ const ProfileForm = () => {
                 <View style={styles.inputGroup}>
                     <Text style={styles.label}>Coffee or tea?</Text>
                     <View style={styles.optionsContainer}>
-                        <TouchableOpacity style={styles.optionButton}>
-                            <Text style={styles.optionText}>team coffee</Text>
+                        <TouchableOpacity
+                            style={[
+                                styles.optionButton,
+                                beveragePreference === 'coffee' && styles.selectedOption
+                            ]}
+                            onPress={() => setBeveragePreference('coffee')}
+                        >
+                            <Text style={[
+                                styles.optionText,
+                                beveragePreference === 'coffee' && styles.selectedOptionText
+                            ]}>team coffee</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.optionButton}>
-                            <Text style={styles.optionText}>team tea</Text>
+                        <TouchableOpacity
+                            style={[
+                                styles.optionButton,
+                                beveragePreference === 'tea' && styles.selectedOption
+                            ]}
+                            onPress={() => setBeveragePreference('tea')}
+                        >
+                            <Text style={[
+                                styles.optionText,
+                                beveragePreference === 'tea' && styles.selectedOptionText
+                            ]}>team tea</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -72,11 +115,29 @@ const ProfileForm = () => {
                 <View style={styles.inputGroup}>
                     <Text style={styles.label}>Are you 18 or over?</Text>
                     <View style={styles.optionsContainer}>
-                        <TouchableOpacity style={styles.optionButton}>
-                            <Text style={styles.optionText}>yes</Text>
+                        <TouchableOpacity
+                            style={[
+                                styles.optionButton,
+                                isAdult === 'yes' && styles.selectedOption
+                            ]}
+                            onPress={() => setIsAdult('yes')}
+                        >
+                            <Text style={[
+                                styles.optionText,
+                                isAdult === 'yes' && styles.selectedOptionText
+                            ]}>yes</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.optionButton}>
-                            <Text style={styles.optionText}>no, bye</Text>
+                        <TouchableOpacity
+                            style={[
+                                styles.optionButton,
+                                isAdult === 'no' && styles.selectedOption
+                            ]}
+                            onPress={() => setIsAdult('no')}
+                        >
+                            <Text style={[
+                                styles.optionText,
+                                isAdult === 'no' && styles.selectedOptionText
+                            ]}>no, bye</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -98,13 +159,6 @@ const styles = StyleSheet.create({
         padding: 16,
         backgroundColor: 'white'
     },
-    img: {
-
-        height: '100px',
-        width: '100px',
-
-
-    },
     title: {
         fontSize: 24,
         color: '003049',
@@ -118,24 +172,6 @@ const styles = StyleSheet.create({
         padding: 16,
         borderWidth: 1,
         borderColor: '#E0E0E0',
-    },
-    imageContainer: {
-        alignItems: 'center',
-        marginBottom: 24,
-    },
-    imagePlaceholder: {
-        width: 120,
-        height: 120,
-        borderRadius: 60,
-        backgroundColor: '#BDFFC2',
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderWidth: 1,
-        borderColor: '#88C28D',
-    },
-    addImageIcon: {
-        fontSize: 32,
-        color: '#333',
     },
     addPictureText: {
         marginTop: 8,
@@ -182,6 +218,14 @@ const styles = StyleSheet.create({
     },
     optionText: {
         fontSize: 16,
+    },
+    selectedOption: {
+        backgroundColor: '#669BBC',
+        borderColor: '#003049',
+    },
+    selectedOptionText: {
+        color: 'white',
+        fontWeight: 'bold',
     },
     safeButton: {
         backgroundColor: '#003049',

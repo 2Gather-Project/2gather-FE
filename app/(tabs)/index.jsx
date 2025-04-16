@@ -1,6 +1,7 @@
 
 import { StyleSheet, Text, View, FlatList, TouchableOpacity } from 'react-native';
-import { Link } from 'expo-router';
+import { Link, useNavigation } from 'expo-router';
+import React, { useState } from 'react';
 
 
 const dummyEvents = [
@@ -18,7 +19,30 @@ const EventItem = ({ title, date, location }) => (
 );
 
 
+
+
 export default function Home() {
+
+  const navigation = useNavigation();
+
+
+  const [upComingEvent, setUpcomingEvent] = useState([]);
+  const [isError, setIsError] = useState();
+  const [isLoading, setIsLoading] = useState(true);
+
+  // React.useEffect(() => {
+  //   const fetchEvents = async () => {
+  //     try {
+  //       // const res = await GET endpoint
+  //       // setUpcomingEvent(res)
+  //     } catch (error) {
+  //       setIsError(error)
+  //     } finally {
+  //       setIsLoading(false)
+  //     }
+  //   } 
+  //   fetchEvents()
+  // }, [])
 
   return (
 
@@ -27,7 +51,6 @@ export default function Home() {
         <Text style={styles.title}>Welcome to 2Gather!</Text>
         <Text>Find events near you</Text>
       </View>
-
 
       <View style={styles.featuredSection}>
         <View style={styles.sectionHeader}>
@@ -48,7 +71,27 @@ export default function Home() {
 
         />
       </View>
+
+      <View style={styles.featuredSection}>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Upcoming Events</Text>
+        </View>
+
+        <FlatList
+          data={dummyEvents}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <EventItem
+              title={item.title}
+              date={item.date}
+              location={item.location}
+            />
+          )}
+
+        />
+      </View>
     </View>
+
   );
 }
 
