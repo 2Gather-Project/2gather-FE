@@ -1,121 +1,137 @@
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity, SafeAreaView } from 'react-native';
+import { Stack, useRouter } from 'expo-router';
 import { useState } from 'react';
-import {
-    View,
-    StyleSheet,
-    TouchableOpacity,
-    FlatList
-} from 'react-native';
-import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-
 import HostedEventCard from './components/HostedEventCard';
 
 export default function HostedEvents() {
-    const router = useRouter();
+  const router = useRouter();
+  const [events, setEvents] = useState([
+    {
+      id: '1',
+      title: 'Coffee and gossip',
+      date: 'tue, apr 8',
+      time: '6:30 PM',
+      location: 'Starbucks, City Center',
+      attendees: 5,
+      status: 'upcoming',
+      requests: [
+        { id: '1', user: 'John Doe', status: 'pending' },
+        { id: '2', user: 'Jane Smith', status: 'accepted' }
+      ]
+    },
+    {
+      id: '2',
+      title: 'Book Club Meeting',
+      date: 'wed, apr 9',
+      time: '7:00 PM',
+      location: 'City Library',
+      attendees: 8,
+      status: 'upcoming',
+      requests: [
+        { id: '3', user: 'Alice Johnson', status: 'pending' }
+      ]
+    }
+  ]);
 
-    // Dummy data, would need to be replaced
-    const [hostedEvents, setHostedEvents] = useState([
-        {
-            creator_id: 1,
-            title: 'Come and visit the Natural History Museum with me!',
-            description: 'Visit the museum and chat about history and life.',
-            location: 'London',
-            time: '13:00:00',
-            created_at: '2025-04-14',
-            requests: [
-                { id: '101', name: 'George', status: 'pending' },
-                { id: '102', name: 'Sarah', status: 'accepted' }
-            ]
-        },
-        {
-            creator_id: 2,
-            title: 'Science Museum?',
-            description: 'Visit the museum and chat about science.',
-            location: 'London',
-            time: '13:00:00',
-            created_at: '2025-04-14',
-            requests: [
-                { id: '103', name: 'Mike', status: 'pending' },
-                { id: '104', name: 'Emma', status: 'pending' }
-            ]
-        },
-        {
-            creator_id: 3,
-            title: 'Cinema maybe?',
-            description: 'The new Batman movie looks interesting...',
-            location: 'London',
-            time: '13:00:00',
-            created_at: '2025-04-14',
-            requests: []
-        }
-    ]);
-
-    const Header = () => (
-        <View style={styles.header}>
-            <TouchableOpacity onPress={() => router.push('(tabs)')}>
-                <Ionicons name="home" size={30} color="#003049" />
+  return (
+    <SafeAreaView style={styles.container}>
+      <Stack.Screen
+        options={{
+          title: 'Hosted Events',
+          headerStyle: {
+            backgroundColor: '#669BBC',
+          },
+          headerTintColor: 'white',
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => router.back()}
+              style={styles.backButton}
+            >
+              <Ionicons name="arrow-back" size={24} color="white" />
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => router.push('/profile')}>
-                <Ionicons name="person-circle-outline" size={36} color="#003049" />
+          ),
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={() => router.push('/create-event')}
+              style={styles.createButton}
+            >
+              <Ionicons name="add" size={24} color="white" />
             </TouchableOpacity>
+          ),
+        }}
+      />
+
+      <ScrollView style={styles.scrollView}>
+        <View style={styles.content}>
+          {events.length === 0 ? (
+            <View style={styles.emptyState}>
+              <Ionicons name="calendar-outline" size={48} color="#666" />
+              <Text style={styles.emptyText}>No hosted events yet</Text>
+              <TouchableOpacity
+                style={styles.createEventButton}
+                onPress={() => router.push('/create-event')}
+              >
+                <Text style={styles.createEventText}>Create an Event</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            events.map((event) => (
+              <TouchableOpacity
+                key={event.id}
+                onPress={() => router.push(`/event/${event.id}`)}
+                activeOpacity={0.7}
+              >
+                <HostedEventCard event={event} />
+              </TouchableOpacity>
+            ))
+          )}
         </View>
-
-    );
-
-    return (
-        <View style={styles.container}>
-            <Header />
-
-            <FlatList
-                style={{ width: '100%' }}
-                data={hostedEvents}
-                renderItem={({ item }) => (
-
-                    <HostedEventCard style={styles.eventItem}
-                        title={item.title}
-                        location={item.location}
-                        time={item.time}
-                        id={item.creator_id}
-                    />
-                )}
-                keyExtractor={(item) => item.creator_id}
-            />
-
-        </View>
-    );
-
-
+      </ScrollView>
+    </SafeAreaView>
+  );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-    },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: 10,
-        borderBottomWidth: 1,
-        borderBottomColor: '#eee',
-    },
-    headerButtons: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    titleContainer: {
-        backgroundColor: '#669BBC',
-        padding: 15,
-        alignItems: 'center',
-        margin: 10,
-        borderRadius: 5,
-    },
-    title: {
-        fontWeight: 'bold',
-        fontSize: 18,
-    },
-    eventsList: {
-        padding: 10,
-    }
+  container: {
+    flex: 1,
+    backgroundColor: '#EFF2F5',
+  },
+  scrollView: {
+    flex: 1,
+  },
+  content: {
+    padding: 16,
+  },
+  backButton: {
+    marginLeft: 8,
+    padding: 8,
+  },
+  createButton: {
+    marginRight: 8,
+    padding: 8,
+  },
+  emptyState: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 40,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#666',
+    marginTop: 12,
+    marginBottom: 20,
+  },
+  createEventButton: {
+    backgroundColor: '#669BBC',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  createEventText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+  },
 });
