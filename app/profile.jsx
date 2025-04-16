@@ -25,6 +25,9 @@ export default function Profile() {
     beveragePreference: 'coffee',
     skills: '',
     languages: '',
+    name: '',
+    username: '',
+    memberSince: '',
   });
 
   const handleToggleEdit = () => {
@@ -161,28 +164,12 @@ export default function Profile() {
                 </View>
               )}
             </TouchableOpacity>
-            <Text style={styles.profileName}>Jane Doe</Text>
-            <Text style={styles.profileTagline}>@janedoe • Member since 2023</Text>
+            <Text style={styles.profileName}>{profile.name || "Username"}</Text>
+            <Text style={styles.profileTagline}>@{profile.username || "user"} • Member since {profile.memberSince || "2023"}</Text>
           </View>
         </View>
         
-        {/* Stats Section */}
-        <View style={styles.statsContainer}>
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>12</Text>
-            <Text style={styles.statLabel}>Events</Text>
-          </View>
-          <View style={styles.statDivider} />
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>5</Text>
-            <Text style={styles.statLabel}>Groups</Text>
-          </View>
-          <View style={styles.statDivider} />
-          <View style={styles.statItem}>
-            <Text style={styles.statValue}>34</Text>
-            <Text style={styles.statLabel}>Friends</Text>
-          </View>
-        </View>
+        {/* Stats Section - REMOVED */}
 
         <View style={styles.profileContainer}>
           <View style={styles.card}>
