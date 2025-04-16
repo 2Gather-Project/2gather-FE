@@ -1,76 +1,87 @@
-import { useNavigation } from 'expo-router';
-import { Text, View, StyleSheet, TouchableOpacity } from 'react-native';
-import { AntDesign } from '@expo/vector-icons';
+import { StyleSheet, View, Text } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
-export default function HostedEventCard({ title, location, time, id }) {
-  const navigation = useNavigation();
+export default function HostedEventCard({ event }) {
   return (
-    <>
-      <View style={[styles.container, styles.eventItem]}>
-        <View>
-          <AntDesign name="picture" color="#333" size={45} style={{ marginRight: 20 }} />
-        </View>
-        <View style={styles.text}>
-          <TouchableOpacity
-            onPress={() =>
-              navigation.navigate('HostedEventPage', {
-                event_id: id,
-              })
-            }>
-            <Text style={styles.title}>{title}</Text>
-
-          </TouchableOpacity>
-          <Text>{time}</Text>
-          <Text>{location}</Text>
+    <View style={styles.card}>
+      <View style={styles.header}>
+        <Text style={styles.title}>{event.title}</Text>
+        <View style={styles.badge}>
+          <Text style={styles.badgeText}>
+            {event.requests.filter(r => r.status === 'pending').length} pending
+          </Text>
         </View>
       </View>
-    </>
+
+      <View style={styles.details}>
+        <View style={styles.detailRow}>
+          <Ionicons name="calendar-outline" size={16} color="#666" />
+          <Text style={styles.detailText}>{event.date} - {event.time}</Text>
+        </View>
+        
+        <View style={styles.detailRow}>
+          <Ionicons name="location-outline" size={16} color="#666" />
+          <Text style={styles.detailText}>{event.location}</Text>
+        </View>
+
+        <View style={styles.detailRow}>
+          <Ionicons name="people-outline" size={16} color="#666" />
+          <Text style={styles.detailText}>{event.attendees} attendees</Text>
+        </View>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    borderTopColor: '003049',
-    borderTopStyle: 'solid',
-    borderTopWidth: 2,
+  card: {
+    backgroundColor: 'white',
+    borderRadius: 12,
     padding: 16,
-    marginTop: 10,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
   },
-  tinyLogo: {
-    width: 80,
-    height: 80,
-    margin: 10,
-  },
-  logo: {
-    width: 66,
-    height: 58,
-  },
-  text: {
-    flexWrap: 'wrap',
-    flex: 2,
-    flexDirection: 'column',
-    flexWrap: 'wrap',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'left',
-    overflow: 'visible',
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
   },
   title: {
-    flexDirection: 'column',
-    flexWrap: 'wrap',
-    fontWeight: 'bold',
-    fontSize: 16,
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#003049',
+    flex: 1,
   },
-  eventItem: {
-    padding: 16,
-    marginBottom: 16,
-    backgroundColor: '#c5eaed',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#eee',
-    color: '#e91e63',
-  }
+  badge: {
+    backgroundColor: '#FFA07A',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginLeft: 8,
+  },
+  badgeText: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  details: {
+    gap: 8,
+  },
+  detailRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  detailText: {
+    color: '#666',
+    fontSize: 14,
+  },
 });
