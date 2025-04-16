@@ -1,11 +1,17 @@
-import { StyleSheet, View, TextInput, Text, TouchableOpacity, ScrollView } from 'react-native';
-import { Stack, useRouter } from 'expo-router';
-import { useState } from 'react';
-import { Ionicons } from '@expo/vector-icons';
+import { StyleSheet, View, TextInput, Text, TouchableOpacity, ScrollView, SafeAreaView, StatusBar, Image, Dimensions, Animated } from 'react-native';
+import { useRouter } from 'expo-router';
+import { useState, useRef, useEffect } from 'react';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+
+const { width } = Dimensions.get('window');
 
 export default function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   const router = useRouter();
+  const editButtonScale = useRef(new Animated.Value(1)).current;
+  const editIconRotate = useRef(new Animated.Value(0)).current;
+  const closeButtonScale = useRef(new Animated.Value(1)).current;
+  const closeIconRotate = useRef(new Animated.Value(0)).current;
   const [profile, setProfile] = useState({
     bio: '',
     interests: '',
@@ -16,55 +22,174 @@ export default function Profile() {
     usingAppFor: '',
     jobTitle: '',
     petOwner: 'no',
-    beveragePreference: 'coffee'
+    beveragePreference: 'coffee',
+    skills: '',
+    languages: '',
   });
+
+  const handleToggleEdit = () => {
+    // Animation for button press
+    Animated.sequence([
+      Animated.timing(editButtonScale, {
+        toValue: 0.8,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(editButtonScale, {
+        toValue: 1,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    // Animation for icon rotation
+    Animated.timing(editIconRotate, {
+      toValue: isEditing ? 0 : 1,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+
+    // Toggle edit mode
+    setIsEditing(!isEditing);
+  };
+
+  const iconRotation = editIconRotate.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
+
+  const handleSave = () => {
+    // Add save logic here
+    setIsEditing(false);
+    // Reset icon rotation
+    Animated.timing(editIconRotate, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+    // You could add a toast or notification: "Profile saved!"
+  };
 
   const handleLogout = () => {
     // Add logout logic here
     router.replace('/');
   };
 
+  const handleBackToMenu = () => {
+    // Animation for button press
+    Animated.sequence([
+      Animated.timing(closeButtonScale, {
+        toValue: 0.8,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(closeButtonScale, {
+        toValue: 1,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    // Animation for icon rotation
+    Animated.timing(closeIconRotate, {
+      toValue: 1,
+      duration: 300,
+      useNativeDriver: true,
+    }).start(() => {
+      router.push('/(tabs)');
+    });
+  };
+
+  const closeIconRotation = closeIconRotate.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '90deg'],
+  });
+
   return (
-    <View style={styles.container}>
-      <Stack.Screen 
-        options={{
-          title: 'Profile',
-          headerStyle: {
-            backgroundColor: 'white',
-          },
-          headerTintColor: '#003049',
-          headerRight: () => (
-            <TouchableOpacity onPress={() => setIsEditing(!isEditing)}>
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="light-content" />
+      
+      <View style={styles.header}>
+        <Animated.View style={{ transform: [{ scale: closeButtonScale }] }}>
+          <TouchableOpacity 
+            onPress={handleBackToMenu}
+            style={styles.closeButton}
+            activeOpacity={0.7}
+          >
+            <Animated.View style={{ transform: [{ rotate: closeIconRotation }] }}>
+              <Ionicons name="close" size={22} color="white" />
+            </Animated.View>
+            <Text style={styles.buttonText}>Back</Text>
+          </TouchableOpacity>
+        </Animated.View>
+        
+        <Animated.View style={{ transform: [{ scale: editButtonScale }] }}>
+          <TouchableOpacity 
+            onPress={isEditing ? handleSave : handleToggleEdit}
+            style={[styles.editButton, isEditing && styles.saveEditButton]}
+            activeOpacity={0.7}
+          >
+            <Animated.View style={{ transform: [{ rotate: iconRotation }] }}>
               <Ionicons 
                 name={isEditing ? "checkmark-outline" : "pencil-outline"} 
-                size={24} 
-                color="#669BBC" 
+                size={22} 
+                color="white" 
               />
-            </TouchableOpacity>
-          ),
-        }}
-      />
-
-      <ScrollView style={styles.scrollView}>
-        <View style={styles.profileContainer}>
-          <TouchableOpacity 
-            style={styles.floatingEditButton}
-            onPress={() => setIsEditing(!isEditing)}
-          >
-            <Ionicons 
-              name={isEditing ? "checkmark-outline" : "pencil-outline"} 
-              size={24} 
-              color="white" 
-            />
+            </Animated.View>
+            <Text style={styles.buttonText}>
+              {isEditing ? "Save" : "Edit"}
+            </Text>
           </TouchableOpacity>
+        </Animated.View>
+      </View>
 
-          <View style={styles.card}>
-            <TouchableOpacity style={styles.imageContainer}>
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+        {/* Cover Photo Section */}
+        <View style={styles.coverPhotoContainer}>
+          <View style={styles.coverPhoto} />
+          <View style={styles.profileImageWrapper}>
+            <TouchableOpacity 
+              style={styles.imageContainer}
+              disabled={!isEditing}
+            >
               <View style={styles.profileImage}>
-                <Ionicons name="add" size={40} color="white" />
+                <Ionicons name={isEditing ? "add" : "person"} size={40} color="white" />
               </View>
-              <Text style={styles.addPictureText}>Add picture</Text>
+              {isEditing && (
+                <View style={styles.editImageBadge}>
+                  <Ionicons name="camera" size={14} color="white" />
+                </View>
+              )}
             </TouchableOpacity>
+            <Text style={styles.profileName}>Jane Doe</Text>
+            <Text style={styles.profileTagline}>@janedoe • Member since 2023</Text>
+          </View>
+        </View>
+        
+        {/* Stats Section */}
+        <View style={styles.statsContainer}>
+          <View style={styles.statItem}>
+            <Text style={styles.statValue}>12</Text>
+            <Text style={styles.statLabel}>Events</Text>
+          </View>
+          <View style={styles.statDivider} />
+          <View style={styles.statItem}>
+            <Text style={styles.statValue}>5</Text>
+            <Text style={styles.statLabel}>Groups</Text>
+          </View>
+          <View style={styles.statDivider} />
+          <View style={styles.statItem}>
+            <Text style={styles.statValue}>34</Text>
+            <Text style={styles.statLabel}>Friends</Text>
+          </View>
+        </View>
+
+        <View style={styles.profileContainer}>
+          <View style={styles.card}>
+            <View style={styles.sectionHeader}>
+              <Ionicons name="person-circle-outline" size={22} color="#003049" />
+              <Text style={styles.sectionTitle}>About Me</Text>
+            </View>
 
             <View style={styles.formContainer}>
               <View style={styles.inputGroup}>
@@ -73,24 +198,25 @@ export default function Profile() {
                   <Text style={styles.label}>Bio</Text>
                 </View>
                 <TextInput
-                  style={styles.bioInput}
+                  style={[styles.bioInput, !isEditing && styles.inactiveInput]}
                   multiline
                   editable={isEditing}
                   value={profile.bio}
                   onChangeText={(text) => setProfile({...profile, bio: text})}
                   placeholder="Write something about yourself..."
                   placeholderTextColor="#AAAAAA"
+                  focusable={isEditing}
                 />
               </View>
 
               {[
-                { label: 'Interests', key: 'interests', icon: 'heart-outline' },
-                { label: 'Gender', key: 'gender', icon: 'person-outline' },
-                { label: 'Location', key: 'location', icon: 'location-outline' },
-                { label: 'Personality', key: 'personality', icon: 'sparkles-outline' },
-                { label: 'Favourite food', key: 'favoriteFood', icon: 'restaurant-outline' },
-                { label: "I'm using this app for...", key: 'usingAppFor', icon: 'help-circle-outline' },
-                { label: 'Job Title', key: 'jobTitle', icon: 'briefcase-outline' },
+                { label: 'Interests', key: 'interests', icon: 'heart-outline', placeholder: 'Music, hiking, cooking...' },
+                { label: 'Gender', key: 'gender', icon: 'person-outline', placeholder: 'Male, Female, Non-binary...' },
+                { label: 'Location', key: 'location', icon: 'location-outline', placeholder: 'City, Country' },
+                { label: 'Personality', key: 'personality', icon: 'sparkles-outline', placeholder: 'Outgoing, Introvert, Creative...' },
+                { label: 'Favourite food', key: 'favoriteFood', icon: 'restaurant-outline', placeholder: 'Italian, Sushi, Burgers...' },
+                { label: "I'm using this app for...", key: 'usingAppFor', icon: 'help-circle-outline', placeholder: 'Meeting new people, finding events...' },
+                { label: 'Job Title', key: 'jobTitle', icon: 'briefcase-outline', placeholder: 'Software Engineer, Designer...' },
               ].map((field) => (
                 <View key={field.key} style={styles.inputGroup}>
                   <View style={styles.labelContainer}>
@@ -98,14 +224,48 @@ export default function Profile() {
                     <Text style={styles.label}>{field.label}</Text>
                   </View>
                   <TextInput
-                    style={styles.input}
+                    style={[styles.input, !isEditing && styles.inactiveInput]}
                     editable={isEditing}
                     value={profile[field.key]}
                     onChangeText={(text) => setProfile({...profile, [field.key]: text})}
+                    placeholder={field.placeholder}
                     placeholderTextColor="#AAAAAA"
+                    focusable={isEditing}
                   />
                 </View>
               ))}
+              
+              {/* Skills & Languages Section */}
+              <View style={styles.sectionHeader}>
+                <Ionicons name="bulb-outline" size={22} color="#003049" />
+                <Text style={styles.sectionTitle}>Skills & Languages</Text>
+              </View>
+              
+              {[
+                { label: 'Skills', key: 'skills', icon: 'star-outline', placeholder: 'Photography, Cooking, Public Speaking...' },
+                { label: 'Languages', key: 'languages', icon: 'chatbubble-outline', placeholder: 'English, Spanish, French...' },
+              ].map((field) => (
+                <View key={field.key} style={styles.inputGroup}>
+                  <View style={styles.labelContainer}>
+                    <Ionicons name={field.icon} size={18} color="#C1121F" style={styles.fieldIcon} />
+                    <Text style={styles.label}>{field.label}</Text>
+                  </View>
+                  <TextInput
+                    style={[styles.input, !isEditing && styles.inactiveInput]}
+                    editable={isEditing}
+                    value={profile[field.key]}
+                    onChangeText={(text) => setProfile({...profile, [field.key]: text})}
+                    placeholder={field.placeholder}
+                    placeholderTextColor="#AAAAAA"
+                    focusable={isEditing}
+                  />
+                </View>
+              ))}
+
+              <View style={styles.sectionHeader}>
+                <Ionicons name="options-outline" size={22} color="#003049" />
+                <Text style={styles.sectionTitle}>Preferences</Text>
+              </View>
 
               <View style={styles.inputGroup}>
                 <View style={styles.labelContainer}>
@@ -116,7 +276,8 @@ export default function Profile() {
                   <TouchableOpacity 
                     style={[
                       styles.toggleButton,
-                      profile.petOwner === 'yes' && styles.toggleButtonActive
+                      profile.petOwner === 'yes' && styles.toggleButtonActive,
+                      !isEditing && styles.inactiveToggle
                     ]}
                     onPress={() => isEditing && setProfile({...profile, petOwner: 'yes'})}
                   >
@@ -125,7 +286,8 @@ export default function Profile() {
                   <TouchableOpacity 
                     style={[
                       styles.toggleButton,
-                      profile.petOwner === 'no' && styles.toggleButtonActive
+                      profile.petOwner === 'no' && styles.toggleButtonActive,
+                      !isEditing && styles.inactiveToggle
                     ]}
                     onPress={() => isEditing && setProfile({...profile, petOwner: 'no'})}
                   >
@@ -143,7 +305,8 @@ export default function Profile() {
                   <TouchableOpacity 
                     style={[
                       styles.toggleButton,
-                      profile.beveragePreference === 'coffee' && styles.toggleButtonActive
+                      profile.beveragePreference === 'coffee' && styles.toggleButtonActive,
+                      !isEditing && styles.inactiveToggle
                     ]}
                     onPress={() => isEditing && setProfile({...profile, beveragePreference: 'coffee'})}
                   >
@@ -152,7 +315,8 @@ export default function Profile() {
                   <TouchableOpacity 
                     style={[
                       styles.toggleButton,
-                      profile.beveragePreference === 'tea' && styles.toggleButtonActive
+                      profile.beveragePreference === 'tea' && styles.toggleButtonActive,
+                      !isEditing && styles.inactiveToggle
                     ]}
                     onPress={() => isEditing && setProfile({...profile, beveragePreference: 'tea'})}
                   >
@@ -169,57 +333,76 @@ export default function Profile() {
           </TouchableOpacity>
         </View>
       </ScrollView>
-    </View>
+      
+      {isEditing && (
+        <TouchableOpacity 
+          style={styles.saveButton} 
+          onPress={handleSave}
+        >
+          <Ionicons name="save-outline" size={22} color="white" />
+          <Text style={styles.saveButtonText}>Save Changes</Text>
+        </TouchableOpacity>
+      )}
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: '#EFF2F5',
+  },
+  header: {
+    backgroundColor: '#669BBC',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    width: '100%',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+  },
+  headerTitle: {
+    color: 'white',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  backButton: {
+    padding: 8,
+  },
+  headerButton: {
+    padding: 8,
   },
   scrollView: {
     flex: 1,
   },
-  profileContainer: {
-    flex: 1,
-    padding: 20,
-    alignItems: 'center',
+  scrollContent: {
+    paddingBottom: 20,
   },
-  floatingEditButton: {
+  coverPhotoContainer: {
+    position: 'relative',
+    height: 180,
+    marginBottom: 80,
+  },
+  coverPhoto: {
+    height: 140,
+    width: '100%',
+    backgroundColor: '#669BBC',
+    overflow: 'hidden',
+  },
+  profileImageWrapper: {
     position: 'absolute',
-    top: 10,
-    right: 30,
-    backgroundColor: '#C1121F',
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    justifyContent: 'center',
+    bottom: -60,
     alignItems: 'center',
-    elevation: 8,
-    zIndex: 100,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 3,
-  },
-  card: {
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 20,
-    width: '90%',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: '#EEEEEE',
+    width: '100%',
   },
   imageContainer: {
     alignItems: 'center',
-    marginBottom: 20,
+    position: 'relative',
   },
   profileImage: {
     width: 120,
@@ -228,23 +411,109 @@ const styles = StyleSheet.create({
     backgroundColor: '#669BBC',
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 3,
-    borderColor: '#FDF0D5',
+    borderWidth: 4,
+    borderColor: 'white',
   },
-  addPictureText: {
+  editImageBadge: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    backgroundColor: '#C1121F',
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: 'white',
+  },
+  profileName: {
+    fontSize: 22,
+    fontWeight: 'bold',
     color: '#003049',
     marginTop: 8,
+  },
+  profileTagline: {
+    fontSize: 14,
+    color: '#666666',
+    marginTop: 2,
+  },
+  statsContainer: {
+    backgroundColor: 'white',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingVertical: 16,
+    marginBottom: 16,
+    borderRadius: 8,
+    marginHorizontal: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  statItem: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  statValue: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#003049',
+  },
+  statLabel: {
+    fontSize: 14,
+    color: '#666666',
+    marginTop: 4,
+  },
+  statDivider: {
+    width: 1,
+    backgroundColor: '#EEEEEE',
+  },
+  profileContainer: {
+    flex: 1,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+  },
+  card: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 20,
+    width: '100%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#EEEEEE',
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+    marginTop: 8,
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#EEEEEE',
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#003049',
+    marginLeft: 8,
   },
   formContainer: {
     width: '100%',
   },
   inputGroup: {
-    marginBottom: 15,
+    marginBottom: 18,
   },
   labelContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 5,
+    marginBottom: 6,
   },
   fieldIcon: {
     marginRight: 8,
@@ -252,24 +521,33 @@ const styles = StyleSheet.create({
   label: {
     color: '#003049',
     fontSize: 16,
+    fontWeight: '500',
   },
   input: {
     backgroundColor: 'white',
-    borderRadius: 5,
+    borderRadius: 8,
     padding: 12,
     color: '#333333',
     borderWidth: 1,
     borderColor: '#DDDDDD',
+    fontSize: 15,
+  },
+  inactiveInput: {
+    backgroundColor: '#F8F8F8',
+    color: '#555555',
+    outlineStyle: 'none',
   },
   bioInput: {
     backgroundColor: 'white',
-    borderRadius: 5,
+    borderRadius: 8,
     padding: 12,
     color: '#333333',
     borderWidth: 1,
     borderColor: '#DDDDDD',
     height: 100,
     textAlignVertical: 'top',
+    fontSize: 15,
+    outlineStyle: 'none',
   },
   toggleContainer: {
     flexDirection: 'row',
@@ -279,7 +557,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'white',
     padding: 12,
-    borderRadius: 5,
+    borderRadius: 8,
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#DDDDDD',
@@ -288,11 +566,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#669BBC',
     borderColor: '#669BBC',
   },
+  inactiveToggle: {
+    opacity: 0.8,
+    pointerEvents: 'none',
+  },
   toggleText: {
     color: '#333333',
+    fontSize: 15,
   },
   toggleTextActive: {
     color: 'white',
+    fontSize: 15,
+    fontWeight: '500',
   },
   errorText: {
     color: '#C1121F',
@@ -303,14 +588,72 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 15,
-    borderRadius: 5,
-    width: '90%',
+    borderRadius: 8,
+    width: '100%',
     marginTop: 10,
-    marginBottom: 20,
   },
   logoutText: {
     color: 'white',
     marginLeft: 8,
     fontWeight: 'bold',
+    fontSize: 16,
+  },
+  saveButton: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    backgroundColor: '#C1121F',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 25,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+  },
+  saveButtonText: {
+    color: 'white',
+    marginLeft: 8,
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  editButton: {
+    backgroundColor: '#003049',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.5,
+    elevation: 2,
+  },
+  saveEditButton: {
+    backgroundColor: '#C1121F',
+  },
+  buttonText: {
+    color: 'white',
+    fontWeight: '600',
+    fontSize: 15,
+    marginLeft: 6,
+  },
+  closeButton: {
+    backgroundColor: '#780000',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.5,
+    elevation: 2,
   },
 });
