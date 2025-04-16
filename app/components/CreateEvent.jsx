@@ -8,11 +8,9 @@ import {
     ScrollView,
     SafeAreaView,
     Platform,
-
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
-
 import { AntDesign } from '@expo/vector-icons';
 
 export default function CreateEvent() {
@@ -29,22 +27,31 @@ export default function CreateEvent() {
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [showTimePicker, setShowTimePicker] = useState(false);
 
-
-
     // Formatted date and time for display
     const formattedDate = date.toLocaleDateString();
-    const formattedTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    const formattedTime = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
     const onDateChange = (event, selectedDate) => {
-        const currentDate = selectedDate || date;
-        setShowDatePicker(Platform.OS === 'ios');
-        setDate(currentDate);
+
+        if (selectedDate) {
+            setDate(selectedDate);
+        }
+
+        if (Platform.OS === 'android') {
+            setShowDatePicker(false);
+        }
     };
 
     const onTimeChange = (event, selectedTime) => {
-        const currentTime = selectedTime || time;
-        setShowTimePicker(Platform.OS === 'ios');
-        setTime(currentTime);
+
+        if (selectedTime) {
+            setTime(selectedTime);
+        }
+
+        if (Platform.OS === 'android') {
+            setShowTimePicker(false);
+        }
     };
 
     const tags = [
@@ -80,7 +87,6 @@ export default function CreateEvent() {
 
     const handlePost = () => {
         // API request will be here 
-
         // Navigates back to where the user came from, in this case back home 
         router.back();
     };
@@ -88,13 +94,10 @@ export default function CreateEvent() {
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
-
                 <Text style={styles.pageTitle}>Create your new event</Text>
             </View>
 
             <ScrollView style={styles.form}>
-
-
                 <TouchableOpacity style={{ flexDirection: 'column', alignItems: 'center' }}>
                     <AntDesign name="picture" color="#333" size={45} />
                     <Text style={styles.addPictureText}>Add event picture</Text>
@@ -114,13 +117,29 @@ export default function CreateEvent() {
                 >
                     <Text>{formattedDate}</Text>
                 </TouchableOpacity>
+
+
                 {showDatePicker && (
-                    <DateTimePicker
-                        value={date}
-                        mode="date"
-                        display="default"
-                        onChange={onDateChange}
-                    />
+                    <View>
+                        <DateTimePicker
+                            value={date}
+                            mode="date"
+                            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                            onChange={onDateChange}
+
+                            {...(Platform.OS === 'ios' && {
+                                style: { width: '100%', backgroundColor: 'white' }
+                            })}
+                        />
+                        {Platform.OS === 'ios' && (
+                            <TouchableOpacity
+                                style={styles.confirmButton}
+                                onPress={() => setShowDatePicker(false)}
+                            >
+                                <Text style={styles.confirmButtonText}>Confirm</Text>
+                            </TouchableOpacity>
+                        )}
+                    </View>
                 )}
 
                 <Text style={styles.label}>Time</Text>
@@ -130,15 +149,30 @@ export default function CreateEvent() {
                 >
                     <Text>{formattedTime}</Text>
                 </TouchableOpacity>
-                {showTimePicker && (
-                    <DateTimePicker
-                        value={time}
-                        mode="time"
-                        display="default"
-                        onChange={onTimeChange}
-                    />
-                )}
 
+
+                {showTimePicker && (
+                    <View>
+                        <DateTimePicker
+                            value={time}
+                            mode="time"
+                            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                            onChange={onTimeChange}
+
+                            {...(Platform.OS === 'ios' && {
+                                style: { width: '100%', backgroundColor: 'white' }
+                            })}
+                        />
+                        {Platform.OS === 'ios' && (
+                            <TouchableOpacity
+                                style={styles.confirmButton}
+                                onPress={() => setShowTimePicker(false)}
+                            >
+                                <Text style={styles.confirmButtonText}>Confirm</Text>
+                            </TouchableOpacity>
+                        )}
+                    </View>
+                )}
 
                 <Text style={styles.label}>Location</Text>
                 <TextInput
@@ -203,6 +237,18 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#fff',
     },
+    confirmButton: {
+        backgroundColor: '#003049',
+        borderRadius: 5,
+        padding: 10,
+        marginTop: 5,
+        marginBottom: 15,
+        alignItems: 'center',
+    },
+    confirmButtonText: {
+        color: 'white',
+        fontWeight: '500',
+    },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -211,20 +257,6 @@ const styles = StyleSheet.create({
         borderBottomColor: '#eee',
         justifyContent: 'center',
         width: '100%'
-    },
-    logoContainer: {
-        width: 60,
-        height: 60,
-        backgroundColor: '#3D1F14',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginRight: 15,
-    },
-    logo: {
-        color: '#F6C28B',
-        fontWeight: 'bold',
-        fontSize: 12,
-        textAlign: 'center',
     },
     pageTitle: {
         fontSize: 24,
@@ -305,6 +337,5 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#333',
         alignContent: 'center',
-
     },
 });
