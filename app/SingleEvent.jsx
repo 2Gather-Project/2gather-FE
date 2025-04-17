@@ -20,18 +20,20 @@ export default function SingleEvent () {
   };
 
   const navigation = useNavigation();
-  const route = useRoute();
   const [isError, setIsError] = useState();
   const [isLoading, setIsLoading] = useState(true);
-  const { event_id } = route.params;
+
+  const route = useRoute();
+  // const { event_id } = route.params;
+
   const formattedTime = new Date(`1970-01-01T${event.time}`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
   //   const [event, setEvent] = useState({});
 
-  //   React.useEffect(() => {
+  //useEffect(() => {
   //     const fetchSingleEvent = async () => {
   //       try {
-  //         const res = await getSingleEvent(event_id);
+  //         const res = await getEventById(event_id);
   //         setEvent(res);
   //       } catch (error) {
   //         setIsError(error);

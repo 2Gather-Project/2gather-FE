@@ -1,7 +1,6 @@
 import { Button, Modal, StyleSheet, Text, TouchableOpacity } from "react-native"
 import { View } from "react-native"
 import { ScrollView } from "react-native";
-import Picker from "react-native-picker-select";
 
 
 

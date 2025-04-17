@@ -74,11 +74,12 @@ return (
             <EventCard
               title={item.title}
               location={item.location}
+              date={item.event_date}
               time={item.time}
-              id={item.creator_id}
+              id={item.user_id}
             />
           )}
-          keyExtractor={(item) => item.creator_id}
+          keyExtractor={(item) => item.user_id}
         />
       </View>
     </>
