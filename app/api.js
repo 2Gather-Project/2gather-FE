@@ -4,6 +4,15 @@ const baseApi = axios.create({
   baseURL: 'https://twogather-backend.onrender.com/api',
 });
 
+export function postLogIn(email) {
+  return baseApi
+    .post(`/login`, { email: email })
+    .then(({ data }) => {
+      return data;
+    });
+
+}
+
 export function getUserById(id) {
   return baseApi.get(`/users/${id}`).then(({ data: { user } }) => {
     return user;
