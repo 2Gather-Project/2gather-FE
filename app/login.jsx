@@ -1,7 +1,30 @@
 import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
+import { useContext, useState } from 'react';
+import { UserContext } from './contexts/UserContext';
+import { postLogIn } from './api'
+import ErrorMessage from './components/ErrorMessage'
 
 const Login = () => {
+    const router = useRouter();
+    const [email, setEmail] = useState('')
+    const { setUser } = useContext(UserContext)
+    const [error, setError] = useState(false)
+
+    const handleLogIn = () => {
+
+        if (email.length !== 0) {
+            postLogIn(email).then((data) => {
+                setUser(data)
+                setError(false)
+                router.push('(tabs)')
+
+            }).catch((err) => {
+                setError(err)
+            })
+        }
+    }
+
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Log In</Text>
@@ -9,16 +32,29 @@ const Login = () => {
             <View style={styles.formContainer}>
                 <TextInput
                     style={styles.input}
+                    value={email}
+                    onChangeText={text => {
+                        setEmail(text)
+                        setError(false)
+                    }}
                     placeholder="Email"
                     keyboardType="email-address"
 
                 />
                 <TextInput
                     style={styles.input}
+
                     placeholder="Password"
 
                 />
-                <Link href="(tabs)" style={[styles.button, styles.buttonText]}>Log In</Link>
+                {error && <ErrorMessage error={error} />}
+                <TouchableOpacity
+                    disabled={error}
+                    style={styles.button}
+                    onPress={handleLogIn}
+                >
+                    <Text style={styles.buttonText}>Log In</Text>
+                </TouchableOpacity>
                 <Link href="(tabs)" style={[styles.button, styles.buttonText, { backgroundColor: '#669BBC', color: 'white' }]}>Google</Link>
 
             </View>
@@ -27,6 +63,7 @@ const Login = () => {
                 <Text>Don't have an account? </Text>
                 <Link href="/register" style={styles.link}>Create Account</Link>
             </View>
+
         </View>
     );
 };
@@ -80,4 +117,5 @@ const styles = StyleSheet.create({
         color: '#C1121F',
         fontWeight: 'bold',
     },
+
 });

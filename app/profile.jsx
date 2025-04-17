@@ -1,11 +1,14 @@
 import { StyleSheet, View, TextInput, Text, TouchableOpacity, ScrollView, SafeAreaView, StatusBar, Image, Dimensions, Animated } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useContext } from 'react';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { UserContext } from './contexts/UserContext';
 
 const { width } = Dimensions.get('window');
 
 export default function Profile() {
+
+  const { user, setUser } = useContext(UserContext);
   const [isEditing, setIsEditing] = useState(false);
   const router = useRouter();
   const editButtonScale = useRef(new Animated.Value(1)).current;
@@ -111,10 +114,10 @@ export default function Profile() {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" />
-      
+
       <View style={styles.header}>
         <Animated.View style={{ transform: [{ scale: closeButtonScale }] }}>
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={handleBackToMenu}
             style={styles.closeButton}
             activeOpacity={0.7}
@@ -125,18 +128,18 @@ export default function Profile() {
             <Text style={styles.buttonText}>Back</Text>
           </TouchableOpacity>
         </Animated.View>
-        
+
         <Animated.View style={{ transform: [{ scale: editButtonScale }] }}>
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={isEditing ? handleSave : handleToggleEdit}
             style={[styles.editButton, isEditing && styles.saveEditButton]}
             activeOpacity={0.7}
           >
             <Animated.View style={{ transform: [{ rotate: iconRotation }] }}>
-              <Ionicons 
-                name={isEditing ? "checkmark-outline" : "pencil-outline"} 
-                size={22} 
-                color="white" 
+              <Ionicons
+                name={isEditing ? "checkmark-outline" : "pencil-outline"}
+                size={22}
+                color="white"
               />
             </Animated.View>
             <Text style={styles.buttonText}>
@@ -151,7 +154,7 @@ export default function Profile() {
         <View style={styles.coverPhotoContainer}>
           <View style={styles.coverPhoto} />
           <View style={styles.profileImageWrapper}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.imageContainer}
               disabled={!isEditing}
             >
@@ -168,7 +171,7 @@ export default function Profile() {
             <Text style={styles.profileTagline}>@{profile.username || "user"} • Member since {profile.memberSince || "2023"}</Text>
           </View>
         </View>
-        
+
         {/* Stats Section - REMOVED */}
 
         <View style={styles.profileContainer}>
@@ -189,7 +192,7 @@ export default function Profile() {
                   multiline
                   editable={isEditing}
                   value={profile.bio}
-                  onChangeText={(text) => setProfile({...profile, bio: text})}
+                  onChangeText={(text) => setProfile({ ...profile, bio: text })}
                   placeholder="Write something about yourself..."
                   placeholderTextColor="#AAAAAA"
                   focusable={isEditing}
@@ -214,20 +217,20 @@ export default function Profile() {
                     style={[styles.input, !isEditing && styles.inactiveInput]}
                     editable={isEditing}
                     value={profile[field.key]}
-                    onChangeText={(text) => setProfile({...profile, [field.key]: text})}
+                    onChangeText={(text) => setProfile({ ...profile, [field.key]: text })}
                     placeholder={field.placeholder}
                     placeholderTextColor="#AAAAAA"
                     focusable={isEditing}
                   />
                 </View>
               ))}
-              
+
               {/* Skills & Languages Section */}
               <View style={styles.sectionHeader}>
                 <Ionicons name="bulb-outline" size={22} color="#003049" />
                 <Text style={styles.sectionTitle}>Skills & Languages</Text>
               </View>
-              
+
               {[
                 { label: 'Skills', key: 'skills', icon: 'star-outline', placeholder: 'Photography, Cooking, Public Speaking...' },
                 { label: 'Languages', key: 'languages', icon: 'chatbubble-outline', placeholder: 'English, Spanish, French...' },
@@ -241,7 +244,7 @@ export default function Profile() {
                     style={[styles.input, !isEditing && styles.inactiveInput]}
                     editable={isEditing}
                     value={profile[field.key]}
-                    onChangeText={(text) => setProfile({...profile, [field.key]: text})}
+                    onChangeText={(text) => setProfile({ ...profile, [field.key]: text })}
                     placeholder={field.placeholder}
                     placeholderTextColor="#AAAAAA"
                     focusable={isEditing}
@@ -260,23 +263,23 @@ export default function Profile() {
                   <Text style={styles.label}>Pet owner?</Text>
                 </View>
                 <View style={styles.toggleContainer}>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={[
                       styles.toggleButton,
                       profile.petOwner === 'yes' && styles.toggleButtonActive,
                       !isEditing && styles.inactiveToggle
                     ]}
-                    onPress={() => isEditing && setProfile({...profile, petOwner: 'yes'})}
+                    onPress={() => isEditing && setProfile({ ...profile, petOwner: 'yes' })}
                   >
                     <Text style={profile.petOwner === 'yes' ? styles.toggleTextActive : styles.toggleText}>yes</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={[
                       styles.toggleButton,
                       profile.petOwner === 'no' && styles.toggleButtonActive,
                       !isEditing && styles.inactiveToggle
                     ]}
-                    onPress={() => isEditing && setProfile({...profile, petOwner: 'no'})}
+                    onPress={() => isEditing && setProfile({ ...profile, petOwner: 'no' })}
                   >
                     <Text style={profile.petOwner === 'no' ? styles.toggleTextActive : styles.toggleText}>no</Text>
                   </TouchableOpacity>
@@ -289,23 +292,23 @@ export default function Profile() {
                   <Text style={styles.label}>Coffee or tea?</Text>
                 </View>
                 <View style={styles.toggleContainer}>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={[
                       styles.toggleButton,
                       profile.beveragePreference === 'coffee' && styles.toggleButtonActive,
                       !isEditing && styles.inactiveToggle
                     ]}
-                    onPress={() => isEditing && setProfile({...profile, beveragePreference: 'coffee'})}
+                    onPress={() => isEditing && setProfile({ ...profile, beveragePreference: 'coffee' })}
                   >
                     <Text style={profile.beveragePreference === 'coffee' ? styles.toggleTextActive : styles.toggleText}>coffee</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={[
                       styles.toggleButton,
                       profile.beveragePreference === 'tea' && styles.toggleButtonActive,
                       !isEditing && styles.inactiveToggle
                     ]}
-                    onPress={() => isEditing && setProfile({...profile, beveragePreference: 'tea'})}
+                    onPress={() => isEditing && setProfile({ ...profile, beveragePreference: 'tea' })}
                   >
                     <Text style={profile.beveragePreference === 'tea' ? styles.toggleTextActive : styles.toggleText}>tea</Text>
                   </TouchableOpacity>
@@ -320,10 +323,10 @@ export default function Profile() {
           </TouchableOpacity>
         </View>
       </ScrollView>
-      
+
       {isEditing && (
-        <TouchableOpacity 
-          style={styles.saveButton} 
+        <TouchableOpacity
+          style={styles.saveButton}
           onPress={handleSave}
         >
           <Ionicons name="save-outline" size={22} color="white" />
