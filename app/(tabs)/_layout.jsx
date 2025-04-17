@@ -82,7 +82,6 @@ export default function TabLayout() {
           ),
         }}
       />
-
       <Tabs.Screen
         name="create-event"
         options={{
