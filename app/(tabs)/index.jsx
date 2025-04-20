@@ -1,7 +1,7 @@
 
 import { StyleSheet, Text, View, FlatList, TouchableOpacity } from 'react-native';
 import { Link, useNavigation } from 'expo-router';
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 
 const dummyEvents = [

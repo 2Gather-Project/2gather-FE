@@ -8,7 +8,7 @@ import ErrorMessage from './components/ErrorMessage'
 const Login = () => {
     const router = useRouter();
     const [email, setEmail] = useState('')
-    const { setUser } = useContext(UserContext)
+    const { user, setUser } = useContext(UserContext)
     const [error, setError] = useState(false)
 
     const handleLogIn = () => {
@@ -17,13 +17,16 @@ const Login = () => {
             postLogIn(email).then((data) => {
                 setUser(data)
                 setError(false)
-                router.push('(tabs)')
+                setTimeout(() => {
+                    router.push('/(tabs)');
+                }, 50);
+
 
             }).catch((err) => {
                 setError(err)
             })
         }
-    }
+    };
 
     return (
         <View style={styles.container}>

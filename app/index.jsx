@@ -1,11 +1,11 @@
 import { Link } from 'expo-router';
 import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { NavigationContainer, NavigationIndependentTree } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { SingleEvent } from './SingleEvent';
+// import { NavigationContainer, NavigationIndependentTree } from '@react-navigation/native';
+// import { createNativeStackNavigator } from '@react-navigation/native-stack';
+// import { SingleEvent } from './SingleEvent';
 
-function LandingPage() {
+export default function LandingPage() {
   return (
     <View style={styles.container}>
       <View style={styles.actionsSection}>
@@ -20,20 +20,20 @@ function LandingPage() {
   );
 }
 
-const Stack = createNativeStackNavigator();
+// const Stack = createNativeStackNavigator();
 
-export default function App() {
-  return (
-    <NavigationIndependentTree>
-      <NavigationContainer>
-        <Stack.Navigator>
-          <Stack.Screen name="Home" component={LandingPage} />
-          {/* <Stack.Screen name="Event" component={SingleEvent} /> */}
-        </Stack.Navigator>
-      </NavigationContainer>
-    </NavigationIndependentTree>
-  );
-}
+// export default function App() {
+//   return (
+//     <NavigationIndependentTree>
+//       <NavigationContainer>
+//         <Stack.Navigator>
+//           <Stack.Screen name="Home" component={LandingPage} />
+//           {/* <Stack.Screen name="Event" component={SingleEvent} /> */}
+//         </Stack.Navigator>
+//       </NavigationContainer>
+//     </NavigationIndependentTree>
+//   );
+// }
 
 const styles = StyleSheet.create({
   container: {
