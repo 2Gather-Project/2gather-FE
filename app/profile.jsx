@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import { useState, useRef, useContext } from 'react';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { UserContext } from './contexts/UserContext';
+import { patchUser } from './api'
 
 const { width } = Dimensions.get('window');
 
@@ -16,21 +17,20 @@ export default function Profile() {
   const closeButtonScale = useRef(new Animated.Value(1)).current;
   const closeIconRotate = useRef(new Animated.Value(0)).current;
   const [profile, setProfile] = useState({
-    bio: '',
+    bio: user.bio || '',
     interests: '',
-    gender: '',
-    location: '',
-    personality: '',
-    favoriteFood: '',
-    usingAppFor: '',
-    jobTitle: '',
+    gender: user.gender || '',
+    location: user.address || '',
+    personality: user.personality || '',
+    favoriteFood: user.fav_food || '',
+    usingAppFor: user.reason || '',
+    jobTitle: user.job_title || '',
     petOwner: 'no',
-    beveragePreference: 'coffee',
-    skills: '',
-    languages: '',
-    name: '',
-    username: '',
+    beveragePreference: user.coffee_tea || 'coffee',
+    name: user.first_name + ' ' + user.last_name || '',
+    username: user.email || '',
     memberSince: '',
+    user_id: user.user_id || 0
   });
 
   const handleToggleEdit = () => {
@@ -73,6 +73,10 @@ export default function Profile() {
       duration: 300,
       useNativeDriver: true,
     }).start();
+
+    return patchUser(profile).then(({ user }) => {
+      setUser(user);
+    })
     // You could add a toast or notification: "Profile saved!"
   };
 
@@ -225,33 +229,7 @@ export default function Profile() {
                 </View>
               ))}
 
-              {/* Skills & Languages Section */}
-              <View style={styles.sectionHeader}>
-                <Ionicons name="bulb-outline" size={22} color="#003049" />
-                <Text style={styles.sectionTitle}>Skills & Languages</Text>
-              </View>
-
-              {[
-                { label: 'Skills', key: 'skills', icon: 'star-outline', placeholder: 'Photography, Cooking, Public Speaking...' },
-                { label: 'Languages', key: 'languages', icon: 'chatbubble-outline', placeholder: 'English, Spanish, French...' },
-              ].map((field) => (
-                <View key={field.key} style={styles.inputGroup}>
-                  <View style={styles.labelContainer}>
-                    <Ionicons name={field.icon} size={18} color="#C1121F" style={styles.fieldIcon} />
-                    <Text style={styles.label}>{field.label}</Text>
-                  </View>
-                  <TextInput
-                    style={[styles.input, !isEditing && styles.inactiveInput]}
-                    editable={isEditing}
-                    value={profile[field.key]}
-                    onChangeText={(text) => setProfile({ ...profile, [field.key]: text })}
-                    placeholder={field.placeholder}
-                    placeholderTextColor="#AAAAAA"
-                    focusable={isEditing}
-                  />
-                </View>
-              ))}
-
+              {/* Preferences section*/}
               <View style={styles.sectionHeader}>
                 <Ionicons name="options-outline" size={22} color="#003049" />
                 <Text style={styles.sectionTitle}>Preferences</Text>
