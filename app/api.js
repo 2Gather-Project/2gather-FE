@@ -13,6 +13,15 @@ export function postLogIn(email) {
 
 }
 
+export function patchUser(user) {
+  return baseApi
+    .patch(`/users/${user.user_id}`, { user })
+    .then(({ data: { user } }) => {
+      return user;
+    });
+}
+
+
 export function getUserById(id) {
   return baseApi.get(`/users/${id}`).then(({ data: { user } }) => {
     return user;
@@ -44,7 +53,6 @@ export function createUser({ first_name, last_name, email, address }) {
   return baseApi
     .post(`/users`, { first_name, last_name, email, address })
     .then(({ data: { user } }) => {
-      console.log(user);
       return user;
     });
 }
