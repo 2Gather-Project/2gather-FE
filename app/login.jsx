@@ -2,29 +2,16 @@ import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-nativ
 import { Link, useRouter } from 'expo-router';
 import { useContext, useState } from 'react';
 import { UserContext } from './contexts/UserContext';
-import { postLogIn } from './api'
 import ErrorMessage from './components/ErrorMessage'
 
 const Login = () => {
-    const router = useRouter();
     const [email, setEmail] = useState('')
-    const { user, setUser } = useContext(UserContext)
+    const { login } = useContext(UserContext)
     const [error, setError] = useState(false)
 
     const handleLogIn = () => {
-
         if (email.length !== 0) {
-            postLogIn(email).then((data) => {
-                setUser(data)
-                setError(false)
-                setTimeout(() => {
-                    router.push('/(tabs)');
-                }, 50);
-
-
-            }).catch((err) => {
-                setError(err)
-            })
+            return login(email)
         }
     };
 
