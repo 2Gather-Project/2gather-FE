@@ -17,19 +17,30 @@ export default function Profile() {
   const closeButtonScale = useRef(new Animated.Value(1)).current;
   const closeIconRotate = useRef(new Animated.Value(0)).current;
   const [profile, setProfile] = useState({
+    address: user.address || '',
     bio: user.bio || '',
-    interests: '',
+    // interests: '',
+    coffee_tea: user.coffee_tea || 'coffee',
+    date_of_birth: user.date_of_birth || '',
+    email: user.email || '',
+    fav_food: user.fav_food || '',
+    first_name: user.first_name || '',
+
     gender: user.gender || '',
-    location: user.address || '',
+    image_url
+      : user.image_url || '',
+    job_title: user.job_title || '',
+
+
     personality: user.personality || '',
-    favoriteFood: user.fav_food || '',
+
     usingAppFor: user.reason || '',
     jobTitle: user.job_title || '',
-    petOwner: 'no',
-    beveragePreference: user.coffee_tea || 'coffee',
-    name: user.first_name + ' ' + user.last_name || '',
-    username: user.email || '',
-    memberSince: '',
+    last_name: user.
+      last_name || '',
+
+    phone_number: user.phone_number || '',
+    reason: user.reason || '',
     user_id: user.user_id || 0
   });
 
@@ -74,7 +85,7 @@ export default function Profile() {
       useNativeDriver: true,
     }).start();
 
-    return patchUser(profile).then(({ user }) => {
+    return patchUser(profile).then(user => {
       setUser(user);
     })
     // You could add a toast or notification: "Profile saved!"
@@ -171,12 +182,12 @@ export default function Profile() {
                 </View>
               )}
             </TouchableOpacity>
-            <Text style={styles.profileName}>{profile.name || "Username"}</Text>
-            <Text style={styles.profileTagline}>@{profile.username || "user"} • Member since {profile.memberSince || "2023"}</Text>
+            <Text style={styles.profileName}>{profile.first_name + ' ' + profile.last_name || "Username"}</Text>
+            <Text style={styles.profileTagline}>@{profile.email || "user"} </Text>
           </View>
         </View>
 
-        {/* Stats Section - REMOVED */}
+
 
         <View style={styles.profileContainer}>
           <View style={styles.card}>
@@ -204,13 +215,17 @@ export default function Profile() {
               </View>
 
               {[
-                { label: 'Interests', key: 'interests', icon: 'heart-outline', placeholder: 'Music, hiking, cooking...' },
+                { label: 'First Name', key: 'first_name', icon: 'person-outline', placeholder: '...' },
+                { label: 'Last Name', key: 'last_name', icon: 'person-outline', placeholder: '...' },
+                { label: 'Date of birth', key: 'date_of_birth', icon: 'calendar-outline', placeholder: '+44...' },
+                { label: 'Email', key: 'email', icon: 'mail-outline', placeholder: '+44...' },
                 { label: 'Gender', key: 'gender', icon: 'person-outline', placeholder: 'Male, Female, Non-binary...' },
-                { label: 'Location', key: 'location', icon: 'location-outline', placeholder: 'City, Country' },
+                { label: 'Address', key: 'address', icon: 'location-outline', placeholder: 'City, Country' },
                 { label: 'Personality', key: 'personality', icon: 'sparkles-outline', placeholder: 'Outgoing, Introvert, Creative...' },
-                { label: 'Favourite food', key: 'favoriteFood', icon: 'restaurant-outline', placeholder: 'Italian, Sushi, Burgers...' },
+                { label: 'Favourite food', key: 'fav_food', icon: 'restaurant-outline', placeholder: 'Italian, Sushi, Burgers...' },
                 { label: "I'm using this app for...", key: 'usingAppFor', icon: 'help-circle-outline', placeholder: 'Meeting new people, finding events...' },
-                { label: 'Job Title', key: 'jobTitle', icon: 'briefcase-outline', placeholder: 'Software Engineer, Designer...' },
+                { label: 'Job Title', key: 'job_title', icon: 'briefcase-outline', placeholder: 'Software Engineer, Designer...' },
+                { label: 'Coffee or Tea?', key: 'coffee_tea', icon: 'heart-outline', placeholder: 'Tea' },
               ].map((field) => (
                 <View key={field.key} style={styles.inputGroup}>
                   <View style={styles.labelContainer}>
@@ -228,43 +243,15 @@ export default function Profile() {
                   />
                 </View>
               ))}
-
-              {/* Preferences section*/}
-              <View style={styles.sectionHeader}>
+              {/* 
+              Preferences section */}
+              {/* <View style={styles.sectionHeader}>
                 <Ionicons name="options-outline" size={22} color="#003049" />
                 <Text style={styles.sectionTitle}>Preferences</Text>
-              </View>
+              </View> */}
 
-              <View style={styles.inputGroup}>
-                <View style={styles.labelContainer}>
-                  <Ionicons name="paw-outline" size={18} color="#C1121F" style={styles.fieldIcon} />
-                  <Text style={styles.label}>Pet owner?</Text>
-                </View>
-                <View style={styles.toggleContainer}>
-                  <TouchableOpacity
-                    style={[
-                      styles.toggleButton,
-                      profile.petOwner === 'yes' && styles.toggleButtonActive,
-                      !isEditing && styles.inactiveToggle
-                    ]}
-                    onPress={() => isEditing && setProfile({ ...profile, petOwner: 'yes' })}
-                  >
-                    <Text style={profile.petOwner === 'yes' ? styles.toggleTextActive : styles.toggleText}>yes</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[
-                      styles.toggleButton,
-                      profile.petOwner === 'no' && styles.toggleButtonActive,
-                      !isEditing && styles.inactiveToggle
-                    ]}
-                    onPress={() => isEditing && setProfile({ ...profile, petOwner: 'no' })}
-                  >
-                    <Text style={profile.petOwner === 'no' ? styles.toggleTextActive : styles.toggleText}>no</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
 
-              <View style={styles.inputGroup}>
+              {/* <View style={styles.inputGroup}>
                 <View style={styles.labelContainer}>
                   <Ionicons name="cafe-outline" size={18} color="#C1121F" style={styles.fieldIcon} />
                   <Text style={styles.label}>Coffee or tea?</Text>
@@ -273,25 +260,25 @@ export default function Profile() {
                   <TouchableOpacity
                     style={[
                       styles.toggleButton,
-                      profile.beveragePreference === 'coffee' && styles.toggleButtonActive,
+                      profile.coffee_tea === 'coffee' && styles.toggleButtonActive,
                       !isEditing && styles.inactiveToggle
                     ]}
                     onPress={() => isEditing && setProfile({ ...profile, beveragePreference: 'coffee' })}
                   >
-                    <Text style={profile.beveragePreference === 'coffee' ? styles.toggleTextActive : styles.toggleText}>coffee</Text>
+                    <Text style={profile.coffee_tea === 'coffee' ? styles.toggleTextActive : styles.toggleText}>coffee</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={[
                       styles.toggleButton,
-                      profile.beveragePreference === 'tea' && styles.toggleButtonActive,
+                      profile.coffee_tea === 'tea' && styles.toggleButtonActive,
                       !isEditing && styles.inactiveToggle
                     ]}
-                    onPress={() => isEditing && setProfile({ ...profile, beveragePreference: 'tea' })}
+                    onPress={() => isEditing && setProfile({ ...profile, coffee_tea: 'tea' })}
                   >
-                    <Text style={profile.beveragePreference === 'tea' ? styles.toggleTextActive : styles.toggleText}>tea</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
+                    <Text style={profile.coffee_tea === 'tea' ? styles.toggleTextActive : styles.toggleText}>tea</Text>
+                  </TouchableOpacity> */}
+              {/* </View> */}
+              {/* </View> */}
             </View>
           </View>
 

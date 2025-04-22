@@ -2,6 +2,7 @@ import axios from 'axios';
 
 const baseApi = axios.create({
   baseURL: 'https://twogather-backend.onrender.com/api',
+  // baseURL: 'http://localhost:3000/api'
 });
 
 export function postLogIn(email) {
@@ -15,7 +16,7 @@ export function postLogIn(email) {
 
 export function patchUser(user) {
   return baseApi
-    .patch(`/users/${user.user_id}`, { user })
+    .patch(`/users/${user.user_id}`, user)
     .then(({ data: { user } }) => {
       return user;
     });
