@@ -27,25 +27,22 @@ export function getEventById(event_id) {
 }
 
 export function postNewEvent(addEvent) {
-  return baseApi.post(`/events`, JSON.stringify(addEvent)).then(({ data: { event } }) => {
+  return baseApi.post(`/events`, addEvent).then(({ data: { event } }) => {
     console.log('events is', event);
     return event;
   });
 }
 
-export function postNewEventHardCoded() {
-  return baseApi
-    .post(`/events`, {
-      user_id: 4,
-      title: 'Street Food Lunch',
-      description: 'Grab a bite and discover new flavors together at the city’s food market.',
-      location: 'Manchester',
-      category: 'OTHER',
-      status: 'ACTIVE',
-      event_date: '2025-04-16T15:54:56.946Z',
-    })
-    .then(({ data: { event } }) => {
-      console.log('events is', event);
-      return event;
-    });
+export function patchEventImage(addEvent) {
+  return baseApi.patch(`/events`, addEvent).then(({ data: { event } }) => {
+    console.log('events is', event);
+    return event;
+  });
+}
+
+export function getTags() {
+  return baseApi.get(`/interests`).then(({ data: { interests } }) => {
+    console.log('interests is', interests);
+    return interests;
+  });
 }
