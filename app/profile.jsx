@@ -7,7 +7,7 @@ import { patchUser } from './api';
 import * as ImagePicker from 'expo-image-picker';
 
 export default function Profile() {
-  const { user, setUser } = useContext(UserContext);
+  const { user, setUser, logOut } = useContext(UserContext);
   const [isEditing, setIsEditing] = useState(false);
   const router = useRouter();
   const editButtonScale = useRef(new Animated.Value(1)).current;
@@ -120,7 +120,7 @@ export default function Profile() {
 
   const handleLogout = () => {
     // Add logout logic here
-    router.replace('/');
+    return logOut();
   };
 
   const handleBackToMenu = () => {

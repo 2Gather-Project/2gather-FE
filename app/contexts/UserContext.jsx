@@ -14,8 +14,12 @@ const UserProvider = ({ children }) => {
             router.push('/(tabs)');
         });
     };
+    const logOut = () => {
+        setUser(null);
+        router.push('/login');
+    }
 
-    return <UserContext.Provider value={{ user, setUser, login }}>{children}</UserContext.Provider>
+    return <UserContext.Provider value={{ user, setUser, login, logOut }}>{children}</UserContext.Provider>
 
 }
 
