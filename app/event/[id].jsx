@@ -1,26 +1,56 @@
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import { StyleSheet, View, Text, ScrollView, TouchableOpacity, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
+import { getEventUserActivity, getUserById, getEventById } from '../api';
 
 export default function EventDetails() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
+  const [eventUserActivity, setEventUserActivity] = useState([]);
+  const [event, setEvent] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // This would normally come from your API/database
-  const event = {
-    id: id,
-    title: "Summer Beach Party",
-    date: "2024-07-15",
-    time: "2:00 PM",
-    location: "Sunny Beach",
-    attendees: 25,
-    description: "Join us for a fun day at the beach with music, games, and BBQ!",
-    requests: [
-      { id: 1, user: "Alice Smith", status: "pending", message: "I'd love to join!" },
-      { id: 2, user: "Bob Johnson", status: "approved", message: "Can't wait!" },
-      { id: 3, user: "Carol White", status: "pending", message: "Is there parking available?" }
-    ]
-  };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch event details
+        const eventData = await getEventById(id);
+        setEvent(eventData);
+
+        // Fetch event user activity
+        const response = await getEventUserActivity(id);
+        
+        // Add usernames to each request
+        const requestsWithUsernames = await Promise.all(
+          response.map(async (request) => {
+            try {
+              const user = await getUserById(request.attendee_id);
+              console.log('user', user);
+              return { ...request, firstName: user.first_name, lastName: user.last_name };
+            } catch (err) {
+              console.error(`Error fetching user ${request.attendee_id}:`, err);
+              return { ...request, firstName: `User ${request.attendee_id}`, lastName: `User ${request.attendee_id}` };
+            }
+          })
+        );
+
+        setEventUserActivity(requestsWithUsernames || []);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching data:', err);
+        setError(err.message);
+        setLoading(false);
+        setEventUserActivity([]);
+      }
+    };
+
+    fetchData();
+  }, [id]);
+
+  const pendingRequests = eventUserActivity?.filter(r => r.user_status === 'REQUESTED')?.length || 0;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -36,63 +66,76 @@ export default function EventDetails() {
       />
 
       <ScrollView style={styles.content}>
-        <View style={styles.header}>
-          <Text style={styles.title}>{event.title}</Text>
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>
-              {event.requests.filter(r => r.status === 'pending').length} pending
-            </Text>
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <Text>Loading event details...</Text>
           </View>
-        </View>
-
-        <View style={styles.details}>
-          <View style={styles.detailRow}>
-            <Ionicons name="calendar-outline" size={16} color="#666" />
-            <Text style={styles.detailText}>{event.date} - {event.time}</Text>
+        ) : error ? (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>Error: {error}</Text>
           </View>
-          
-          <View style={styles.detailRow}>
-            <Ionicons name="location-outline" size={16} color="#666" />
-            <Text style={styles.detailText}>{event.location}</Text>
-          </View>
-
-          <View style={styles.detailRow}>
-            <Ionicons name="people-outline" size={16} color="#666" />
-            <Text style={styles.detailText}>{event.attendees} attendees</Text>
-          </View>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Description</Text>
-          <Text style={styles.description}>{event.description}</Text>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Requests</Text>
-          {event.requests.map((request) => (
-            <View key={request.id} style={styles.requestCard}>
-              <View style={styles.requestHeader}>
-                <Text style={styles.userName}>{request.user}</Text>
-                <View style={[styles.statusBadge, 
-                  { backgroundColor: request.status === 'approved' ? '#4CAF50' : '#FFA07A' }
-                ]}>
-                  <Text style={styles.statusText}>{request.status}</Text>
-                </View>
+        ) : (
+          <>
+            <View style={styles.header}>
+              <Text style={styles.title}>{event.title}</Text>
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>
+                  {pendingRequests} pending
+                </Text>
               </View>
-              <Text style={styles.message}>{request.message}</Text>
-              {request.status === 'pending' && (
-                <View style={styles.actions}>
-                  <TouchableOpacity style={[styles.actionButton, styles.approveButton]}>
-                    <Text style={styles.actionButtonText}>Approve</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={[styles.actionButton, styles.declineButton]}>
-                    <Text style={[styles.actionButtonText, styles.declineText]}>Decline</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
             </View>
-          ))}
-        </View>
+
+            <View style={styles.details}>
+              <View style={styles.detailRow}>
+                <Ionicons name="calendar-outline" size={16} color="#666" />
+                <Text style={styles.detailText}>
+                  {new Date(event.event_date).toLocaleDateString()} - {new Date(event.event_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </Text>
+              </View>
+              
+              <View style={styles.detailRow}>
+                <Ionicons name="location-outline" size={16} color="#666" />
+                <Text style={styles.detailText}>{event.location}</Text>
+              </View>
+
+              <View style={styles.detailRow}>
+                <Ionicons name="pricetag-outline" size={16} color="#666" />
+                <Text style={styles.detailText}>Category: {event.category}</Text>
+              </View>
+            </View>
+
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Description</Text>
+              <Text style={styles.description}>{event.description}</Text>
+            </View>
+
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Requests</Text>
+              {eventUserActivity.map((request) => (
+                <View key={request.id} style={styles.requestCard}>
+                  <View style={styles.requestHeader}>
+                    <Text style={styles.userName}>{request.firstName} {request.lastName}</Text>
+                    <View style={[styles.statusBadge, 
+                      { backgroundColor: request.user_status === 'APPROVED' ? '#4CAF50' : '#FFA07A' }
+                    ]}>
+                      <Text style={styles.statusText}>{request.user_status}</Text>
+                    </View>
+                  </View>
+                  {request.user_status === 'REQUESTED' && (
+                    <View style={styles.actions}>
+                      <TouchableOpacity style={[styles.actionButton, styles.approveButton]}>
+                        <Text style={styles.actionButtonText}>Approve</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity style={[styles.actionButton, styles.declineButton]}>
+                        <Text style={[styles.actionButtonText, styles.declineText]}>Decline</Text>
+                      </TouchableOpacity>
+                    </View>
+                  )}
+                </View>
+              ))}
+            </View>
+          </>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -191,11 +234,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '500',
   },
-  message: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 12,
-  },
   actions: {
     flexDirection: 'row',
     gap: 12,
@@ -221,5 +259,21 @@ const styles = StyleSheet.create({
   },
   declineText: {
     color: '#003049',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  errorText: {
+    color: 'red',
+    textAlign: 'center',
   },
 }); 
