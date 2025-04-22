@@ -12,7 +12,7 @@ import {
 import { useRouter } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { AntDesign } from '@expo/vector-icons';
-import { postNewEvent } from '../services/eventsAPI';
+import { postNewEventHardCoded } from '../services/eventsAPI';
 
 export default function CreateEvent() {
   const router = useRouter();
@@ -22,17 +22,25 @@ export default function CreateEvent() {
   const [time, setTime] = useState(new Date());
   const [location, setLocation] = useState('');
   const [description, setDescription] = useState('');
-  const [link, setLink] = useState('');
   const [selectedTags, setSelectedTags] = useState([]);
 
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
 
+  const [addEvent, setAddEvent] = useState({ user_id: 1 });
   // Formatted date and time for display
   const formattedDate = date.toLocaleDateString();
 
   const formattedTime = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
+  function handleChange(event) {
+    event.preventDefault();
+    setAddEvent((addEvent) => {
+      return { ...addEvent, [event.target.id]: `${event.target.value}` };
+    });
+  }
+
+  console.log(addEvent);
   const onDateChange = (event, selectedDate) => {
     if (selectedDate) {
       setDate(selectedDate);
@@ -88,12 +96,10 @@ export default function CreateEvent() {
     console.log('pressed post');
     const addEvent = async () => {
       try {
-        const res = await postNewEvent();
+        const res = await postNewEventHardCoded();
+        console.log(res);
       } catch (error) {
         setIsError(error);
-        //   } finally {
-        //     setIsLoading(false);
-        //   }
       }
     };
     addEvent();
@@ -113,10 +119,19 @@ export default function CreateEvent() {
         </TouchableOpacity>
 
         <Text style={styles.label}>Event Title</Text>
-        <TextInput style={styles.input} value={eventTitle} onChangeText={setEventTitle} />
+
+        <TextInput
+          style={styles.input}
+          id="title"
+          onChange={handleChange}
+          value={addEvent.title || ''}
+        />
 
         <Text style={styles.label}>Date</Text>
-        <TouchableOpacity style={styles.dateTimeButton} onPress={() => setShowDatePicker(true)}>
+        <TouchableOpacity
+          style={styles.dateTimeButton}
+          id="event_date"
+          onPress={() => setShowDatePicker(true)}>
           <Text>{formattedDate}</Text>
         </TouchableOpacity>
 
@@ -152,7 +167,7 @@ export default function CreateEvent() {
               value={time}
               mode="time"
               display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-              onChange={onTimeChange}
+              onChange={handleChange}
               {...(Platform.OS === 'ios' && {
                 style: { width: '100%', backgroundColor: 'white' },
               })}
@@ -168,21 +183,28 @@ export default function CreateEvent() {
         )}
 
         <Text style={styles.label}>Location</Text>
-        <TextInput style={styles.input} value={location} onChangeText={setLocation} />
+        <TextInput
+          style={styles.input}
+          id="location"
+          onChange={handleChange}
+          value={addEvent.location || ''}
+        />
 
         <Text style={styles.label}>Description</Text>
         <TextInput
           style={styles.input}
-          value={description}
-          onChangeText={setDescription}
+          value={addEvent.description || ''}
+          id="description"
+          onChange={handleChange}
           multiline
         />
 
         <Text style={styles.label}>Add a link</Text>
         <TextInput
           style={styles.input}
-          value={link}
-          onChangeText={setLink}
+          id="link"
+          value={addEvent.link || ''}
+          onChange={handleChange}
           placeholder="https://..."
         />
 
