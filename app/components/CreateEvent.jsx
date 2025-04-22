@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
+import { UserContext } from '../contexts/UserContext';
+import { launchImageLibrary } from 'react-native-image-picker';
 import {
   StyleSheet,
   View,
@@ -12,25 +14,64 @@ import {
 import { useRouter } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { AntDesign } from '@expo/vector-icons';
-import { postNewEventHardCoded } from '../services/eventsAPI';
+import { patchEventImage, postNewEvent } from '../services/eventsAPI';
+import { Button, Image } from 'react-native-web';
+
+const createFormData = (photo, body = {}) => {
+  const data = new FormData();
+
+  data.append('photo', {
+    name: photo.fileName,
+    type: photo.type,
+    uri: Platform.OS === 'ios' ? photo.uri.replace('file://', '') : photo.uri,
+  });
+
+  Object.keys(body).forEach((key) => {
+    data.append(key, body[key]);
+  });
+
+  return data;
+};
 
 export default function CreateEvent() {
+  const { user } = useContext(UserContext);
   const router = useRouter();
   const [error, setIsError] = useState({});
-  const [eventTitle, setEventTitle] = useState('');
+  const [photo, setPhoto] = useState(null);
+  const [tags, setTags] = useState([]);
+  const currentDate = new Date();
+  currentDate.setDate(currentDate.getDate() + 1);
+
   const [date, setDate] = useState(new Date());
   const [time, setTime] = useState(new Date());
-  const [location, setLocation] = useState('');
-  const [description, setDescription] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
+
   const [selectedTags, setSelectedTags] = useState([]);
 
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
 
-  const [addEvent, setAddEvent] = useState({ user_id: 1 });
+  useEffect(() => {
+    const callTags = async () => {
+      try {
+        const res = await getTags();
+        setTags(res);
+      } catch (error) {
+        setIsError(error);
+      }
+    };
+    callTags();
+  }, []);
+
+  const [addEvent, setAddEvent] = useState({
+    user_id: `${user.user_id}`,
+    category: 'OTHER',
+    event_date: `${currentDate.toJSON()}`,
+  });
   // Formatted date and time for display
   const formattedDate = date.toLocaleDateString();
 
+  console.log('User is:', user);
   const formattedTime = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
   function handleChange(event) {
@@ -39,6 +80,29 @@ export default function CreateEvent() {
       return { ...addEvent, [event.target.id]: `${event.target.value}` };
     });
   }
+
+  const handleUploadPhoto = () => {
+    const data = createFormData(photo, { event_id: `${addEvent.event_id}` || '' });
+    console.log(data);
+    patchEventImage(addEvent)
+      .then((response) => response.json())
+      .then((response) => {
+        console.log('response', response);
+      })
+      .catch((error) => {
+        console.log('error', error);
+      });
+  };
+
+  const handleChoosePhoto = () => {
+    console.log('handleChoosePhoto');
+    launchImageLibrary({ noData: true }, (response) => {
+      console.log(response);
+      if (response) {
+        setPhoto(response);
+      }
+    });
+  };
 
   console.log(addEvent);
   const onDateChange = (event, selectedDate) => {
@@ -61,48 +125,28 @@ export default function CreateEvent() {
     }
   };
 
-  const tags = [
-    'cooking',
-    'dog walking',
-    'coffee date',
-    'lunch',
-    'dinner',
-    'theatre',
-    'cinema',
-    'movies',
-    'festivals',
-    'concerts',
-    'food',
-    'market',
-    'shopping',
-    'pets',
-    'fitness',
-    'gym',
-    'hiking',
-    'bird watching',
-    'fishing',
-    'casual walk',
-  ];
-
   const toggleTag = (tag) => {
     if (selectedTags.includes(tag)) {
       setSelectedTags(selectedTags.filter((t) => t !== tag));
     } else {
       setSelectedTags([...selectedTags, tag]);
+      setAddEvent((addEvent) => {
+        return { ...addEvent, category: `${selectedTags}` };
+      });
     }
   };
 
   const handlePost = () => {
     console.log('pressed post');
-    const addEvent = async () => {
+    const addEventForUser = async () => {
       try {
-        const res = await postNewEventHardCoded();
+        const res = await postNewEvent(addEvent);
         console.log(res);
       } catch (error) {
         setIsError(error);
       }
     };
-    addEvent();
+    addEventForUser();
     router.back();
   };
 
@@ -114,7 +158,14 @@ export default function CreateEvent() {
 
       <ScrollView style={styles.form}>
         <TouchableOpacity style={{ flexDirection: 'column', alignItems: 'center' }}>
-          <AntDesign name="picture" color="#333" size={45} />
+          {photo && (
+            <>
+              <Image source={{ uri: photo.uri }} style={{ width: 300, height: 300 }} />
+              <Button title="Upload Photo" onPress={handleUploadPhoto} />
+            </>
+          )}
+          <AntDesign name="picture" color="#333" size={45} onPress={handleChoosePhoto} />
+          {/* <Avatar onButtonPress={() => setModalVisible(true)}></Avatar> */}
           <Text style={styles.addPictureText}>Add event picture</Text>
         </TouchableOpacity>
 
@@ -199,14 +250,14 @@ export default function CreateEvent() {
           multiline
         />
 
-        <Text style={styles.label}>Add a link</Text>
+        {/* <Text style={styles.label}>Add a link</Text>
         <TextInput
           style={styles.input}
           id="link"
           value={addEvent.link || ''}
           onChange={handleChange}
           placeholder="https://..."
-        />
+        /> */}
 
         <Text style={styles.label}>Tag</Text>
         <View style={styles.tagsContainer}>
