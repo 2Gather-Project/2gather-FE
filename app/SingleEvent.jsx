@@ -1,25 +1,15 @@
-import { useRoute } from '@react-navigation/native';
+import { Link, useRoute } from '@react-navigation/native';
 import { router, Stack, useNavigation } from 'expo-router';
 import { useState, useEffect } from 'react';
-import { Button, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Button, Image, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Explore from './(tabs)/explore';
 import { Ionicons } from '@expo/vector-icons';
 import { Background } from '@react-navigation/elements';
 import { getEventById } from './services/eventsAPI';
 
 export default function SingleEvent() {
-  // console.log('events id:', route.params.event_id);
   const [date, setDate] = useState(new Date());
   const [event, setEvent] = useState({});
-
-  // const event = {
-  //   creator_id: 1,
-  //   title: 'Come and visit the Natural History Museum with me!',
-  //   description: 'Visit the museum and chat about history and life.',
-  //   location: 'London',
-  //   time: '13:00:00',
-  //   created_at: '2025-04-14',
-  // };
 
   const navigation = useNavigation();
   const [isError, setIsError] = useState();
@@ -71,6 +61,9 @@ export default function SingleEvent() {
       </TouchableOpacity>
     </View>
   );
+
+  console.log(event);
+
   return (
     <>
       <Header />
@@ -91,7 +84,13 @@ export default function SingleEvent() {
         <View style={styles.text}>
           <Text style={styles.title}>{event.title}</Text>
           <Text style={styles.host}>
-            Host by {event.host_first_name} {event.host_last_name}
+            <Pressable
+              onPress={() => navigation.navigate('HostProfile', { userId: event.host_id })}
+              style={styles.seeAllLink}>
+              <Text>
+                Host by {event.host_first_name} {event.host_last_name}
+              </Text>
+            </Pressable>
           </Text>
           <Text style={styles.details}>
             <Ionicons name="calendar" color="#669BBC" size={15} />
@@ -216,5 +215,8 @@ const styles = StyleSheet.create({
     elevation: 5, // para Android
     borderRadius: 8,
     margin: 10,
+  },
+  seeAllLink: {
+    color: '#C1121F',
   },
 });

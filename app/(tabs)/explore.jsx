@@ -93,7 +93,7 @@ export default function Explore() {
 
 useEffect(() => {
 
- getEvents({})
+ getEvents({columnNam: "user_id", value: 1, not_equal: true})
  .then((eventsData) => {  
   setEventsData(eventsData)
 })

@@ -6,12 +6,9 @@ const baseApi = axios.create({
 });
 
 export function postLogIn(email) {
-  return baseApi
-    .post(`/login`, { email: email })
-    .then(({ data }) => {
-      return data;
-    });
-
+  return baseApi.post(`/login`, { email: email }).then(({ data }) => {
+    return data;
+  });
 }
 
 export function patchUser(user) {
@@ -21,7 +18,6 @@ export function patchUser(user) {
       return user;
     });
 }
-
 
 export function getUserById(id) {
   return baseApi.get(`/users/${id}`).then(({ data: { user } }) => {
@@ -50,10 +46,11 @@ export function getActiveEvents() {
   });
 }
 
-export function createUser({ first_name, last_name, email, address }) {
+export function createUser({ first_name, last_name, email, address, date_of_birth }) {
   return baseApi
-    .post(`/users`, { first_name, last_name, email, address })
+    .post(`/users`, { first_name, last_name, email, address, date_of_birth })
     .then(({ data: { user } }) => {
+      console.log('new user created');
       return user;
     });
 }
