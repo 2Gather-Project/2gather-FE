@@ -11,7 +11,9 @@ const Login = () => {
 
     const handleLogIn = () => {
         if (email.length !== 0) {
-            return login(email)
+            return login(email).catch(err => {
+                setError(err);
+            })
         }
     };
 
@@ -29,12 +31,6 @@ const Login = () => {
                     }}
                     placeholder="Email"
                     keyboardType="email-address"
-
-                />
-                <TextInput
-                    style={styles.input}
-
-                    placeholder="Password"
 
                 />
                 {error && <ErrorMessage error={error} />}

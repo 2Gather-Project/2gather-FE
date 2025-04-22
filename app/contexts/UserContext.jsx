@@ -9,7 +9,7 @@ const UserProvider = ({ children }) => {
     const router = useRouter();
 
     const login = (email) => {
-        postLogIn(email).then(({ user }) => {
+        return postLogIn(email).then(({ user }) => {
             setUser(user);
             router.push('/(tabs)');
         });
