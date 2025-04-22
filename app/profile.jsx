@@ -1,14 +1,12 @@
 import { StyleSheet, View, TextInput, Text, TouchableOpacity, ScrollView, SafeAreaView, StatusBar, Image, Dimensions, Animated } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useState, useRef, useContext } from 'react';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useState, useRef, useContext, useEffect } from 'react';
+import { Ionicons } from '@expo/vector-icons';
 import { UserContext } from './contexts/UserContext';
-import { patchUser } from './api'
-
-const { width } = Dimensions.get('window');
+import { patchUser } from './api';
+import * as ImagePicker from 'expo-image-picker';
 
 export default function Profile() {
-
   const { user, setUser } = useContext(UserContext);
   const [isEditing, setIsEditing] = useState(false);
   const router = useRouter();
@@ -17,32 +15,62 @@ export default function Profile() {
   const closeButtonScale = useRef(new Animated.Value(1)).current;
   const closeIconRotate = useRef(new Animated.Value(0)).current;
   const [profile, setProfile] = useState({
-    address: user.address || '',
-    bio: user.bio || '',
-    // interests: '',
-    coffee_tea: user.coffee_tea || 'coffee',
-    date_of_birth: user.date_of_birth || '',
-    email: user.email || '',
-    fav_food: user.fav_food || '',
-    first_name: user.first_name || '',
-
-    gender: user.gender || '',
-    image_url
-      : user.image_url || '',
-    job_title: user.job_title || '',
-
-
-    personality: user.personality || '',
-
-    usingAppFor: user.reason || '',
-    jobTitle: user.job_title || '',
-    last_name: user.
-      last_name || '',
-
-    phone_number: user.phone_number || '',
-    reason: user.reason || '',
-    user_id: user.user_id || 0
+    address: user?.address || '',
+    bio: user?.bio || '',
+    coffee_tea: user?.coffee_tea || 'coffee',
+    date_of_birth: user?.date_of_birth || '',
+    email: user?.email || '',
+    fav_food: user?.fav_food || '',
+    first_name: user?.first_name || '',
+    gender: user?.gender || '',
+    image_url: user?.image_url || '',
+    job_title: user?.job_title || '',
+    personality: user?.personality || '',
+    reason: user?.reason || '',
+    last_name: user?.last_name || '',
+    phone_number: user?.phone_number || '',
+    user_id: user?.user_id || 0
   });
+
+  useEffect(() => {
+    ImagePicker.requestMediaLibraryPermissionsAsync().then(({ status }) => {
+      if (status !== 'granted') {
+        alert('Sorry, we need camera roll permissions to change your profile picture!');
+      }
+    })
+  }, [])
+
+  const pickImage = async () => {
+    // Only allow picking an image when in edit mode
+    if (!isEditing) return;
+
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.5,  // Lowered quality to reduce size
+      base64: true,  // Always request base64 data
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const selectedAsset = result.assets[0];
+
+      // Make sure we have base64 data
+      if (!selectedAsset.base64) {
+        alert('Unable to process image. Please try another one.');
+        return;
+      }
+
+      // Create a data URI from the base64 string
+      const imageSource = `data:image/jpeg;base64,${selectedAsset.base64}`;
+
+      // Update the profile state with the base64 data URI
+      setProfile({
+        ...profile,
+        image_url: imageSource
+      });
+    }
+  };
 
   const handleToggleEdit = () => {
     // Animation for button press
@@ -88,7 +116,6 @@ export default function Profile() {
     return patchUser(profile).then(user => {
       setUser(user);
     })
-    // You could add a toast or notification: "Profile saved!"
   };
 
   const handleLogout = () => {
@@ -117,7 +144,9 @@ export default function Profile() {
       duration: 300,
       useNativeDriver: true,
     }).start(() => {
-      router.push('/(tabs)');
+      // Toggle edit mode
+      setIsEditing(!isEditing);
+      // router.push('/(tabs)');
     });
   };
 
@@ -131,19 +160,20 @@ export default function Profile() {
       <StatusBar barStyle="light-content" />
 
       <View style={styles.header}>
-        <Animated.View style={{ transform: [{ scale: closeButtonScale }] }}>
-          <TouchableOpacity
-            onPress={handleBackToMenu}
-            style={styles.closeButton}
-            activeOpacity={0.7}
-          >
-            <Animated.View style={{ transform: [{ rotate: closeIconRotation }] }}>
-              <Ionicons name="close" size={22} color="white" />
-            </Animated.View>
-            <Text style={styles.buttonText}>Back</Text>
-          </TouchableOpacity>
-        </Animated.View>
-
+        {isEditing &&
+          <Animated.View style={{ transform: [{ scale: closeButtonScale }] }}>
+            <TouchableOpacity
+              onPress={handleBackToMenu}
+              style={styles.closeButton}
+              activeOpacity={0.7}
+            >
+              <Animated.View style={{ transform: [{ rotate: closeIconRotation }] }}>
+                <Ionicons name="close" size={22} color="white" />
+              </Animated.View>
+              <Text style={styles.buttonText}>Cancel</Text>
+            </TouchableOpacity>
+          </Animated.View>
+        }
         <Animated.View style={{ transform: [{ scale: editButtonScale }] }}>
           <TouchableOpacity
             onPress={isEditing ? handleSave : handleToggleEdit}
@@ -172,10 +202,19 @@ export default function Profile() {
             <TouchableOpacity
               style={styles.imageContainer}
               disabled={!isEditing}
+              onPress={pickImage}
             >
-              <View style={styles.profileImage}>
-                <Ionicons name={isEditing ? "add" : "person"} size={40} color="white" />
-              </View>
+              {profile.image_url ? (
+                <Image
+                  source={{ uri: profile.image_url }}
+                  style={styles.profileImage}
+                  resizeMode="cover"
+                />
+              ) : (
+                <View style={styles.profileImage}>
+                  <Ionicons name={isEditing ? "add" : "person"} size={40} color="white" />
+                </View>
+              )}
               {isEditing && (
                 <View style={styles.editImageBadge}>
                   <Ionicons name="camera" size={14} color="white" />
@@ -186,8 +225,6 @@ export default function Profile() {
             <Text style={styles.profileTagline}>@{profile.email || "user"} </Text>
           </View>
         </View>
-
-
 
         <View style={styles.profileContainer}>
           <View style={styles.card}>
@@ -217,15 +254,15 @@ export default function Profile() {
               {[
                 { label: 'First Name', key: 'first_name', icon: 'person-outline', placeholder: '...' },
                 { label: 'Last Name', key: 'last_name', icon: 'person-outline', placeholder: '...' },
-                { label: 'Date of birth', key: 'date_of_birth', icon: 'calendar-outline', placeholder: '+44...' },
-                { label: 'Email', key: 'email', icon: 'mail-outline', placeholder: '+44...' },
+                { label: 'Date of birth', key: 'date_of_birth', icon: 'calendar-outline', placeholder: 'YYYY-MM-DD' },
+                { label: 'Email', key: 'email', icon: 'mail-outline', placeholder: 'your@email.com' },
                 { label: 'Gender', key: 'gender', icon: 'person-outline', placeholder: 'Male, Female, Non-binary...' },
                 { label: 'Address', key: 'address', icon: 'location-outline', placeholder: 'City, Country' },
                 { label: 'Personality', key: 'personality', icon: 'sparkles-outline', placeholder: 'Outgoing, Introvert, Creative...' },
                 { label: 'Favourite food', key: 'fav_food', icon: 'restaurant-outline', placeholder: 'Italian, Sushi, Burgers...' },
-                { label: "I'm using this app for...", key: 'usingAppFor', icon: 'help-circle-outline', placeholder: 'Meeting new people, finding events...' },
+                { label: "I'm using this app for...", key: 'reason', icon: 'help-circle-outline', placeholder: 'Meeting new people, finding events...' },
                 { label: 'Job Title', key: 'job_title', icon: 'briefcase-outline', placeholder: 'Software Engineer, Designer...' },
-                { label: 'Coffee or Tea?', key: 'coffee_tea', icon: 'heart-outline', placeholder: 'Tea' },
+                { label: 'Coffee or Tea?', key: 'coffee_tea', icon: 'heart-outline', placeholder: 'Tea or Coffee' },
               ].map((field) => (
                 <View key={field.key} style={styles.inputGroup}>
                   <View style={styles.labelContainer}>
@@ -243,42 +280,6 @@ export default function Profile() {
                   />
                 </View>
               ))}
-              {/* 
-              Preferences section */}
-              {/* <View style={styles.sectionHeader}>
-                <Ionicons name="options-outline" size={22} color="#003049" />
-                <Text style={styles.sectionTitle}>Preferences</Text>
-              </View> */}
-
-
-              {/* <View style={styles.inputGroup}>
-                <View style={styles.labelContainer}>
-                  <Ionicons name="cafe-outline" size={18} color="#C1121F" style={styles.fieldIcon} />
-                  <Text style={styles.label}>Coffee or tea?</Text>
-                </View>
-                <View style={styles.toggleContainer}>
-                  <TouchableOpacity
-                    style={[
-                      styles.toggleButton,
-                      profile.coffee_tea === 'coffee' && styles.toggleButtonActive,
-                      !isEditing && styles.inactiveToggle
-                    ]}
-                    onPress={() => isEditing && setProfile({ ...profile, beveragePreference: 'coffee' })}
-                  >
-                    <Text style={profile.coffee_tea === 'coffee' ? styles.toggleTextActive : styles.toggleText}>coffee</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[
-                      styles.toggleButton,
-                      profile.coffee_tea === 'tea' && styles.toggleButtonActive,
-                      !isEditing && styles.inactiveToggle
-                    ]}
-                    onPress={() => isEditing && setProfile({ ...profile, coffee_tea: 'tea' })}
-                  >
-                    <Text style={profile.coffee_tea === 'tea' ? styles.toggleTextActive : styles.toggleText}>tea</Text>
-                  </TouchableOpacity> */}
-              {/* </View> */}
-              {/* </View> */}
             </View>
           </View>
 
@@ -368,6 +369,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 4,
     borderColor: 'white',
+    overflow: 'hidden',
   },
   editImageBadge: {
     position: 'absolute',
@@ -392,38 +394,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666666',
     marginTop: 2,
-  },
-  statsContainer: {
-    backgroundColor: 'white',
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: 16,
-    marginBottom: 16,
-    borderRadius: 8,
-    marginHorizontal: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  statItem: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  statValue: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#003049',
-  },
-  statLabel: {
-    fontSize: 14,
-    color: '#666666',
-    marginTop: 4,
-  },
-  statDivider: {
-    width: 1,
-    backgroundColor: '#EEEEEE',
   },
   profileContainer: {
     flex: 1,
@@ -503,39 +473,6 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
     fontSize: 15,
     outlineStyle: 'none',
-  },
-  toggleContainer: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  toggleButton: {
-    flex: 1,
-    backgroundColor: 'white',
-    padding: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#DDDDDD',
-  },
-  toggleButtonActive: {
-    backgroundColor: '#669BBC',
-    borderColor: '#669BBC',
-  },
-  inactiveToggle: {
-    opacity: 0.8,
-    pointerEvents: 'none',
-  },
-  toggleText: {
-    color: '#333333',
-    fontSize: 15,
-  },
-  toggleTextActive: {
-    color: 'white',
-    fontSize: 15,
-    fontWeight: '500',
-  },
-  errorText: {
-    color: '#C1121F',
   },
   logoutButton: {
     backgroundColor: '#780000',
