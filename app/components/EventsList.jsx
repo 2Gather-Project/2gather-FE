@@ -1,7 +1,7 @@
 import EventCard from './EventCard';
 import { FlatList, StyleSheet, View } from 'react-native';
 
-export default function EventsList({events}) {
+export default function EventsList({ events }) {
   // const events = [
   //   {
   //     creator_id: 1,
@@ -62,9 +62,9 @@ export default function EventsList({events}) {
   //   },
   // ];
 
-// console.log(events)
-  
-return (
+  // console.log(events)
+
+  return (
     <>
       <View style={styles.container}>
         <FlatList
@@ -77,6 +77,8 @@ return (
               date={item.event_date}
               time={item.time}
               id={item.user_id}
+              key={item.event_id}
+              event_id={item.event_id}
             />
           )}
           keyExtractor={(item) => item.user_id}
