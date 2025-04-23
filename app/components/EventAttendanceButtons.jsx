@@ -38,7 +38,7 @@ export const EventAttendanceButtons = ({ event }) => {
 
       } catch (error) {
         setIsError(error);
-        Alert.alert('Error', 'No se pudo cargar la asistencia al evento.');
+        Alert.alert('Error', 'The event attendance could not be loaded.');
       } finally {
         setIsLoading(false);
       }
@@ -123,7 +123,7 @@ export const EventAttendanceButtons = ({ event }) => {
       setIsError(error);
       setOptimisticAttendance(null); 
       setIsDisabled(false);
-      Alert.alert('Error', 'No se pudo registrar la asistencia.');
+      Alert.alert('Error', 'Attendance could not be recorded');
     } finally {
       setIsLoading(false);
     }
@@ -152,7 +152,7 @@ export const EventAttendanceButtons = ({ event }) => {
       console.log('patch desde estado REQUESTED:', res);
     } catch (error) {
       setIsError(error);
-      Alert.alert('Error', 'No se pudo cancelar la asistencia.');
+      Alert.alert('Error', 'Attendance could not be canceled.');
       const res = await getEventAttendance(event.event_id);
       console.log('getEventAttendance tras error:', res);
       setEventAttendance(res);
