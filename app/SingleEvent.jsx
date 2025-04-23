@@ -106,7 +106,7 @@ export default function SingleEvent() {
           </Text>
           <Text style={styles.details}>
             <Ionicons name="calendar" color="#669BBC" size={15} />
-            {formattedDate}
+            {formattedDate} | {formattedTime}
           </Text>
           <Text style={styles.details}>
             <Ionicons name="pin" color="#669BBC" size={15} />
