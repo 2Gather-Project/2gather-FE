@@ -2,8 +2,13 @@ import { Link } from '@react-navigation/native';
 import { useNavigation } from 'expo-router';
 import { Text, View, Image, StyleSheet, TouchableOpacity, Pressable } from 'react-native';
 
-export default function EventCard({ title, location, time, event_id, image_url }) {
+export default function EventCard({ title, location, event_id, image_url, description, date }) {
   console.log('Inside event card:', title, event_id);
+  const time = new Date(date).toLocaleDateString([], {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
   const navigation = useNavigation();
   return (
     <>
@@ -21,11 +26,14 @@ export default function EventCard({ title, location, time, event_id, image_url }
           />
         </View>
         <View style={styles.textContainer}>
-          <Pressable onPress={() => navigation.navigate('SingleEvent', { event_id: event_id })}>
+          <Pressable
+            onPress={() => navigation.navigate('SingleEvent', { event_id: event_id })}
+            style={styles.textContainer}>
             <Text style={styles.title}>{title}</Text>
+            <Text style={styles.location}>{location}</Text>
           </Pressable>
           <Text style={styles.time}>{time}</Text>
-          <Text style={styles.location}>{location}</Text>
+          <Text style={styles.description}>{description}</Text>
         </View>
       </View>
     </>
@@ -35,7 +43,7 @@ export default function EventCard({ title, location, time, event_id, image_url }
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
+    backgroundColor: '#c5eaed',
     borderRadius: 15,
     margin: 10,
     padding: 15,
@@ -69,11 +77,15 @@ const styles = StyleSheet.create({
   },
   time: {
     fontSize: 14,
-    color: '#555',
+    color: '#C1121F',
     marginBottom: 3,
   },
   location: {
+    fontSize: 10,
+    color: '#003049',
+  },
+  description: {
     fontSize: 14,
-    color: '#555',
+    color: '#003049',
   },
 });

@@ -19,7 +19,6 @@ export default function Explore() {
   const [filterValueLocation, setFilterValueLocation] = useState(null);
   const [filterEvent, setFilterEvent] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
-
   // const route = useRoute();
   // const { location } = route.params
 
@@ -91,6 +90,7 @@ export default function Explore() {
   // ];
 
   useEffect(() => {
+    //if no user, redirect to login TODO
     getEvents({ columnNam: 'user_id', value: `${user.user_id}`, not_equal: true })
       .then((eventsData) => {
         setEventsData(eventsData);

@@ -80,6 +80,7 @@ export default function EventsList({ events }) {
               key={item.event_id}
               event_id={item.event_id}
               image_url={item.image_url}
+              description={item.description}
             />
           )}
           keyExtractor={(item) => item.user_id}
