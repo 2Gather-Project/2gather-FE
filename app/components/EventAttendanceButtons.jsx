@@ -133,7 +133,7 @@ export const EventAttendanceButtons = ({ event }) => {
         onPress={() => handleAttendance(event.event_id)}
         disabled={isDisabled && isRequested}
         style={[styles.button, isRequested ? styles.disabledButton : styles.attendButton]}
-        accessibilityLabel={`Asistir al evento ${event.event_id}`}
+        accessibilityLabel={`Assist  ${event.event_id}`}
       >
         <Text style={styles.buttonText}>{isRequested ? 'Request sent' : 'Attend'}</Text>
       </TouchableOpacity>
@@ -141,7 +141,7 @@ export const EventAttendanceButtons = ({ event }) => {
         <TouchableOpacity
           onPress={handleCancelation}
           style={[styles.button, styles.cancelButton]}
-          accessibilityLabel={`Cancelar asistencia al evento ${event.event_id}`}
+          accessibilityLabel={`Cancel event attendance ${event.event_id}`}
         >
           <Text style={styles.buttonText}>Cancel Attendance</Text>
         </TouchableOpacity>
