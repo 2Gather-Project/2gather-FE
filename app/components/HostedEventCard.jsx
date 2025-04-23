@@ -1,10 +1,16 @@
 import { StyleSheet, View, Text, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useState, useEffect } from 'react';
-import { getEventUserActivity, updateEventUserActivityStatus, getUserById, updateEvent, deleteEvent } from '../api';
+import {
+  getEventUserActivity,
+  updateEventUserActivityStatus,
+  getUserById,
+  updateEvent,
+  deleteEvent,
+} from '../api';
 import { useRouter } from 'expo-router';
 
-export default function HostedEventCard({ event, onEventDeleted }) {
+export default function HostedEventCard({ event, setDeletedEvent }) {
   const router = useRouter();
   const [eventActivity, setEventActivity] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -13,14 +19,14 @@ export default function HostedEventCard({ event, onEventDeleted }) {
     const fetchEventActivity = async () => {
       try {
         const activity = await getEventUserActivity(event.event_id);
-        
+
         // If activity is empty, set empty array and return
         if (!activity || activity.length === 0) {
           setEventActivity([]);
           setIsLoading(false);
           return;
         }
-        
+
         // Fetch user details for each request
         const activityWithUserDetails = await Promise.all(
           activity.map(async (request) => {
@@ -29,19 +35,19 @@ export default function HostedEventCard({ event, onEventDeleted }) {
               return {
                 ...request,
                 firstName: user.first_name,
-                lastName: user.last_name
+                lastName: user.last_name,
               };
             } catch (err) {
               console.error(`Error fetching user ${request.attendee_id}:`, err);
               return {
                 ...request,
                 firstName: 'Unknown',
-                lastName: 'User'
+                lastName: 'User',
               };
             }
           })
         );
-        
+
         setEventActivity(activityWithUserDetails);
       } catch (err) {
         console.error('Error fetching event activity:', err);
@@ -58,15 +64,17 @@ export default function HostedEventCard({ event, onEventDeleted }) {
     try {
       // Update the user's status to approved
       await updateEventUserActivityStatus(event.event_id, attendee_id, 'APPROVED', true);
-      
+
       // Update the event status to inactive
       await updateEvent(event.event_id, { status: 'INACTIVE' });
-      
-      setEventActivity(eventActivity.map(activity => 
-        activity.attendee_id === attendee_id 
-          ? { ...activity, user_status: 'APPROVED', user_approved: true }
-          : activity
-      ));
+
+      setEventActivity(
+        eventActivity.map((activity) =>
+          activity.attendee_id === attendee_id
+            ? { ...activity, user_status: 'APPROVED', user_approved: true }
+            : activity
+        )
+      );
     } catch (err) {
       console.error('Error approving request:', err);
     }
@@ -75,59 +83,65 @@ export default function HostedEventCard({ event, onEventDeleted }) {
   const handleDeclineRequest = async (attendee_id) => {
     try {
       await updateEventUserActivityStatus(event.event_id, attendee_id, 'CANCELLED', false);
-      setEventActivity(eventActivity.map(activity => 
-        activity.attendee_id === attendee_id 
-          ? { ...activity, user_status: 'CANCELLED', user_approved: false }
-          : activity
-      ));
+      setEventActivity(
+        eventActivity.map((activity) =>
+          activity.attendee_id === attendee_id
+            ? { ...activity, user_status: 'CANCELLED', user_approved: false }
+            : activity
+        )
+      );
     } catch (err) {
       console.error('Error declining request:', err);
     }
   };
 
   const handleDeleteEvent = () => {
-    Alert.alert(
-      "Delete Event",
-      "Are you sure you want to delete this event?",
-      [
-        {
-          text: "Cancel",
-          style: "cancel"
-        },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await deleteEvent(event.event_id);
-              if (onEventDeleted) {
-                onEventDeleted(event.event_id);
-              }
-              router.back();
-            } catch (err) {
-              console.error('Error deleting event:', err);
-              Alert.alert("Error", "Failed to delete event. Please try again.");
-            }
-          }
-        }
-      ]
-    );
+    console.log('pressed delete');
+
+    async () => {
+      try {
+        await deleteEvent(event.event_id);
+        setDeletedEvent((current) => {
+          return ++current;
+        });
+        // if (onEventDeleted) {
+        // onEventDeleted(event.event_id);
+        // }
+        router.back();
+      } catch (err) {
+        console.error('Error deleting event:', err);
+        Alert.alert('Error', 'Failed to delete event. Please try again.');
+      }
+    };
+    deleteEvent(event.event_id);
+    // Alert.alert('Delete Event', 'Are you sure you want to delete this event?', [
+    //   {
+    //     text: 'Cancel',
+    //     style: 'cancel',
+    //   },
+    //   {
+    //     text: 'Delete',
+    //     style: 'destructive',
+    //     onPress:
+    //     },
+    //   },
+    // ]);
   };
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
+    return date.toLocaleDateString('en-US', {
       day: '2-digit',
       month: '2-digit',
-      year: 'numeric'
+      year: 'numeric',
     });
   };
 
   const formatTime = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleTimeString('en-US', { 
+    return date.toLocaleTimeString('en-US', {
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     });
   };
 
@@ -161,8 +175,8 @@ export default function HostedEventCard({ event, onEventDeleted }) {
     );
   }
 
-  const pendingRequests = eventActivity.filter(activity => activity.user_status === 'REQUESTED');
-  const approvedAttendees = eventActivity.filter(activity => activity.user_status === 'APPROVED');
+  const pendingRequests = eventActivity.filter((activity) => activity.user_status === 'REQUESTED');
+  const approvedAttendees = eventActivity.filter((activity) => activity.user_status === 'APPROVED');
 
   return (
     <View style={styles.card}>
@@ -177,15 +191,10 @@ export default function HostedEventCard({ event, onEventDeleted }) {
         <View style={styles.headerButtons}>
           {pendingRequests.length > 0 && (
             <View style={styles.pendingBadge}>
-              <Text style={styles.pendingBadgeText}>
-                {pendingRequests.length} pending
-              </Text>
+              <Text style={styles.pendingBadgeText}>{pendingRequests.length} pending</Text>
             </View>
           )}
-          <TouchableOpacity 
-            style={styles.deleteButton}
-            onPress={handleDeleteEvent}
-          >
+          <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteEvent}>
             <Ionicons name="trash-outline" size={20} color="#F44336" />
           </TouchableOpacity>
         </View>
@@ -198,7 +207,7 @@ export default function HostedEventCard({ event, onEventDeleted }) {
             {formatDate(event.event_date)} - {formatTime(event.event_date)}
           </Text>
         </View>
-        
+
         <View style={styles.detailRow}>
           <Ionicons name="location-outline" size={16} color="#666" />
           <Text style={styles.detailText}>{event.location}</Text>
@@ -227,16 +236,14 @@ export default function HostedEventCard({ event, onEventDeleted }) {
               </View>
               {activity.user_status === 'REQUESTED' && (
                 <View style={styles.requestButtons}>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={[styles.requestButton, styles.approveButton]}
-                    onPress={() => handleApproveRequest(activity.attendee_id)}
-                  >
+                    onPress={() => handleApproveRequest(activity.attendee_id)}>
                     <Text style={styles.buttonText}>Approve</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={[styles.requestButton, styles.declineButton]}
-                    onPress={() => handleDeclineRequest(activity.attendee_id)}
-                  >
+                    onPress={() => handleDeclineRequest(activity.attendee_id)}>
                     <Text style={styles.buttonText}>Decline</Text>
                   </TouchableOpacity>
                 </View>

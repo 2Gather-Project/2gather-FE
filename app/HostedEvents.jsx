@@ -12,6 +12,7 @@ export default function HostedEvents() {
   const [events, setEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [deletedEvent, setDeletedEvent] = useState(1);
 
   useEffect(() => {
     const fetchHostedEvents = async () => {
@@ -31,7 +32,8 @@ export default function HostedEvents() {
     };
 
     fetchHostedEvents();
-  }, [user]);
+    console.log('getting hosted event', deletedEvent);
+  }, [user, deletedEvent]);
 
   if (!user) {
     return (
@@ -67,18 +69,14 @@ export default function HostedEvents() {
           },
           headerTintColor: 'white',
           headerLeft: () => (
-            <TouchableOpacity
-              onPress={() => router.back()}
-              style={styles.backButton}
-            >
+            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
               <Ionicons name="arrow-back" size={24} color="white" />
             </TouchableOpacity>
           ),
           headerRight: () => (
             <TouchableOpacity
               onPress={() => router.push('/create-event')}
-              style={styles.createButton}
-            >
+              style={styles.createButton}>
               <Ionicons name="add" size={24} color="white" />
             </TouchableOpacity>
           ),
@@ -93,8 +91,7 @@ export default function HostedEvents() {
               <Text style={styles.emptyText}>No hosted events yet</Text>
               <TouchableOpacity
                 style={styles.createEventButton}
-                onPress={() => router.push('/create-event')}
-              >
+                onPress={() => router.push('/create-event')}>
                 <Text style={styles.createEventText}>Create an Event</Text>
               </TouchableOpacity>
             </View>
@@ -103,9 +100,8 @@ export default function HostedEvents() {
               <TouchableOpacity
                 key={event.event_id}
                 onPress={() => router.push(`/event/${event.event_id}`)}
-                activeOpacity={0.7}
-              >
-                <HostedEventCard event={event} />
+                activeOpacity={0.7}>
+                <HostedEventCard event={event} setDeletedEvent={setDeletedEvent} />
               </TouchableOpacity>
             ))
           )}
