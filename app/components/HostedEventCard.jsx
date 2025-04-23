@@ -1,9 +1,11 @@
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useState, useEffect } from 'react';
-import { getEventUserActivity, updateEventUserActivityStatus, getUserById } from '../api';
+import { getEventUserActivity, updateEventUserActivityStatus, getUserById, updateEvent, deleteEvent } from '../api';
+import { useRouter } from 'expo-router';
 
-export default function HostedEventCard({ event }) {
+export default function HostedEventCard({ event, onEventDeleted }) {
+  const router = useRouter();
   const [eventActivity, setEventActivity] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -54,7 +56,12 @@ export default function HostedEventCard({ event }) {
 
   const handleApproveRequest = async (attendee_id) => {
     try {
+      // Update the user's status to approved
       await updateEventUserActivityStatus(event.event_id, attendee_id, 'APPROVED', true);
+      
+      // Update the event status to inactive
+      await updateEvent(event.event_id, { status: 'INACTIVE' });
+      
       setEventActivity(eventActivity.map(activity => 
         activity.attendee_id === attendee_id 
           ? { ...activity, user_status: 'APPROVED', user_approved: true }
@@ -76,6 +83,35 @@ export default function HostedEventCard({ event }) {
     } catch (err) {
       console.error('Error declining request:', err);
     }
+  };
+
+  const handleDeleteEvent = () => {
+    Alert.alert(
+      "Delete Event",
+      "Are you sure you want to delete this event?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await deleteEvent(event.event_id);
+              if (onEventDeleted) {
+                onEventDeleted(event.event_id);
+              }
+              router.back();
+            } catch (err) {
+              console.error('Error deleting event:', err);
+              Alert.alert("Error", "Failed to delete event. Please try again.");
+            }
+          }
+        }
+      ]
+    );
   };
 
   const formatDate = (dateString) => {
@@ -138,13 +174,21 @@ export default function HostedEventCard({ event }) {
             <Text style={styles.attendeesText}>{approvedAttendees.length} attendees</Text>
           </View>
         </View>
-        {pendingRequests.length > 0 && (
-          <View style={styles.pendingBadge}>
-            <Text style={styles.pendingBadgeText}>
-              {pendingRequests.length} pending
-            </Text>
-          </View>
-        )}
+        <View style={styles.headerButtons}>
+          {pendingRequests.length > 0 && (
+            <View style={styles.pendingBadge}>
+              <Text style={styles.pendingBadgeText}>
+                {pendingRequests.length} pending
+              </Text>
+            </View>
+          )}
+          <TouchableOpacity 
+            style={styles.deleteButton}
+            onPress={handleDeleteEvent}
+          >
+            <Ionicons name="trash-outline" size={20} color="#F44336" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <View style={styles.details}>
@@ -334,5 +378,13 @@ const styles = StyleSheet.create({
     color: '#F44336',
     fontSize: 12,
     fontWeight: '600',
+  },
+  headerButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  deleteButton: {
+    padding: 8,
   },
 });

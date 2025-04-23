@@ -1,21 +1,27 @@
 import { StyleSheet, View, Text, ScrollView, TouchableOpacity, SafeAreaView } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import HostedEventCard from './components/HostedEventCard';
 import { getHostedEvents } from './api';
+import { UserContext } from './contexts/UserContext';
 
 export default function HostedEvents() {
   const router = useRouter();
+  const { user } = useContext(UserContext);
   const [events, setEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchHostedEvents = async () => {
+      if (!user || !user.user_id) {
+        setIsLoading(false);
+        return;
+      }
+
       try {
-        // TODO: Replace '1' with the actual user ID from your auth context
-        const hostedEvents = await getHostedEvents('1');
+        const hostedEvents = await getHostedEvents(user.user_id);
         setEvents(hostedEvents);
       } catch (err) {
         setError(err);
@@ -25,7 +31,15 @@ export default function HostedEvents() {
     };
 
     fetchHostedEvents();
-  }, []);
+  }, [user]);
+
+  if (!user) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <Text>Please log in to view hosted events</Text>
+      </SafeAreaView>
+    );
+  }
 
   if (isLoading) {
     return (
