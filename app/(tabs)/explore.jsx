@@ -20,6 +20,8 @@ export default function Explore() {
   const [filterEvent, setFilterEvent] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
 
+  console.log(filterValueLocation);
+
   // const route = useRoute();
   // const { location } = route.params
 
@@ -90,7 +92,6 @@ export default function Explore() {
   //   },
   // ];
 
-
   // useFocusEffect(
   //   useCallback(() => {  //tobe checked
 
@@ -120,14 +121,14 @@ export default function Explore() {
             setFilterValueLocation={setFilterValueLocation}
             setEventsData={setEventsData}
           />
-          <DropdownComponent
+          {/* <DropdownComponent
             title="Sort By"
             events={eventsData}
             sortByValue={sortByValue}
             setSortByValue={setSortByValue}
-          />
+          /> */}
         </View>
-        <EventsList events={eventsData} />
+        <EventsList events={eventsData} filterValueLocation={filterValueLocation} />
       </View>
     </>
   );

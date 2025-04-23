@@ -1,7 +1,7 @@
 import EventCard from './EventCard';
 import { FlatList, StyleSheet, View } from 'react-native';
 
-export default function EventsList({ events }) {
+export default function EventsList({ events, filterValueLocation }) {
   // const events = [
   //   {
   //     creator_id: 1,
@@ -62,14 +62,20 @@ export default function EventsList({ events }) {
   //   },
   // ];
 
-  // console.log(events)
+  const eventsFilter = events.filter((event) => {
+    if (!filterValueLocation) {
+      return event;
+    } else if (event.location === filterValueLocation) {
+      return event;
+    }
+  });
 
   return (
     <>
       <View style={styles.container}>
         <FlatList
           style={{ width: '100%' }}
-          data={events}
+          data={eventsFilter}
           renderItem={({ item }) => (
             <EventCard
               title={item.title}
