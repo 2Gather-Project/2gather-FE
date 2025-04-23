@@ -1,7 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../contexts/UserContext';
-import { launchImageLibrary } from 'react-native-image-picker';
-import * as ImageManipulator from 'expo-image-manipulator';
 import {
   StyleSheet,
   View,
@@ -15,9 +13,7 @@ import {
 import { useRouter } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
-import { getTags, patchEventImage, postNewEvent } from '../services/eventsAPI';
-import { Button, Image } from 'react-native-web';
-import * as ImagePicker from 'expo-image-picker';
+import { getTags, postNewEvent } from '../services/eventsAPI';
 import ErrorMessage from './ErrorMessage';
 
 export default function CreateEvent() {
@@ -25,7 +21,6 @@ export default function CreateEvent() {
   const [isEditing, setIsEditing] = useState(true);
   const router = useRouter();
   const [error, setError] = useState(false);
-  const [photo, setPhoto] = useState(null);
   const [tags, setTags] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const currentDate = new Date();
@@ -44,7 +39,6 @@ export default function CreateEvent() {
     user_id: user?.user_id || '',
     category: 'OTHER',
     event_date: `${currentDate.toJSON()}`,
-    image_url: user?.image_url || '',
   });
 
   // Update addEvent when user data is loaded
@@ -53,7 +47,6 @@ export default function CreateEvent() {
       setAddEvent(prev => ({
         ...prev,
         user_id: user.user_id,
-        image_url: user.image_url || prev.image_url
       }));
       setIsLoading(false);
     }
@@ -76,53 +69,6 @@ export default function CreateEvent() {
     };
     callTags();
   }, []);
-
-  useEffect(() => {
-    ImagePicker.requestMediaLibraryPermissionsAsync().then(({ status }) => {
-      if (status !== 'granted') {
-        alert('Sorry, we need camera roll permissions to change your profile picture!');
-      }
-    });
-  }, []);
-
-  const compressImage = async () => {
-    const file = await ImageManipulator.manipulateAsync(addEvent.image_url, [], { compress: 0.5 });
-
-    addEvent.image_url = file.uri;
-  };
-
-  const pickImage = async () => {
-    setError(false);
-    // Only allow picking an image when in edit mode
-    if (!isEditing) return;
-
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.5, // Lowered quality to reduce size
-      base64: true, // Always request base64 data
-    });
-
-    if (!result.canceled && result.assets && result.assets.length > 0) {
-      const selectedAsset = result.assets[0];
-
-      // Make sure we have base64 data
-      if (!selectedAsset.base64) {
-        alert('Unable to process image. Please try another one.');
-        return;
-      }
-
-      // Create a data URI from the base64 string
-      const imageSource = `data:image/jpeg;base64,${selectedAsset.base64}`;
-
-      // Update the profile state with the base64 data URI
-      setAddEvent({
-        ...addEvent,
-        image_url: imageSource,
-      });
-    }
-  };
 
   // Formatted date and time for display
   const formattedDate = date.toLocaleDateString();
@@ -164,7 +110,6 @@ export default function CreateEvent() {
   const handlePost = () => {
     console.log('pressed post');
     setError(false);
-    compressImage();
     const addEventForUser = async () => {
       try {
         const res = await postNewEvent(addEvent);
@@ -184,7 +129,6 @@ export default function CreateEvent() {
       user_id: user?.user_id || '',
       category: 'OTHER',
       event_date: `${currentDate.toJSON()}`,
-      image_url: user?.image_url || '',
     });
     setError(false);
     router.back();
@@ -213,32 +157,6 @@ export default function CreateEvent() {
       </View>
 
       <ScrollView style={styles.form}>
-        <View style={styles.coverPhotoContainer}>
-          <View style={styles.profileImageWrapper}>
-            <TouchableOpacity
-              style={styles.imageContainer}
-              disabled={!isEditing}
-              onPress={pickImage}>
-              {addEvent.image_url ? (
-                <Image
-                  source={{ uri: addEvent.image_url }}
-                  style={styles.profileImage}
-                  resizeMode="cover"
-                />
-              ) : (
-                <View style={styles.profileImage}>
-                  <Ionicons name={isEditing ? 'add' : 'person'} size={40} color="white" />
-                </View>
-              )}
-              {isEditing && (
-                <View style={styles.editImageBadge}>
-                  <Ionicons name="camera" size={14} color="white" />
-                </View>
-              )}
-            </TouchableOpacity>
-          </View>
-        </View>
-
         <Text style={styles.label}>Event Title</Text>
 
         <TextInput
@@ -257,50 +175,29 @@ export default function CreateEvent() {
         </TouchableOpacity>
 
         {showDatePicker && (
-          <View>
-            <DateTimePicker
-              value={date}
-              mode="date"
-              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-              onChange={onDateChange}
-              {...(Platform.OS === 'ios' && {
-                style: { width: '100%', backgroundColor: 'white' },
-              })}
-            />
-            {Platform.OS === 'ios' && (
-              <TouchableOpacity
-                style={styles.confirmButton}
-                onPress={() => setShowDatePicker(false)}>
-                <Text style={styles.confirmButtonText}>Confirm</Text>
-              </TouchableOpacity>
-            )}
-          </View>
+          <DateTimePicker
+            value={date}
+            mode="date"
+            display="default"
+            onChange={onDateChange}
+            minimumDate={new Date()}
+          />
         )}
 
         <Text style={styles.label}>Time</Text>
-        <TouchableOpacity style={styles.dateTimeButton} onPress={() => setShowTimePicker(true)}>
+        <TouchableOpacity
+          style={styles.dateTimeButton}
+          onPress={() => setShowTimePicker(true)}>
           <Text>{formattedTime}</Text>
         </TouchableOpacity>
 
         {showTimePicker && (
-          <View>
-            <DateTimePicker
-              value={time}
-              mode="time"
-              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-              onChange={handleChange}
-              {...(Platform.OS === 'ios' && {
-                style: { width: '100%', backgroundColor: 'white' },
-              })}
-            />
-            {Platform.OS === 'ios' && (
-              <TouchableOpacity
-                style={styles.confirmButton}
-                onPress={() => setShowTimePicker(false)}>
-                <Text style={styles.confirmButtonText}>Confirm</Text>
-              </TouchableOpacity>
-            )}
-          </View>
+          <DateTimePicker
+            value={time}
+            mode="time"
+            display="default"
+            onChange={onTimeChange}
+          />
         )}
 
         <Text style={styles.label}>Location</Text>
@@ -313,19 +210,23 @@ export default function CreateEvent() {
 
         <Text style={styles.label}>Description</Text>
         <TextInput
-          style={styles.input}
-          value={addEvent.description || ''}
+          style={[styles.input, styles.textArea]}
           id="description"
           onChange={handleChange}
+          value={addEvent.description || ''}
           multiline
+          numberOfLines={4}
         />
 
-        <Text style={styles.label}>Tag</Text>
+        <Text style={styles.label}>Category</Text>
         <View style={styles.tagsContainer}>
           {tags.map((tag) => (
             <TouchableOpacity
               key={tag}
-              style={[styles.tagButton, selectedTags.includes(tag) && styles.tagButtonSelected]}
+              style={[
+                styles.tagButton,
+                selectedTags === tag && styles.tagButtonSelected,
+              ]}
               onPress={() => toggleTag(tag)}>
               <Text style={styles.tagText}>{tag}</Text>
             </TouchableOpacity>
@@ -337,10 +238,9 @@ export default function CreateEvent() {
             <Text style={styles.buttonText}>Cancel</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.postButton} onPress={handlePost}>
-            <Text style={styles.buttonText}>Post</Text>
+            <Text style={styles.buttonText}>Create Event</Text>
           </TouchableOpacity>
         </View>
-        {error && <ErrorMessage error={error} />}
       </ScrollView>
     </SafeAreaView>
   );
@@ -378,10 +278,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#003049',
   },
-  imageContainer: {
-    alignItems: 'center',
-    position: 'relative',
-  },
   form: {
     flex: 1,
     padding: 20,
@@ -396,6 +292,10 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     padding: 10,
     marginBottom: 15,
+  },
+  textArea: {
+    height: 100,
+    textAlignVertical: 'top',
   },
   tagsContainer: {
     flexDirection: 'row',
@@ -430,19 +330,6 @@ const styles = StyleSheet.create({
     marginRight: 10,
     alignItems: 'center',
   },
-  editImageBadge: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    backgroundColor: '#C1121F',
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: 'white',
-  },
   postButton: {
     backgroundColor: '#003049',
     borderRadius: 5,
@@ -462,39 +349,5 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 15,
     backgroundColor: '#f9f9f9',
-  },
-  addPictureText: {
-    marginTop: 8,
-    fontSize: 14,
-    color: '#333',
-    alignContent: 'center',
-  },
-  coverPhotoContainer: {
-    position: 'relative',
-    height: 180,
-    marginBottom: 80,
-  },
-  coverPhoto: {
-    height: 140,
-    width: '100%',
-    backgroundColor: '#669BBC',
-    overflow: 'hidden',
-  },
-  profileImageWrapper: {
-    position: 'absolute',
-    bottom: -60,
-    alignItems: 'center',
-    width: '100%',
-  },
-  profileImage: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: '#669BBC',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 4,
-    borderColor: 'white',
-    overflow: 'hidden',
   },
 });

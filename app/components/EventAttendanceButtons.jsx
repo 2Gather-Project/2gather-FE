@@ -52,6 +52,7 @@ export const EventAttendanceButtons = ({ event, setStatus }) => {
         if (event.status !== newStatus) {
           await updateEventStatus(event.event_id, { status: newStatus });
           setEventStatus((prev) => ({ ...prev, status: newStatus }));
+        }
 
         console.log(`Setting status for ${event.status}:`);
 
