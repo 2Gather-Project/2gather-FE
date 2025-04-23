@@ -1,4 +1,5 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useCallback, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { StyleSheet, View, Text, FlatList, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { UserContext } from './contexts/UserContext';
@@ -12,20 +13,25 @@ export default function UpcomingEvents() {
     const [error, setError] = useState(null);
     const router = useRouter();
 
-    useEffect(() => {
-        if (user && user.user_id) {
-            fetchApprovedEvents(user.user_id)
-                .then((events) => {
-                    setError(null)
-                    setIsLoading(false)
-                    setUpcomingEvents(events);
-
-                }).catch(err => {
-                    setIsLoading(false)
-                    setError(err)
-                })
-        }
-    }, [user]);
+    useFocusEffect(
+        useCallback(() => {
+            // Only fetch if we have a user
+            if (user && user.user_id) {
+                setIsLoading(true);
+                fetchApprovedEvents(user.user_id)
+                    .then((events) => {
+                        setError(null);
+                        setUpcomingEvents(events);
+                    })
+                    .catch(err => {
+                        setError(err);
+                    })
+                    .finally(() => {
+                        setIsLoading(false);
+                    });
+            }
+        }, [user])
+    );
 
 
     if (error) {
