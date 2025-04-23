@@ -39,7 +39,9 @@ export default function TabLayout() {
 
               <TouchableOpacity onPress={goToProfile} style={{ marginRight: 15, marginLeft: 15 }}>
                 {user?.image_url ? (
-                  <Image source={{ uri: user.image_url }} style={styles.profileImageIcon} />
+                  <View style={styles.profileImageContainer}>
+                    <Image source={{ uri: user.image_url }} style={styles.profileImage} />
+                  </View>
                 ) : (
                   <Ionicons name="person-circle-outline" color="#333" size={36} />
                 )}
@@ -56,7 +58,9 @@ export default function TabLayout() {
           headerRight: () => (
             <TouchableOpacity onPress={goToProfile} style={{ marginRight: 15 }}>
               {user?.image_url ? (
-                <Image source={{ uri: user.image_url }} style={styles.profileImageIcon} />
+                <View style={styles.profileImageContainer}>
+                  <Image source={{ uri: user.image_url }} style={styles.profileImage} />
+                </View>
               ) : (
                 <Ionicons name="person-circle-outline" color="#333" size={36} />
               )}
@@ -72,14 +76,13 @@ export default function TabLayout() {
           headerRight: () => (
             <TouchableOpacity onPress={goToProfile} style={{ marginRight: 15 }}>
               {user?.image_url ? (
-                <Image source={{ uri: user.image_url }} style={styles.profileImageIcon} />
+                <View style={styles.profileImageContainer}>
+                  <Image source={{ uri: user.image_url }} style={styles.profileImage} />
+                </View>
               ) : (
                 <Ionicons name="person-circle-outline" color="#333" size={36} />
               )}
             </TouchableOpacity>
-            // <Link href="/modal" asChild>
-            //   <HeaderButton />
-            // </Link>
           ),
         }}
       />
@@ -91,7 +94,9 @@ export default function TabLayout() {
           headerRight: () => (
             <TouchableOpacity onPress={goToProfile} style={{ marginRight: 15 }}>
               {user?.image_url ? (
-                <Image source={{ uri: user.image_url }} style={styles.profileImageIcon} />
+                <View style={styles.profileImageContainer}>
+                  <Image source={{ uri: user.image_url }} style={styles.profileImage} />
+                </View>
               ) : (
                 <Ionicons name="person-circle-outline" color="#333" size={36} />
               )}
@@ -107,7 +112,9 @@ export default function TabLayout() {
           headerRight: () => (
             <TouchableOpacity onPress={goToProfile} style={{ marginRight: 15 }}>
               {user?.image_url ? (
-                <Image source={{ uri: user.image_url }} style={styles.profileImageIcon} />
+                <View style={styles.profileImageContainer}>
+                  <Image source={{ uri: user.image_url }} style={styles.profileImage} />
+                </View>
               ) : (
                 <Ionicons name="person-circle-outline" color="#333" size={36} />
               )}
@@ -133,9 +140,24 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 12,
   },
-  profileImageIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+  profileImageContainer: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    borderColor: '#003049',
+    borderWidth: 1,
+    padding: 4,
+    backgroundColor: '#ffffff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  profileImage: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
   },
 });

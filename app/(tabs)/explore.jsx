@@ -20,7 +20,9 @@ export default function Explore() {
   const [filterEvent, setFilterEvent] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
 
+
   console.log(filterValueLocation);
+
 
   // const route = useRoute();
   // const { location } = route.params
@@ -96,6 +98,7 @@ export default function Explore() {
   //   useCallback(() => {  //tobe checked
 
   useEffect(() => {
+    //if no user, redirect to login TODO
     getEvents({ columnNam: 'user_id', value: `${user.user_id}`, not_equal: true })
       .then((eventsData) => {
         setEventsData(eventsData);
