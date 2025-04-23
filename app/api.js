@@ -93,3 +93,9 @@ export function updateEventUserActivityStatus(event_id, attendee_id, user_status
     return event_user_activity;
   });
 }
+
+export function fetchApprovedEvents(user_id) {
+  return baseApi.get(`/users/${user_id}/approved-events`).then(({ data: { events } }) => {
+    return events;
+  });
+}
