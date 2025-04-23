@@ -46,25 +46,7 @@ export default function Home() {
         <Text>Find events near you</Text>
       </View>
 
-      <View style={styles.featuredSection}>
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Featured Events</Text>
-          <Link href="/explore" style={styles.seeAllLink}>See all</Link>
-        </View>
 
-        <FlatList
-          data={dummyEvents}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <EventItem
-              title={item.title}
-              date={item.date}
-              location={item.location}
-            />
-          )}
-
-        />
-      </View>
 
       <View style={styles.featuredSection}>
         <View style={styles.sectionHeader}>
