@@ -15,15 +15,16 @@ import {
 import { useRouter } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
-import { patchEventImage, postNewEvent } from '../services/eventsAPI';
+import { getTags, patchEventImage, postNewEvent } from '../services/eventsAPI';
 import { Button, Image } from 'react-native-web';
 import * as ImagePicker from 'expo-image-picker';
+import ErrorMessage from './ErrorMessage';
 
 export default function CreateEvent() {
   const { user } = useContext(UserContext);
   const [isEditing, setIsEditing] = useState(true);
   const router = useRouter();
-  const [error, setIsError] = useState({});
+  const [error, setError] = useState(false);
   const [photo, setPhoto] = useState(null);
   const [tags, setTags] = useState([]);
   const currentDate = new Date();
@@ -33,7 +34,7 @@ export default function CreateEvent() {
   const [time, setTime] = useState(new Date());
   const [modalVisible, setModalVisible] = useState(false);
 
-  const [selectedTags, setSelectedTags] = useState([]);
+  const [selectedTags, setSelectedTags] = useState('');
 
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
@@ -46,12 +47,18 @@ export default function CreateEvent() {
   });
 
   useEffect(() => {
+    console.log('inside tags');
     const callTags = async () => {
       try {
         const res = await getTags();
-        setTags(res);
+        const interestArray = res.map((data) => {
+          return data.unnest;
+        });
+
+        setTags(interestArray);
+        console.log(res);
       } catch (error) {
-        setIsError(error);
+        setError(error);
       }
     };
     callTags();
@@ -72,6 +79,7 @@ export default function CreateEvent() {
   };
 
   const pickImage = async () => {
+    setError(false);
     // Only allow picking an image when in edit mode
     if (!isEditing) return;
 
@@ -111,6 +119,7 @@ export default function CreateEvent() {
 
   function handleChange(event) {
     event.preventDefault();
+    setError(false);
     setAddEvent((addEvent) => {
       return { ...addEvent, [event.target.id]: `${event.target.value}` };
     });
@@ -161,28 +170,36 @@ export default function CreateEvent() {
   };
 
   const toggleTag = (tag) => {
-    if (selectedTags.includes(tag)) {
-      setSelectedTags(selectedTags.filter((t) => t !== tag));
-    } else {
-      setSelectedTags([...selectedTags, tag]);
-      setAddEvent((addEvent) => {
-        return { ...addEvent, category: `${selectedTags}` };
-      });
-    }
+    setSelectedTags(tag);
+    setAddEvent({ ...addEvent, category: `${tag}` });
   };
 
   const handlePost = () => {
     console.log('pressed post');
+    setError(false);
     compressImage();
     const addEventForUser = async () => {
       try {
         const res = await postNewEvent(addEvent);
         console.log(res);
       } catch (error) {
-        setIsError(error);
+        setError(error);
       }
     };
     addEventForUser();
+    if (!error) {
+      router.back();
+    }
+  };
+
+  const handleCancle = () => {
+    setAddEvent({
+      user_id: `${user.user_id}`,
+      category: 'OTHER',
+      event_date: `${currentDate.toJSON()}`,
+      image_url: user?.image_url || '',
+    });
+    setError(false);
     router.back();
   };
 
@@ -326,13 +343,14 @@ export default function CreateEvent() {
         </View>
 
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.cancelButton} onPress={() => router.back()}>
+          <TouchableOpacity style={styles.cancelButton} onPress={handleCancle}>
             <Text style={styles.buttonText}>Cancel</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.postButton} onPress={handlePost}>
             <Text style={styles.buttonText}>Post</Text>
           </TouchableOpacity>
         </View>
+        {error && <ErrorMessage error={error} />}
       </ScrollView>
     </SafeAreaView>
   );
