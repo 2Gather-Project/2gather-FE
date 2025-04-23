@@ -35,8 +35,13 @@ export default function HostProfile() {
         <Ionicons name="home" size={30} color="#003049" />
       </TouchableOpacity>
       <TouchableOpacity onPress={() => router.push('/profile')}>
-        {/* add profile pic from context TODO*/}
-        <Ionicons name="person-circle-outline" size={36} color="#003049" />
+        {user?.image_url ? (
+          <View style={styles.profileImageContainer}>
+            <Image source={{ uri: user.image_url }} style={styles.profileImage} />
+          </View>
+        ) : (
+          <Ionicons name="person-circle-outline" color="#333" size={36} />
+        )}
       </TouchableOpacity>
     </View>
   );
@@ -56,6 +61,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 15,
     backgroundColor: '#fff',
+    justifyContent: 'center',
     alignItems: 'center',
   },
   header: {
@@ -66,12 +72,25 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
   },
-  imageContainer: {
-    width: '100%',
-    height: 200,
-    marginBottom: 20,
-    borderRadius: 10,
-    overflow: 'hidden',
+  profileImageContainer: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    borderColor: '#003049',
+    borderWidth: 1,
+    padding: 4,
+    backgroundColor: '#ffffff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  profileImage: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
   },
   logo: {
     width: '100%',
