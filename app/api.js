@@ -68,3 +68,30 @@ export function getEventUserActivity(eventId) {
     return event_user_activity;
   });
 }
+
+export function getHostedEvents(userId) {
+  return baseApi.get(`/users/${userId}/hosted-events`).then(({ data: { events } }) => {
+    return events;
+  });
+}
+
+export function postEventUserActivity(event_id, host_id, attendee_id) {
+  return baseApi.post(`/event-user-activity`, {
+    event_id,
+    host_id,
+    attendee_id,
+    user_status: 'REQUESTED',
+    user_approved: false
+  }).then(({ data: { event_user_activity } }) => {
+    return event_user_activity;
+  });
+}
+
+export function updateEventUserActivityStatus(event_id, attendee_id, user_status, user_approved) {
+  return baseApi.patch(`/event-user-activity/${event_id}/${attendee_id}`, {
+    user_status,
+    user_approved
+  }).then(({ data: { event_user_activity } }) => {
+    return event_user_activity;
+  });
+}
