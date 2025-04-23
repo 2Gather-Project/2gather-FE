@@ -11,11 +11,10 @@ export default function SingleEvent() {
   const [isError, setIsError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useContext(UserContext);
-  const router = useRouter();
+   const router = useRouter();
   const params = useLocalSearchParams();
   const event_id = params.event_id;
   const setStatus = params.setStatus;
-
   useEffect(() => {
     const fetchSingleEvent = async () => {
       if (!event_id) {

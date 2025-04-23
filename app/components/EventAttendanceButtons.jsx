@@ -6,7 +6,11 @@ import {
   postEventAttendance,
   updateEventStatus,
 } from '../services/eventsAPI';
+
 import { Alert, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator } from 'react-native';
+
+
+
 import { updateEvent } from '../api';
 
 export const EventAttendanceButtons = ({ event, setStatus }) => {
@@ -48,8 +52,11 @@ export const EventAttendanceButtons = ({ event, setStatus }) => {
         if (event.status !== newStatus) {
           await updateEventStatus(event.event_id, { status: newStatus });
           setEventStatus((prev) => ({ ...prev, status: newStatus }));
-        }
+
         console.log(`Setting status for ${event.status}:`);
+
+
+
       } catch (error) {
         setIsError(error);
         Alert.alert('Error', 'The event attendance could not be loaded.');
@@ -58,7 +65,10 @@ export const EventAttendanceButtons = ({ event, setStatus }) => {
       }
     };
     fetchAttendance();
+
   }, [event?.event_id]);
+
+
 
   const handleAttendance = async (eventId) => {
     setIsLoading(true);
@@ -148,6 +158,13 @@ export const EventAttendanceButtons = ({ event, setStatus }) => {
       setIsLoading(false);
       setIsDisabled(false);
     }
+    try {
+      await updateEvent(event.event_id, { status: 'ACTIVE' });
+      setStatus(true);
+    } catch (error) {
+      setIsError(error);
+      Alert.alert('Error', 'Event still inactive.');
+    }
   };
 
   const isRequested =
@@ -160,6 +177,10 @@ export const EventAttendanceButtons = ({ event, setStatus }) => {
         attendance.event_id === event.event_id &&
         attendance.user_status === 'REQUESTED'
     );
+    
+  console.log('isDisabled:', isDisabled);
+  console.log('isRequested:', isRequested);
+  console.log('eventAttendance:', eventAttendance);
 
   const isApproved = eventAttendance.some(
     (attendance) =>
@@ -175,13 +196,19 @@ export const EventAttendanceButtons = ({ event, setStatus }) => {
       attendance.user_status === 'APPROVED'
   );
 
+  console.log('isApproved:', isApproved);
+  console.log('isOccuoies:', isOccupied);
+    
   return (
     <View style={styles.attendanceButtons}>
       <TouchableOpacity
         onPress={() => handleAttendance(event.event_id)}
         disabled={isRequested || isOccupied || isApproved}
         style={[styles.button, isRequested ? styles.disabledButton : styles.attendButton]}
+
         accessibilityLabel={`Assist ${event.event_id}`}>
+
+
         <Text style={styles.buttonText}>
           {isRequested
             ? 'Request sent'

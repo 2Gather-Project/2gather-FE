@@ -2,8 +2,15 @@ import { Link } from '@react-navigation/native';
 import { useNavigation } from 'expo-router';
 import { Text, View, Image, StyleSheet, TouchableOpacity, Pressable } from 'react-native';
 
-
-export default function EventCard({ title, location, event_id, image_url, description, date }) {
+export default function EventCard({
+  title,
+  location,
+  event_id,
+  image_url,
+  description,
+  date,
+  setStatus,
+}) {
   console.log('Inside event card:', title, event_id);
   const time = new Date(date).toLocaleDateString([], {
     hour: '2-digit',
@@ -28,7 +35,7 @@ export default function EventCard({ title, location, event_id, image_url, descri
           />
         </View>
         <View style={styles.textContainer}>
-          <Pressable onPress={() => navigation.navigate('SingleEvent', { event_id })}>
+          <Pressable onPress={() => navigation.navigate('SingleEvent', { event_id, setStatus })}>
             <Text style={styles.title}>{title}</Text>
             <Text style={styles.location}>{location}</Text>
           </Pressable>

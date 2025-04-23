@@ -3,9 +3,7 @@ import EventCard from './EventCard';
 import { Alert, FlatList, StyleSheet, View } from 'react-native';
 import { updateEventStatus } from '../services/eventsAPI';
 
-
-export default function EventsList({ events, filterValueLocation }) {
-
+export default function EventsList({ events, filterValueLocation, setStatus }) {
   const eventsFilter = events.filter((event) => {
     if (!filterValueLocation && event.status !== 'INACTIVE') {
       return event;
@@ -19,7 +17,6 @@ export default function EventsList({ events, filterValueLocation }) {
       <View style={styles.container}>
         <FlatList
           style={{ width: '100%' }}
-         
           keyExtractor={(item) => item.event_id.toString()}
           data={eventsFilter}
           renderItem={({ item }) => (
@@ -33,9 +30,9 @@ export default function EventsList({ events, filterValueLocation }) {
               event_id={item.event_id}
               image_url={item.image_url}
               description={item.description}
+              setStatus={setStatus}
             />
           )}
-  
         />
       </View>
     </>
