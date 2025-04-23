@@ -46,6 +46,7 @@ const ProfileForm = () => {
       setProfileData((prevData) => ({
         ...prevData,
         user_id: user.user_id,
+        address: user.address,
       }));
     }
   }, [user]);
