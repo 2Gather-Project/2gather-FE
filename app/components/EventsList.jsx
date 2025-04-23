@@ -79,6 +79,7 @@ export default function EventsList({ events }) {
               id={item.user_id}
               key={item.event_id}
               event_id={item.event_id}
+              image_url={item.image_url}
             />
           )}
           keyExtractor={(item) => item.user_id}

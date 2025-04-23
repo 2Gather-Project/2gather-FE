@@ -1,4 +1,7 @@
-import { useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
+import { UserContext } from '../contexts/UserContext';
+import { launchImageLibrary } from 'react-native-image-picker';
+import * as ImageManipulator from 'expo-image-manipulator';
 import {
   StyleSheet,
   View,
@@ -11,34 +14,139 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { AntDesign } from '@expo/vector-icons';
-import { postNewEventHardCoded } from '../services/eventsAPI';
+import { AntDesign, Ionicons } from '@expo/vector-icons';
+import { getTags, patchEventImage, postNewEvent } from '../services/eventsAPI';
+import { Button, Image } from 'react-native-web';
+import * as ImagePicker from 'expo-image-picker';
+import ErrorMessage from './ErrorMessage';
 
 export default function CreateEvent() {
+  const { user } = useContext(UserContext);
+  const [isEditing, setIsEditing] = useState(true);
   const router = useRouter();
-  const [error, setIsError] = useState({});
-  const [eventTitle, setEventTitle] = useState('');
+  const [error, setError] = useState(false);
+  const [photo, setPhoto] = useState(null);
+  const [tags, setTags] = useState([]);
+  const currentDate = new Date();
+  currentDate.setDate(currentDate.getDate() + 1);
+
   const [date, setDate] = useState(new Date());
   const [time, setTime] = useState(new Date());
-  const [location, setLocation] = useState('');
-  const [description, setDescription] = useState('');
-  const [selectedTags, setSelectedTags] = useState([]);
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const [selectedTags, setSelectedTags] = useState('');
 
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
 
-  const [addEvent, setAddEvent] = useState({ user_id: 1 });
+  const [addEvent, setAddEvent] = useState({
+    user_id: `${user.user_id}`,
+    category: 'OTHER',
+    event_date: `${currentDate.toJSON()}`,
+    image_url: user?.image_url || '',
+  });
+
+  useEffect(() => {
+    console.log('inside tags');
+    const callTags = async () => {
+      try {
+        const res = await getTags();
+        const interestArray = res.map((data) => {
+          return data.unnest;
+        });
+
+        setTags(interestArray);
+        console.log(res);
+      } catch (error) {
+        setError(error);
+      }
+    };
+    callTags();
+  }, []);
+
+  useEffect(() => {
+    ImagePicker.requestMediaLibraryPermissionsAsync().then(({ status }) => {
+      if (status !== 'granted') {
+        alert('Sorry, we need camera roll permissions to change your profile picture!');
+      }
+    });
+  }, []);
+
+  const compressImage = async () => {
+    const file = await ImageManipulator.manipulateAsync(addEvent.image_url, [], { compress: 0.5 });
+
+    addEvent.image_url = file.uri;
+  };
+
+  const pickImage = async () => {
+    setError(false);
+    // Only allow picking an image when in edit mode
+    if (!isEditing) return;
+
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.5, // Lowered quality to reduce size
+      base64: true, // Always request base64 data
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const selectedAsset = result.assets[0];
+
+      // Make sure we have base64 data
+      if (!selectedAsset.base64) {
+        alert('Unable to process image. Please try another one.');
+        return;
+      }
+
+      // Create a data URI from the base64 string
+      const imageSource = `data:image/jpeg;base64,${selectedAsset.base64}`;
+
+      // Update the profile state with the base64 data URI
+      setAddEvent({
+        ...addEvent,
+        image_url: imageSource,
+      });
+    }
+  };
+
   // Formatted date and time for display
   const formattedDate = date.toLocaleDateString();
 
+  console.log('User is:', user);
   const formattedTime = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
   function handleChange(event) {
     event.preventDefault();
+    setError(false);
     setAddEvent((addEvent) => {
       return { ...addEvent, [event.target.id]: `${event.target.value}` };
     });
   }
+
+  // const handleUploadPhoto = () => {
+  //   const data = createFormData(photo, { event_id: `${addEvent.event_id}` || '' });
+  //   console.log(data);
+  //   patchEventImage(addEvent)
+  //     .then((response) => response.json())
+  //     .then((response) => {
+  //       console.log('response', response);
+  //     })
+  //     .catch((error) => {
+  //       console.log('error', error);
+  //     });
+  // };
+
+  // const handleChoosePhoto = () => {
+  //   console.log('handleChoosePhoto');
+  //   launchImageLibrary({ noData: true }, (response) => {
+  //     console.log(response);
+  //     if (response) {
+  //       setPhoto(response);
+  //     }
+  //   });
+  // };
 
   console.log(addEvent);
   const onDateChange = (event, selectedDate) => {
@@ -61,48 +169,37 @@ export default function CreateEvent() {
     }
   };
 
-  const tags = [
-    'cooking',
-    'dog walking',
-    'coffee date',
-    'lunch',
-    'dinner',
-    'theatre',
-    'cinema',
-    'movies',
-    'festivals',
-    'concerts',
-    'food',
-    'market',
-    'shopping',
-    'pets',
-    'fitness',
-    'gym',
-    'hiking',
-    'bird watching',
-    'fishing',
-    'casual walk',
-  ];
-
   const toggleTag = (tag) => {
-    if (selectedTags.includes(tag)) {
-      setSelectedTags(selectedTags.filter((t) => t !== tag));
-    } else {
-      setSelectedTags([...selectedTags, tag]);
-    }
+    setSelectedTags(tag);
+    setAddEvent({ ...addEvent, category: `${tag}` });
   };
 
   const handlePost = () => {
     console.log('pressed post');
-    const addEvent = async () => {
+    setError(false);
+    compressImage();
+    const addEventForUser = async () => {
       try {
-        const res = await postNewEventHardCoded();
+        const res = await postNewEvent(addEvent);
         console.log(res);
       } catch (error) {
-        setIsError(error);
+        setError(error);
       }
     };
-    addEvent();
+    addEventForUser();
+    if (!error) {
+      router.back();
+    }
+  };
+
+  const handleCancle = () => {
+    setAddEvent({
+      user_id: `${user.user_id}`,
+      category: 'OTHER',
+      event_date: `${currentDate.toJSON()}`,
+      image_url: user?.image_url || '',
+    });
+    setError(false);
     router.back();
   };
 
@@ -113,10 +210,35 @@ export default function CreateEvent() {
       </View>
 
       <ScrollView style={styles.form}>
-        <TouchableOpacity style={{ flexDirection: 'column', alignItems: 'center' }}>
-          <AntDesign name="picture" color="#333" size={45} />
-          <Text style={styles.addPictureText}>Add event picture</Text>
-        </TouchableOpacity>
+        <View style={styles.coverPhotoContainer}>
+          <View style={styles.profileImageWrapper}>
+            <TouchableOpacity
+              style={styles.imageContainer}
+              disabled={!isEditing}
+              onPress={pickImage}>
+              {addEvent.image_url ? (
+                <Image
+                  source={{ uri: addEvent.image_url }}
+                  style={styles.profileImage}
+                  resizeMode="cover"
+                />
+              ) : (
+                <View style={styles.profileImage}>
+                  <Ionicons name={isEditing ? 'add' : 'person'} size={40} color="white" />
+                </View>
+              )}
+              {isEditing && (
+                <View style={styles.editImageBadge}>
+                  <Ionicons name="camera" size={14} color="white" />
+                </View>
+              )}
+            </TouchableOpacity>
+            {/* <Text style={styles.profileName}>
+              {profile.first_name + ' ' + profile.last_name || 'Username'}
+            </Text>
+            <Text style={styles.profileTagline}>@{profile.email || 'user'} </Text> */}
+          </View>
+        </View>
 
         <Text style={styles.label}>Event Title</Text>
 
@@ -199,14 +321,14 @@ export default function CreateEvent() {
           multiline
         />
 
-        <Text style={styles.label}>Add a link</Text>
+        {/* <Text style={styles.label}>Add a link</Text>
         <TextInput
           style={styles.input}
           id="link"
           value={addEvent.link || ''}
           onChange={handleChange}
           placeholder="https://..."
-        />
+        /> */}
 
         <Text style={styles.label}>Tag</Text>
         <View style={styles.tagsContainer}>
@@ -221,13 +343,14 @@ export default function CreateEvent() {
         </View>
 
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.cancelButton} onPress={() => router.back()}>
+          <TouchableOpacity style={styles.cancelButton} onPress={handleCancle}>
             <Text style={styles.buttonText}>Cancel</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.postButton} onPress={handlePost}>
             <Text style={styles.buttonText}>Post</Text>
           </TouchableOpacity>
         </View>
+        {error && <ErrorMessage error={error} />}
       </ScrollView>
     </SafeAreaView>
   );
@@ -264,6 +387,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     color: '#003049',
+  },
+  imageContainer: {
+    alignItems: 'center',
+    position: 'relative',
   },
   form: {
     flex: 1,
@@ -313,6 +440,19 @@ const styles = StyleSheet.create({
     marginRight: 10,
     alignItems: 'center',
   },
+  editImageBadge: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    backgroundColor: '#C1121F',
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: 'white',
+  },
   postButton: {
     backgroundColor: '#003049',
     borderRadius: 5,
@@ -338,5 +478,33 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#333',
     alignContent: 'center',
+  },
+  coverPhotoContainer: {
+    position: 'relative',
+    height: 180,
+    marginBottom: 80,
+  },
+  coverPhoto: {
+    height: 140,
+    width: '100%',
+    backgroundColor: '#669BBC',
+    overflow: 'hidden',
+  },
+  profileImageWrapper: {
+    position: 'absolute',
+    bottom: -60,
+    alignItems: 'center',
+    width: '100%',
+  },
+  profileImage: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: '#669BBC',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 4,
+    borderColor: 'white',
+    overflow: 'hidden',
   },
 });

@@ -1,11 +1,12 @@
 import { Text, View, Image, StyleSheet, TouchableOpacity, Pressable } from 'react-native';
 
 export default function HostProfileCard({ user }) {
+  console.log(user.image_url, '<<<');
   return (
     <>
       <View style={styles.container}>
         <View>
-          <Image style={styles.imageContainer} source={{ uri: user.image_url }} />
+          <Image style={styles.imageContainer} src={user.image_url} />
         </View>
         <View style={styles.textContainer}>
           <Text style={styles.title}>
