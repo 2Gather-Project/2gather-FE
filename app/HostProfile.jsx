@@ -11,7 +11,7 @@ export default function HostProfile() {
   const [isError, setIsError] = useState();
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState([]);
-
+  // get logged in user TODO
   const route = useRoute();
   const { userId } = route.params;
 
@@ -35,6 +35,7 @@ export default function HostProfile() {
         <Ionicons name="home" size={30} color="#003049" />
       </TouchableOpacity>
       <TouchableOpacity onPress={() => router.push('/profile')}>
+        {/* add profile pic from context TODO*/}
         <Ionicons name="person-circle-outline" size={36} color="#003049" />
       </TouchableOpacity>
     </View>
@@ -43,9 +44,6 @@ export default function HostProfile() {
   return (
     <>
       <Header />
-      <TouchableOpacity style={styles.backButton} onPress={() => router.push('/explore')}>
-        <Text>Back</Text>
-      </TouchableOpacity>
       <View style={styles.container}>
         <HostProfileCard user={user} />
       </View>
