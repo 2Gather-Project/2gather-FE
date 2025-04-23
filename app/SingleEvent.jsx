@@ -1,59 +1,82 @@
-import { useRoute } from '@react-navigation/native';
-import { router, useNavigation } from 'expo-router';
+import { Stack, useRouter, useLocalSearchParams } from 'expo-router';
 import { useState, useEffect, useContext } from 'react';
-import { Button, Image, StyleSheet, Pressable, Text, TouchableOpacity, View } from 'react-native';
+import { Button, Image, StyleSheet, Pressable, Text, TouchableOpacity, View, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import UserContext from './contexts/UserContext.jsx';
 import { getEventById } from './services/eventsAPI';
 import { EventAttendanceButtons } from './components/EventAttendanceButtons';
 
 export default function SingleEvent() {
-  const [date, setDate] = useState(new Date());
-  const [event, setEvent] = useState({});
-  const [isUserLoading, setIsUserLoading] = useState(true);
+  const [event, setEvent] = useState(null);
   const [isError, setIsError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isDisabled, setIsDisabled] = useState(false);
   const { user } = useContext(UserContext);
-
-  const navigation = useNavigation();
-  const route = useRoute();
-  const { user_id, event_id, setStatus } = route.params;
-
+   const router = useRouter();
+  const params = useLocalSearchParams();
+  const event_id = params.event_id;
+  const setStatus = params.setStatus;
   useEffect(() => {
     const fetchSingleEvent = async () => {
+      if (!event_id) {
+        setIsError(new Error('No event ID provided'));
+        setIsLoading(false);
+        return;
+      }
+      
       try {
         const res = await getEventById(event_id);
-        console.log(res, 'event information');
+        console.log('Event information:', res);
         setEvent(res);
       } catch (error) {
+        console.error('Error fetching event:', error);
         setIsError(error);
       } finally {
         setIsLoading(false);
       }
     };
+
     fetchSingleEvent();
   }, [event_id]);
 
-  useEffect(() => {
-    const fetchEvent = async () => {
-      try {
-        const response = await fetch(
-          `https://twogather-backend.onrender.com/api/events/${event_id}`
-        );
-        const data = await response.json();
-        console.log('Fetched user data:', data);
-        setUser(data.events ? data.events[0] : {});
-      } catch (error) {
-        console.error('Error fetching event:', error);
-      } finally {
-        setIsUserLoading(false);
-      }
-    };
-    if (user_id) {
-      fetchEvent();
+  const handleBack = () => {
+    if (setStatus) {
+      setStatus(prev => !prev); // Toggle status to trigger refresh
     }
-  }, [user_id]);
+    router.replace('/(tabs)');
+  };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <View style={[styles.container, styles.loadingContainer]}>
+        <ActivityIndicator size="large" color="#669BBC" />
+      </View>
+    );
+  }
+
+  // Error state
+  if (isError) {
+    return (
+      <View style={[styles.container, styles.errorContainer]}>
+        <Text style={styles.errorText}>Error loading event: {isError.message}</Text>
+        <TouchableOpacity onPress={handleBack} style={styles.errorButton}>
+          <Text style={styles.errorButtonText}>Go Back</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  // No event found state
+  if (!event) {
+    return (
+      <View style={[styles.container, styles.errorContainer]}>
+        <Text style={styles.errorText}>Event not found</Text>
+        <TouchableOpacity onPress={handleBack} style={styles.errorButton}>
+          <Text style={styles.errorButtonText}>Go Back</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   const formattedDate = new Date(event.event_date).toLocaleDateString(undefined, {
     weekday: 'long',
@@ -67,35 +90,40 @@ export default function SingleEvent() {
     minute: '2-digit',
   });
 
-  const Header = () => (
-    <View style={styles.header}>
-      <View style={styles.leftSection}>
-        <TouchableOpacity onPress={() => router.push('(tabs)')} style={styles.iconButton}>
-          <Ionicons name="home" size={30} color="#003049" />
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.backButton} onPress={() => router.push('/explore')}>
-          <Text style={styles.backButtonText}>Back</Text>
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.rightSection}>
-        <TouchableOpacity onPress={() => router.push('/profile')} style={{ marginHorizontal: 15 }}>
-          {user?.image_url ? (
-            <View style={styles.profileImageContainer}>
-              <Image source={{ uri: user.image_url }} style={styles.profileImage} />
-            </View>
-          ) : (
-            <Ionicons name="person-circle-outline" color="#333" size={36} />
-          )}
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
-
   return (
     <>
-      <Header />
+      <Stack.Screen 
+        options={{
+          headerShown: true,
+          title: "Event Details",
+          headerStyle: {
+            backgroundColor: '#fff',
+          },
+          headerTintColor: '#003049',
+          headerLeft: () => (
+            <TouchableOpacity 
+              onPress={handleBack}
+              style={styles.headerButton}
+            >
+              <Ionicons name="arrow-back" size={24} color="#003049" />
+            </TouchableOpacity>
+          ),
+          headerRight: () => (
+            <TouchableOpacity 
+              onPress={() => router.push('/profile')} 
+              style={styles.headerButton}
+            >
+              {user?.image_url ? (
+                <View style={styles.profileImageContainer}>
+                  <Image source={{ uri: user.image_url }} style={styles.profileImage} />
+                </View>
+              ) : (
+                <Ionicons name="person-circle-outline" color="#003049" size={24} />
+              )}
+            </TouchableOpacity>
+          ),
+        }} 
+      />
       <View style={styles.container}>
         <View style={styles.imageContainer}>
           <Image
@@ -112,7 +140,10 @@ export default function SingleEvent() {
           <Text style={styles.title}>{event.title}</Text>
           <Text style={styles.host}>
             <Pressable
-              onPress={() => navigation.navigate('HostProfile', { userId: event.host_id })}
+              onPress={() => router.push({
+                pathname: '/HostProfile',
+                params: { userId: event.host_id }
+              })}
               style={{ alignSelf: 'center' }}>
               <Text style={styles.host}>
                 Hosted by {event.host_first_name} {event.host_last_name}
@@ -142,13 +173,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+  headerButton: {
+    padding: 8,
   },
   imageContainer: {
     width: '100%',
@@ -193,26 +219,18 @@ const styles = StyleSheet.create({
     marginTop: 10,
     paddingHorizontal: 20,
   },
-  backButton: {
-    backgroundColor: '#DC3545',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   profileImage: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
   },
   profileImageContainer: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
     borderColor: '#003049',
     borderWidth: 1,
-    padding: 4,
+    padding: 2,
     backgroundColor: '#ffffff',
     justifyContent: 'center',
     alignItems: 'center',
@@ -221,23 +239,30 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
-  backButtonText: {
+  loadingContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  errorText: {
+    color: '#C1121F',
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  errorButton: {
+    backgroundColor: '#003049',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+  errorButtonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  leftSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-    gap: 10,
-  },
-  rightSection: {
-    flex: 1,
-    alignItems: 'flex-end',
-  },
-  iconButton: {
-    padding: 4,
   },
 });

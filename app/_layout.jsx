@@ -13,7 +13,15 @@ export default function RootLayout() {
                 <Stack.Screen name='HostedEvents' options={{ title: 'Your Events' }} />
                 <Stack.Screen name='profile' options={{ title: 'Profile' }} />
                 <Stack.Screen name='events/[id]' options={{ title: 'Event Details' }} />
-                <Stack.Screen name="message/[id]" options={{ title: 'Messages' }} />
+                <Stack.Screen name='message/[id]' options={{ title: 'Messages' }} />
+                <Stack.Screen name='SingleEvent' options={{ 
+                    title: 'Event Details',
+                    headerShown: true,
+                    headerStyle: {
+                        backgroundColor: '#fff',
+                    },
+                    headerTintColor: '#003049',
+                }} />
             </Stack>
         </UserProvider>
     );
