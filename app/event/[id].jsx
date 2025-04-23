@@ -21,7 +21,7 @@ export default function EventDetails() {
 
         // Fetch event user activity
         const response = await getEventUserActivity(id);
-        
+
         // Add usernames to each request
         const requestsWithUsernames = await Promise.all(
           response.map(async (request) => {
@@ -51,8 +51,8 @@ export default function EventDetails() {
   const handleApproveRequest = async (attendee_id) => {
     try {
       await updateEventUserActivityStatus(id, attendee_id, 'APPROVED', true);
-      setEventUserActivity(eventUserActivity.map(activity => 
-        activity.attendee_id === attendee_id 
+      setEventUserActivity(eventUserActivity.map(activity =>
+        activity.attendee_id === attendee_id
           ? { ...activity, user_status: 'APPROVED', user_approved: true }
           : activity
       ));
@@ -64,8 +64,8 @@ export default function EventDetails() {
   const handleDeclineRequest = async (attendee_id) => {
     try {
       await updateEventUserActivityStatus(id, attendee_id, 'CANCELLED', false);
-      setEventUserActivity(eventUserActivity.map(activity => 
-        activity.attendee_id === attendee_id 
+      setEventUserActivity(eventUserActivity.map(activity =>
+        activity.attendee_id === attendee_id
           ? { ...activity, user_status: 'CANCELLED', user_approved: false }
           : activity
       ));
@@ -76,10 +76,10 @@ export default function EventDetails() {
 
   const pendingRequests = eventUserActivity?.filter(r => r.user_status === 'REQUESTED')?.length || 0;
   const approvedAttendees = eventUserActivity?.filter(r => r.user_status === 'APPROVED')?.length || 0;
-
+  console.log('eventUserActivity', eventUserActivity);
   return (
     <SafeAreaView style={styles.container}>
-      <Stack.Screen 
+      <Stack.Screen
         options={{
           title: "Event Details",
           headerLeft: () => (
@@ -127,7 +127,7 @@ export default function EventDetails() {
                     {new Date(event.event_date).toLocaleDateString()} - {new Date(event.event_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </Text>
                 </View>
-                
+
                 <View style={styles.detailRow}>
                   <Ionicons name="location-outline" size={16} color="#666" />
                   <Text style={styles.detailText}>{event.location}</Text>
@@ -152,30 +152,34 @@ export default function EventDetails() {
                 {eventUserActivity.map((request) => (
                   <View key={request.id} style={styles.requestCard}>
                     <View style={styles.requestHeader}>
-                      <Text style={styles.userName}>{request.firstName} {request.lastName}</Text>
+
+                      <TouchableOpacity onPress={() => router.push(`/HostProfile?userId=${request.attendee_id}`)}>
+                        <Text style={styles.userName}>{request.firstName} {request.lastName}</Text>
+                      </TouchableOpacity>
+
                       <View style={[
-                        styles.statusBadge, 
+                        styles.statusBadge,
                         request.user_status === 'APPROVED' ? styles.approvedBadge :
-                        request.user_status === 'CANCELLED' ? styles.cancelledBadge :
-                        styles.pendingBadge
+                          request.user_status === 'CANCELLED' ? styles.cancelledBadge :
+                            styles.pendingBadge
                       ]}>
                         <Text style={[
                           styles.statusText,
                           request.user_status === 'APPROVED' ? styles.approvedText :
-                          request.user_status === 'CANCELLED' ? styles.cancelledText :
-                          styles.pendingText
+                            request.user_status === 'CANCELLED' ? styles.cancelledText :
+                              styles.pendingText
                         ]}>{request.user_status}</Text>
                       </View>
                     </View>
                     {request.user_status === 'REQUESTED' && (
                       <View style={styles.actions}>
-                        <TouchableOpacity 
+                        <TouchableOpacity
                           style={[styles.actionButton, styles.approveButton]}
                           onPress={() => handleApproveRequest(request.attendee_id)}
                         >
                           <Text style={styles.actionButtonText}>Approve</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity 
+                        <TouchableOpacity
                           style={[styles.actionButton, styles.declineButton]}
                           onPress={() => handleDeclineRequest(request.attendee_id)}
                         >
