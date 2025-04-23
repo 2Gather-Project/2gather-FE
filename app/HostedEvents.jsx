@@ -1,38 +1,47 @@
 import { StyleSheet, View, Text, ScrollView, TouchableOpacity, SafeAreaView } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import HostedEventCard from './components/HostedEventCard';
+import { getHostedEvents } from './api';
 
 export default function HostedEvents() {
   const router = useRouter();
-  const [events, setEvents] = useState([
-    {
-      id: '1',
-      title: 'Coffee and gossip',
-      date: 'tue, apr 8',
-      time: '6:30 PM',
-      location: 'Starbucks, City Center',
-      attendees: 5,
-      status: 'upcoming',
-      requests: [
-        { id: '1', user: 'John Doe', status: 'pending' },
-        { id: '2', user: 'Jane Smith', status: 'accepted' }
-      ]
-    },
-    {
-      id: '2',
-      title: 'Book Club Meeting',
-      date: 'wed, apr 9',
-      time: '7:00 PM',
-      location: 'City Library',
-      attendees: 8,
-      status: 'upcoming',
-      requests: [
-        { id: '3', user: 'Alice Johnson', status: 'pending' }
-      ]
-    }
-  ]);
+  const [events, setEvents] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchHostedEvents = async () => {
+      try {
+        // TODO: Replace '1' with the actual user ID from your auth context
+        const hostedEvents = await getHostedEvents('1');
+        setEvents(hostedEvents);
+      } catch (err) {
+        setError(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchHostedEvents();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <Text>Loading...</Text>
+      </SafeAreaView>
+    );
+  }
+
+  if (error) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <Text>Error loading events: {error.message}</Text>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -78,8 +87,8 @@ export default function HostedEvents() {
           ) : (
             events.map((event) => (
               <TouchableOpacity
-                key={event.id}
-                onPress={() => router.push(`/event/${event.id}`)}
+                key={event.event_id}
+                onPress={() => router.push(`/event/${event.event_id}`)}
                 activeOpacity={0.7}
               >
                 <HostedEventCard event={event} />
