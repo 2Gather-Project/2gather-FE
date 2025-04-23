@@ -12,6 +12,13 @@ export default function HostedEventCard({ event }) {
       try {
         const activity = await getEventUserActivity(event.event_id);
         
+        // If activity is empty, set empty array and return
+        if (!activity || activity.length === 0) {
+          setEventActivity([]);
+          setIsLoading(false);
+          return;
+        }
+        
         // Fetch user details for each request
         const activityWithUserDetails = await Promise.all(
           activity.map(async (request) => {
@@ -36,6 +43,7 @@ export default function HostedEventCard({ event }) {
         setEventActivity(activityWithUserDetails);
       } catch (err) {
         console.error('Error fetching event activity:', err);
+        setEventActivity([]); // Set empty array on error
       } finally {
         setIsLoading(false);
       }

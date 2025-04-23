@@ -61,10 +61,15 @@ export function createUser({ first_name, last_name, email, address, date_of_birt
 }
 
 export function getEventUserActivity(eventId) {
-  return baseApi.get(`/event-user-activity/${eventId}`).then(({ data: { event_user_activity } }) => {
-    console.log('event user activity', event_user_activity);
-    return event_user_activity;
-  });
+  return baseApi.get(`/event-user-activity/${eventId}`)
+    .then(({ data: { event_user_activity } }) => {
+      console.log('Event user activity response:', event_user_activity);
+      return event_user_activity || [];
+    })
+    .catch((error) => {
+      console.error('Error in getEventUserActivity:', error);
+      return [];
+    });
 }
 
 export function getHostedEvents(userId) {
