@@ -16,7 +16,8 @@ export const EventAttendanceButtons = ({ event }) => {
     const fetchAttendance = async () => {
       try {
         const res = await getEventAttendance(event.event_id);
-        setEventAttendance(res);
+        console.log('getEventAttendance response:', res);
+        setEventAttendance(res || []);
       } catch (error) {
         setIsError(error);
         Alert.alert('Error', 'No se pudo cargar la asistencia al evento.');
@@ -26,6 +27,8 @@ export const EventAttendanceButtons = ({ event }) => {
     };
     fetchAttendance();
   }, [event.event_id]);
+
+
 
   const handleAttendance = async (eventId) => {
     setIsLoading(true);
@@ -40,27 +43,36 @@ export const EventAttendanceButtons = ({ event }) => {
       user_approved: false,
     };
 
-    setOptimisticAttendance(attendanceRequest);
+    setOptimisticAttendance(attendanceRequest); 
 
     try {
-        const existingRequest = eventAttendance.find(
-            (attendance) => attendance.attendee_id === user.user_id && attendance.event_id === eventId
-          );
+      const existingRequest = eventAttendance.find(
+        (attendance) => attendance.attendee_id === user.user_id && attendance.event_id === eventId
+      );
+      console.log('existingRequest:', existingRequest);
 
       if (existingRequest && existingRequest.user_status === 'CANCELLED') {
-        const res = await patchEventAttendance(attendanceRequest);
+        const res = await patchEventAttendance({
+          ...existingRequest,
+          user_status: 'REQUESTED',
+          user_approved: false,
+        });
+        console.log('patch desde estado CANCELLED:', res);
         setEventAttendance((prev) =>
           prev.map((attendance) =>
-            attendance.attendee_id === user.user_id && attendance.event_id === eventId ? res : attendance
+            attendance.attendee_id === user.user_id && attendance.event_id === eventId
+              ? res
+              : attendance
           )
         );
       } else if (!existingRequest) {
         const res = await postEventAttendance(attendanceRequest);
+        console.log('post response:', res);
         setEventAttendance((prev) => [...prev, res]);
       }
     } catch (error) {
       setIsError(error);
-      setOptimisticAttendance(null);
+      setOptimisticAttendance(null); 
       setIsDisabled(false);
       Alert.alert('Error', 'No se pudo registrar la asistencia.');
     } finally {
@@ -68,28 +80,32 @@ export const EventAttendanceButtons = ({ event }) => {
     }
   };
 
+
   const handleCancelation = async () => {
     setIsLoading(true);
     setIsError(null);
     setIsDisabled(true);
 
-    setOptimisticAttendance(null);
+    setOptimisticAttendance(null); 
     setEventAttendance((prev) =>
-        prev.filter(
-          (attendance) => !(attendance.attendee_id === user.user_id && attendance.event_id === event.event_id)
-        )
-      );
+      prev.filter(
+        (attendance) => !(attendance.attendee_id === user.user_id && attendance.event_id === event.event_id)
+      )
+    );
+
     try {
-      await patchEventAttendance({
+      const res = await patchEventAttendance({
         event_id: event.event_id,
         attendee_id: user.user_id,
         user_status: 'CANCELLED',
         user_approved: false,
       });
+      console.log('patch desde estado REQUESTED:', res);
     } catch (error) {
       setIsError(error);
       Alert.alert('Error', 'No se pudo cancelar la asistencia.');
       const res = await getEventAttendance(event.event_id);
+      console.log('getEventAttendance tras error:', res);
       setEventAttendance(res);
     } finally {
       setIsLoading(false);
@@ -97,20 +113,25 @@ export const EventAttendanceButtons = ({ event }) => {
     }
   };
 
-  const isRequested =
-    optimisticAttendance?.user_status === 'REQUESTED' ||
+  const isRequested =(optimisticAttendance?.event_id === event.event_id &&
+    optimisticAttendance?.attendee_id === user.user_id &&
+    optimisticAttendance?.user_status === 'REQUESTED') ||
     eventAttendance.some(
       (attendance) =>
-        attendance.attendee_id === user.user_id && 
-      attendance.event_id === event.event_id &&
+        attendance.attendee_id === user.user_id &&
+        attendance.event_id === event.event_id &&
         attendance.user_status === 'REQUESTED'
     );
+    console.log('isDisable:', isDisabled);
+
+  console.log('isRequested:', isRequested);
+  console.log('eventAttendance:', eventAttendance);
 
   return (
     <View style={styles.attendanceButtons}>
       <TouchableOpacity
         onPress={() => handleAttendance(event.event_id)}
-        disabled={isDisabled || isRequested}
+        disabled={isDisabled && isRequested}
         style={[styles.button, isRequested ? styles.disabledButton : styles.attendButton]}
         accessibilityLabel={`Asistir al evento ${event.event_id}`}
       >
