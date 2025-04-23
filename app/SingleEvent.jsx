@@ -18,7 +18,7 @@ export default function SingleEvent() {
 
   const navigation = useNavigation();
   const route = useRoute();
-  const { user_id, event_id } = route.params;
+  const { user_id, event_id, setStatus } = route.params;
 
   useEffect(() => {
     const fetchSingleEvent = async () => {
@@ -129,7 +129,7 @@ export default function SingleEvent() {
           </Text>
           <Text style={styles.description}>{event.description}</Text>
         </View>
-        <EventAttendanceButtons event={event} event_id={event_id} />
+        <EventAttendanceButtons event={event} event_id={event_id} setStatus={setStatus} />
       </View>
     </>
   );
