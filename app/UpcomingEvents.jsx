@@ -69,7 +69,10 @@ export default function UpcomingEvents() {
                     data={upcomingEvents}
                     keyExtractor={(item) => item.event_id}
                     renderItem={({ item }) => (
-                        <TouchableOpacity onPress={() => router.push(`/event/${item.event_id}`)}>
+
+                        <TouchableOpacity onPress={() => router.push(
+                            item.user_id === user.user_id ? `/event/${item.event_id}` :
+                                `SingleEvent?event_id=${item.event_id}`)}>
                             <UpcomingEventCard event={item} />
                         </TouchableOpacity>
                     )}
