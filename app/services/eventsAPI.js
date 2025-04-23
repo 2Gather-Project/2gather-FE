@@ -68,6 +68,13 @@ export function patchEventImage(addEvent) {
   });
 }
 
+export function updateEventStatus (eventId, data) {
+  return baseApi.patch(`/events/status/${eventId}`, data).then(({ data: { event } }) => {
+    console.log('events is', event);
+    return event;
+  });
+}
+
 export function getTags() {
   return baseApi.get(`/interests`).then(({ data: { interests } }) => {
     console.log('interests is', interests);

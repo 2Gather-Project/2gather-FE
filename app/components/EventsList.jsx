@@ -1,5 +1,8 @@
+import { useEffect, useState } from 'react';
 import EventCard from './EventCard';
-import { FlatList, StyleSheet, View } from 'react-native';
+import { Alert, FlatList, StyleSheet, View } from 'react-native';
+import { updateEventStatus } from '../services/eventsAPI';
+
 
 export default function EventsList({ events, filterValueLocation }) {
   // const events = [
@@ -63,7 +66,7 @@ export default function EventsList({ events, filterValueLocation }) {
   // ];
 
   const eventsFilter = events.filter((event) => {
-    if (!filterValueLocation) {
+    if (!filterValueLocation && event.status !== 'INACTIVE') {
       return event;
     } else if (event.location === filterValueLocation) {
       return event;
@@ -75,6 +78,8 @@ export default function EventsList({ events, filterValueLocation }) {
       <View style={styles.container}>
         <FlatList
           style={{ width: '100%' }}
+         
+          keyExtractor={(item) => item.event_id.toString()}
           data={eventsFilter}
           renderItem={({ item }) => (
             <EventCard
@@ -89,7 +94,7 @@ export default function EventsList({ events, filterValueLocation }) {
               description={item.description}
             />
           )}
-          keyExtractor={(item) => item.event_id.toString()}
+  
         />
       </View>
     </>
