@@ -1,17 +1,15 @@
 import { useRoute } from '@react-navigation/native';
-import { router, Stack, useNavigation, useLocalSearchParams, } from 'expo-router';
-import { useState, useEffect,useContext  } from 'react';
-import { Button, Image, StyleSheet,Pressable, Text, TouchableOpacity, View } from 'react-native';
+import { router, Stack, useNavigation, useLocalSearchParams } from 'expo-router';
+import { useState, useEffect, useContext } from 'react';
+import { Button, Image, StyleSheet, Pressable, Text, TouchableOpacity, View } from 'react-native';
 import Explore from './(tabs)/explore';
 import { Ionicons } from '@expo/vector-icons';
 
 import { getEventAttendance, getEventById, postEventAttendance } from './services/eventsAPI';
 import { EventAttendanceButtons } from './components/EventAttendanceButtons';
 
-
 export default function SingleEvent() {
   const [date, setDate] = useState(new Date());
-  const [event, setEvent] = useState({});
 
   const navigation = useNavigation();
 
@@ -20,16 +18,13 @@ export default function SingleEvent() {
   const [isError, setIsError] = useState();
   const [isLoading, setIsLoading] = useState(true);
 
-
-
-  const { event_id} = useLocalSearchParams();
-
+  const { event_id } = useLocalSearchParams();
 
   useEffect(() => {
     const fetchSingleEvent = async () => {
       try {
         const res = await getEventById(event_id);
-        console.log(res, "event information")
+        console.log(res, 'event information');
         setEvent(res);
       } catch (error) {
         setIsError(error);
@@ -39,13 +34,6 @@ export default function SingleEvent() {
     };
     fetchSingleEvent();
   }, [event_id]);
-
-
-
-
-
-
-
 
   const formattedTime = new Date(`${event.event_date}`).toLocaleTimeString([], {
     hour: '2-digit',
@@ -74,7 +62,6 @@ export default function SingleEvent() {
       </TouchableOpacity>
 
       <View style={styles.container}>
-    
         <View style={styles.imageContainer}>
           <Image
             style={styles.logo}
@@ -110,7 +97,7 @@ export default function SingleEvent() {
           </Text>
           <Text style={styles.description}>{event.description}</Text>
         </View>
-<EventAttendanceButtons event={event} event_id={event_id}/>
+        <EventAttendanceButtons event={event} event_id={event_id} />
       </View>
     </>
   );
@@ -191,7 +178,7 @@ const styles = StyleSheet.create({
   attendButton: {
     backgroundColor: '#28A745', // Green
   },
-  disabledButton:{
+  disabledButton: {
     backgroundColor: '#ccc',
   },
   cancelButton: {
