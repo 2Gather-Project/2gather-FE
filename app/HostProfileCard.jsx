@@ -1,61 +1,91 @@
-import { Text, View, Image, StyleSheet, TouchableOpacity, Pressable } from 'react-native';
+import { Text, View, Image, StyleSheet } from 'react-native';
 
 export default function HostProfileCard({ user }) {
-  console.log(user, '<<<');
   return (
-    <>
-      <View style={styles.container}>
-        <View>
-          <Image style={styles.imageContainer} source={{ uri: user.image_url }} />
-          {/* image doesnt load TODO */}
-        </View>
-        <View style={styles.textContainer}>
-          <Text style={styles.title}>
-            {user.first_name} {user.last_name}
-          </Text>
-          <Text style={styles.description}>{user.gender}</Text>
-          <Text style={styles.description}>Job Title: {user.job_title}</Text>
-          <Text style={styles.description}>Bio: {user.bio}</Text>
-          <Text style={styles.description}>Personality: {user.personality}</Text>
-          <Text style={styles.description}>Tea or Coffee? {user.coffee_tea}</Text>
-          <Text style={styles.description}>Favourite Food: {user.fav_food}</Text>
-          <Text style={styles.description}>Reason for being here? {user.reason}</Text>
-        </View>
+    <View style={styles.card}>
+      <View style={styles.profileImageContainer}>
+        <Image
+          style={styles.profileImage}
+          source={{
+            uri: user.image_url || 'https://via.placeholder.com/200x200.png?text=No+Image',
+          }}
+        />
       </View>
-    </>
+      <View style={styles.textContainer}>
+        <Text style={styles.name}>
+          {user.first_name} {user.last_name}
+        </Text>
+        <Text style={styles.role}>{user.job_title}</Text>
+        <Text style={styles.bio}>"{user.bio}"</Text>
+        <Text style={styles.detail}>Gender: {user.gender}</Text>
+        <Text style={styles.detail}>Personality: {user.personality}</Text>
+        <Text style={styles.detail}>Tea or Coffee? {user.coffee_tea}</Text>
+        <Text style={styles.detail}>Favourite Food: {user.fav_food}</Text>
+        <Text style={styles.detail}>Reason for being here: {user.reason || '2Gather'}</Text>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 15,
-    backgroundColor: '#fff',
+  card: {
+    borderRadius: 16,
+    padding: 20,
     alignItems: 'center',
-  },
-  imageContainer: {
-    width: '100%',
-    height: 200,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 4 },
     marginBottom: 20,
-    borderRadius: 10,
-    overflow: 'hidden',
+    marginHorizontal: 16,
+  },
+  profileImageContainer: {
+    width: 206,
+    height: 206,
+    borderRadius: 100,
+    borderColor: '#003049',
+    borderWidth: 1,
+    padding: 4,
+    backgroundColor: '#ffffff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  profileImage: {
+    width: 200,
+    height: 200,
+    borderRadius: 100,
   },
   textContainer: {
     alignItems: 'center',
-    marginBottom: 30,
+    width: '100%',
+    marginTop: 20,
   },
-  title: {
-    fontSize: 20,
+  name: {
+    fontSize: 22,
     fontWeight: 'bold',
     color: '#003049',
-    textAlign: 'center',
-    marginBottom: 10,
+    marginBottom: 6,
   },
-  description: {
+  role: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#C1121F',
+    marginBottom: 8,
+  },
+  bio: {
+    fontStyle: 'italic',
     fontSize: 14,
-    color: '#555',
+    color: '#003049',
+    marginBottom: 10,
     textAlign: 'center',
-    marginTop: 10,
-    paddingHorizontal: 20,
+  },
+  detail: {
+    fontSize: 14,
+    color: '#003049',
+    marginVertical: 2,
   },
 });
