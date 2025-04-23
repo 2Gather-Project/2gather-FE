@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../contexts/UserContext';
 import { launchImageLibrary } from 'react-native-image-picker';
+import * as ImageManipulator from 'expo-image-manipulator';
 import {
   StyleSheet,
   View,
@@ -13,28 +14,14 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { AntDesign } from '@expo/vector-icons';
+import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { patchEventImage, postNewEvent } from '../services/eventsAPI';
 import { Button, Image } from 'react-native-web';
-
-const createFormData = (photo, body = {}) => {
-  const data = new FormData();
-
-  data.append('photo', {
-    name: photo.fileName,
-    type: photo.type,
-    uri: Platform.OS === 'ios' ? photo.uri.replace('file://', '') : photo.uri,
-  });
-
-  Object.keys(body).forEach((key) => {
-    data.append(key, body[key]);
-  });
-
-  return data;
-};
+import * as ImagePicker from 'expo-image-picker';
 
 export default function CreateEvent() {
   const { user } = useContext(UserContext);
+  const [isEditing, setIsEditing] = useState(true);
   const router = useRouter();
   const [error, setIsError] = useState({});
   const [photo, setPhoto] = useState(null);
@@ -51,6 +38,13 @@ export default function CreateEvent() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
 
+  const [addEvent, setAddEvent] = useState({
+    user_id: `${user.user_id}`,
+    category: 'OTHER',
+    event_date: `${currentDate.toJSON()}`,
+    image_url: user?.image_url || '',
+  });
+
   useEffect(() => {
     const callTags = async () => {
       try {
@@ -63,11 +57,52 @@ export default function CreateEvent() {
     callTags();
   }, []);
 
-  const [addEvent, setAddEvent] = useState({
-    user_id: `${user.user_id}`,
-    category: 'OTHER',
-    event_date: `${currentDate.toJSON()}`,
-  });
+  useEffect(() => {
+    ImagePicker.requestMediaLibraryPermissionsAsync().then(({ status }) => {
+      if (status !== 'granted') {
+        alert('Sorry, we need camera roll permissions to change your profile picture!');
+      }
+    });
+  }, []);
+
+  const compressImage = async () => {
+    const file = await ImageManipulator.manipulateAsync(addEvent.image_url, [], { compress: 0.5 });
+
+    addEvent.image_url = file.uri;
+  };
+
+  const pickImage = async () => {
+    // Only allow picking an image when in edit mode
+    if (!isEditing) return;
+
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.5, // Lowered quality to reduce size
+      base64: true, // Always request base64 data
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const selectedAsset = result.assets[0];
+
+      // Make sure we have base64 data
+      if (!selectedAsset.base64) {
+        alert('Unable to process image. Please try another one.');
+        return;
+      }
+
+      // Create a data URI from the base64 string
+      const imageSource = `data:image/jpeg;base64,${selectedAsset.base64}`;
+
+      // Update the profile state with the base64 data URI
+      setAddEvent({
+        ...addEvent,
+        image_url: imageSource,
+      });
+    }
+  };
+
   // Formatted date and time for display
   const formattedDate = date.toLocaleDateString();
 
@@ -81,28 +116,28 @@ export default function CreateEvent() {
     });
   }
 
-  const handleUploadPhoto = () => {
-    const data = createFormData(photo, { event_id: `${addEvent.event_id}` || '' });
-    console.log(data);
-    patchEventImage(addEvent)
-      .then((response) => response.json())
-      .then((response) => {
-        console.log('response', response);
-      })
-      .catch((error) => {
-        console.log('error', error);
-      });
-  };
+  // const handleUploadPhoto = () => {
+  //   const data = createFormData(photo, { event_id: `${addEvent.event_id}` || '' });
+  //   console.log(data);
+  //   patchEventImage(addEvent)
+  //     .then((response) => response.json())
+  //     .then((response) => {
+  //       console.log('response', response);
+  //     })
+  //     .catch((error) => {
+  //       console.log('error', error);
+  //     });
+  // };
 
-  const handleChoosePhoto = () => {
-    console.log('handleChoosePhoto');
-    launchImageLibrary({ noData: true }, (response) => {
-      console.log(response);
-      if (response) {
-        setPhoto(response);
-      }
-    });
-  };
+  // const handleChoosePhoto = () => {
+  //   console.log('handleChoosePhoto');
+  //   launchImageLibrary({ noData: true }, (response) => {
+  //     console.log(response);
+  //     if (response) {
+  //       setPhoto(response);
+  //     }
+  //   });
+  // };
 
   console.log(addEvent);
   const onDateChange = (event, selectedDate) => {
@@ -138,6 +173,7 @@ export default function CreateEvent() {
 
   const handlePost = () => {
     console.log('pressed post');
+    compressImage();
     const addEventForUser = async () => {
       try {
         const res = await postNewEvent(addEvent);
@@ -157,17 +193,35 @@ export default function CreateEvent() {
       </View>
 
       <ScrollView style={styles.form}>
-        <TouchableOpacity style={{ flexDirection: 'column', alignItems: 'center' }}>
-          {photo && (
-            <>
-              <Image source={{ uri: photo.uri }} style={{ width: 300, height: 300 }} />
-              <Button title="Upload Photo" onPress={handleUploadPhoto} />
-            </>
-          )}
-          <AntDesign name="picture" color="#333" size={45} onPress={handleChoosePhoto} />
-          {/* <Avatar onButtonPress={() => setModalVisible(true)}></Avatar> */}
-          <Text style={styles.addPictureText}>Add event picture</Text>
-        </TouchableOpacity>
+        <View style={styles.coverPhotoContainer}>
+          <View style={styles.profileImageWrapper}>
+            <TouchableOpacity
+              style={styles.imageContainer}
+              disabled={!isEditing}
+              onPress={pickImage}>
+              {addEvent.image_url ? (
+                <Image
+                  source={{ uri: addEvent.image_url }}
+                  style={styles.profileImage}
+                  resizeMode="cover"
+                />
+              ) : (
+                <View style={styles.profileImage}>
+                  <Ionicons name={isEditing ? 'add' : 'person'} size={40} color="white" />
+                </View>
+              )}
+              {isEditing && (
+                <View style={styles.editImageBadge}>
+                  <Ionicons name="camera" size={14} color="white" />
+                </View>
+              )}
+            </TouchableOpacity>
+            {/* <Text style={styles.profileName}>
+              {profile.first_name + ' ' + profile.last_name || 'Username'}
+            </Text>
+            <Text style={styles.profileTagline}>@{profile.email || 'user'} </Text> */}
+          </View>
+        </View>
 
         <Text style={styles.label}>Event Title</Text>
 
@@ -316,6 +370,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#003049',
   },
+  imageContainer: {
+    alignItems: 'center',
+    position: 'relative',
+  },
   form: {
     flex: 1,
     padding: 20,
@@ -364,6 +422,19 @@ const styles = StyleSheet.create({
     marginRight: 10,
     alignItems: 'center',
   },
+  editImageBadge: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    backgroundColor: '#C1121F',
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: 'white',
+  },
   postButton: {
     backgroundColor: '#003049',
     borderRadius: 5,
@@ -389,5 +460,33 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#333',
     alignContent: 'center',
+  },
+  coverPhotoContainer: {
+    position: 'relative',
+    height: 180,
+    marginBottom: 80,
+  },
+  coverPhoto: {
+    height: 140,
+    width: '100%',
+    backgroundColor: '#669BBC',
+    overflow: 'hidden',
+  },
+  profileImageWrapper: {
+    position: 'absolute',
+    bottom: -60,
+    alignItems: 'center',
+    width: '100%',
+  },
+  profileImage: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: '#669BBC',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 4,
+    borderColor: 'white',
+    overflow: 'hidden',
   },
 });

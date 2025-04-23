@@ -2,7 +2,7 @@ import { Link } from '@react-navigation/native';
 import { useNavigation } from 'expo-router';
 import { Text, View, Image, StyleSheet, TouchableOpacity, Pressable } from 'react-native';
 
-export default function EventCard({ title, location, time, event_id }) {
+export default function EventCard({ title, location, time, event_id, image_url }) {
   console.log('Inside event card:', title, event_id);
   const navigation = useNavigation();
   return (
@@ -11,9 +11,13 @@ export default function EventCard({ title, location, time, event_id }) {
         <View>
           <Image
             style={styles.tinyLogo}
-            source={{
-              uri: 'https://media.istockphoto.com/id/1396814518/vector/image-coming-soon-no-photo-no-thumbnail-image-available-vector-illustration.jpg?s=612x612&w=0&k=20&c=hnh2OZgQGhf0b46-J2z7aHbIWwq8HNlSDaNp2wn_iko=',
-            }}
+            source={
+              image_url
+                ? image_url
+                : {
+                    uri: 'https://media.istockphoto.com/id/1396814518/vector/image-coming-soon-no-photo-no-thumbnail-image-available-vector-illustration.jpg?s=612x612&w=0&k=20&c=hnh2OZgQGhf0b46-J2z7aHbIWwq8HNlSDaNp2wn_iko=',
+                  }
+            }
           />
         </View>
         <View style={styles.textContainer}>

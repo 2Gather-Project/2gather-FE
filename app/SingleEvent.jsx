@@ -76,9 +76,13 @@ export default function SingleEvent() {
         <View style={styles.imageContainer}>
           <Image
             style={styles.logo}
-            source={{
-              uri: 'https://media.istockphoto.com/id/1396814518/vector/image-coming-soon-no-photo-no-thumbnail-image-available-vector-illustration.jpg?s=612x612&w=0&k=20&c=hnh2OZgQGhf0b46-J2z7aHbIWwq8HNlSDaNp2wn_iko=',
-            }}
+            source={
+              event.image_url
+                ? event.image_url
+                : {
+                    uri: 'https://media.istockphoto.com/id/1396814518/vector/image-coming-soon-no-photo-no-thumbnail-image-available-vector-illustration.jpg?s=612x612&w=0&k=20&c=hnh2OZgQGhf0b46-J2z7aHbIWwq8HNlSDaNp2wn_iko=',
+                  }
+            }
           />
         </View>
         <View style={styles.text}>
