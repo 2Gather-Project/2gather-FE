@@ -1,31 +1,24 @@
 import { useRoute } from '@react-navigation/native';
-import { router, Stack, useNavigation, useLocalSearchParams } from 'expo-router';
-import { useState, useEffect, useContext } from 'react';
+import { router, useNavigation } from 'expo-router';
+import { useState, useEffect } from 'react';
 import { Button, Image, StyleSheet, Pressable, Text, TouchableOpacity, View } from 'react-native';
-import Explore from './(tabs)/explore';
 import { Ionicons } from '@expo/vector-icons';
 
-import { getEventAttendance, getEventById, postEventAttendance } from './services/eventsAPI';
+import { getEventById } from './services/eventsAPI';
 import { EventAttendanceButtons } from './components/EventAttendanceButtons';
 
 export default function SingleEvent() {
   const [date, setDate] = useState(new Date());
-
   const [event, setEvent] = useState({});
   const [user, setUser] = useState({});
+  const [isUserLoading, setIsUserLoading] = useState(true);
+  const [isError, setIsError] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isDisabled, setIsDisabled] = useState(false);
 
   const navigation = useNavigation();
-
-  const [event, setEvent] = useState({});
-  const [isDisabled, setIsDisabled] = useState(false);
-  const [isError, setIsError] = useState();
-  const [isLoading, setIsLoading] = useState(true);
-
   const route = useRoute();
-  const { event_id } = route.params;
-  const { user_id } = route.params;
-  const { event_id } = useLocalSearchParams();
-
+  const { user_id, event_id } = route.params; // Correct usage of route params
 
   useEffect(() => {
     const fetchSingleEvent = async () => {
@@ -42,14 +35,13 @@ export default function SingleEvent() {
     fetchSingleEvent();
   }, [event_id]);
 
-
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const response = await fetch(`https://twogather-backend.onrender.com/api/users/${user_id}`);
         const data = await response.json();
         console.log('Fetched user data:', data);
-        setUser(data.users);
+        setUser(data.users ? data.users[0] : {}); // Handle if users is an array
       } catch (error) {
         console.error('Error fetching user:', error);
       } finally {
@@ -61,52 +53,17 @@ export default function SingleEvent() {
     }
   }, [user_id]);
 
-  useEffect(() => {
-    console.log('User data:', user);
-  }, [user_id]);
-
-  const handleAttendance = async () => {
-    // const res = await PATCH( event_id, host_id, user_id, user_status="request", user_approved = "false")
-    console.log('Holla attendance');
-  };
-
-  const handleCancelation = async () => {
-    // const res = await PATCH
-    // if(res.user_status!== "cancel" ) {
-    //   res.user_status = "cancel"
-    //   res.user_approved = "false"
-    // }
-    console.log('Holla cancel');
-  };
-
   const formattedDate = new Date(event.event_date).toLocaleDateString(undefined, {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
     day: 'numeric',
+  });
 
   const formattedTime = new Date(`${event.event_date}`).toLocaleTimeString([], {
     hour: '2-digit',
     minute: '2-digit',
   });
-
-  // const Header = ({ user }) => (
-  //   <View style={styles.header}>
-  //     <TouchableOpacity onPress={() => router.push('(tabs)')}>
-  //       <Ionicons name="home" size={30} color="#003049" />
-  //     </TouchableOpacity>
-  //     <TouchableOpacity onPress={() => router.push('/profile')}>
-  //       <Image
-  //         source={{
-  //           uri:
-  //             user?.image_url ||
-  //             'https://media.istockphoto.com/id/1396814518/vector/image-coming-soon-no-photo-no-thumbnail-image-available-vector-illustration.jpg?s=612x612&w=0&k=20&c=hnh2OZgQGhf0b46-J2z7aHbIWwq8HNlSDaNp2wn_iko=',
-  //         }}
-  //         style={styles.profileImage}
-  //       />
-  //     </TouchableOpacity>
-  //   </View>
-  // );
 
   const Header = () => (
     <View style={styles.header}>
@@ -118,9 +75,10 @@ export default function SingleEvent() {
       </TouchableOpacity>
     </View>
   );
+
   return (
     <>
-      <Header user={user} />
+      <Header />
       <TouchableOpacity style={styles.backButton} onPress={() => router.push('/explore')}>
         <Text>Back</Text>
       </TouchableOpacity>
@@ -148,7 +106,7 @@ export default function SingleEvent() {
           </Text>
           <Text style={styles.details}>
             <Ionicons name="calendar" color="#669BBC" size={15} />
-            {formattedDate}
+            {formattedDate} | {formattedTime}
           </Text>
           <Text style={styles.details}>
             <Ionicons name="pin" color="#669BBC" size={15} />
@@ -189,10 +147,6 @@ const styles = StyleSheet.create({
     height: '100%',
     borderRadius: 10,
   },
-  textContainer: {
-    alignItems: 'center',
-    marginBottom: 30,
-  },
   title: {
     fontSize: 20,
     fontWeight: 'bold',
@@ -211,9 +165,6 @@ const styles = StyleSheet.create({
     color: '#555',
     textAlign: 'center',
     marginBottom: 5,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   description: {
     fontSize: 14,
@@ -221,32 +172,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 10,
     paddingHorizontal: 20,
-  },
-  attendanceButtons: {
-    width: '100%',
-    alignItems: 'center',
-    gap: 20,
-    marginTop: 20,
-  },
-  button: {
-    width: '50%',
-    padding: 12,
-    borderRadius: 15,
-    alignItems: 'center',
-  },
-  attendButton: {
-    backgroundColor: '#28A745', // Green
-  },
-  disabledButton: {
-    backgroundColor: '#ccc',
-  },
-  cancelButton: {
-    backgroundColor: '#DC3545', // Red
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
   },
   backButton: {
     width: '20%',
@@ -258,16 +183,8 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
-    elevation: 5, // para Android
+    elevation: 5,
     borderRadius: 8,
     margin: 10,
-  },
-  seeAllLink: {
-    color: '#C1121F',
-  },
-  profileImage: {
-    width: 70,
-    height: 70,
-    borderRadius: 18,
   },
 });
