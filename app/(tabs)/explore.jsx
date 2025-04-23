@@ -2,23 +2,23 @@ import { Stack } from 'expo-router';
 import { Button, StyleSheet, TouchableOpacity, View } from 'react-native';
 import EventsList from '../components/EventsList';
 import EventsModal from '../components/EventsModal';
-import { getEvents } from "../services/eventsAPI";
-
+import { getEvents } from '../services/eventsAPI';
+import { UserContext } from '../contexts/UserContext';
 
 // import React, { useState } from 'react';
 import DropdownComponent from '../components/Dropdown';
 import { useRoute } from '@react-navigation/native';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function Explore() {
+  const { user } = useContext(UserContext);
   const [eventsData, setEventsData] = useState([]);
   const [sortByValue, setSortByValue] = useState(null);
   const [filterValueCategory, setFilterValueCategory] = useState(null);
   const [filterValueLocation, setFilterValueLocation] = useState(null);
   const [filterEvent, setFilterEvent] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
-
 
   // const route = useRoute();
   // const { location } = route.params
@@ -90,33 +90,40 @@ export default function Explore() {
   //   },
   // ];
 
-
-useEffect(() => {
-
- getEvents({columnNam: "user_id", value: 1, not_equal: true})
- .then((eventsData) => {  
-  setEventsData(eventsData)
-})
-.catch((error)=>  {
-        console.error("Failed to fetch events:", error)
-  })
-    
+  useEffect(() => {
+    getEvents({ columnNam: 'user_id', value: `${user.user_id}`, not_equal: true })
+      .then((eventsData) => {
+        setEventsData(eventsData);
+      })
+      .catch((error) => {
+        console.error('Failed to fetch events:', error);
+      });
   }, [filterValueLocation, filterValueCategory]);
-
-
 
   return (
     <>
       <Stack.Screen options={{ title: 'Explore' }} />
       <View style={styles.container}>
-        <View style={styles.filter}> 
-          <TouchableOpacity onPress={() => setModalVisible(true)} >
+        <View style={styles.filter}>
+          <TouchableOpacity onPress={() => setModalVisible(true)}>
             <Ionicons name="filter" size={30} color="#003049" />
           </TouchableOpacity>
-          < EventsModal events={eventsData} visible={modalVisible} onClose={() => setModalVisible(false)} setFilterValueCategory={setFilterValueCategory} setFilterValueLocation={setFilterValueLocation} setEventsData={setEventsData}/>
-          <DropdownComponent title="Sort By" events={eventsData} sortByValue={sortByValue} setSortByValue={setSortByValue}/>
-          </View>
-        <EventsList events ={eventsData}/>
+          <EventsModal
+            events={eventsData}
+            visible={modalVisible}
+            onClose={() => setModalVisible(false)}
+            setFilterValueCategory={setFilterValueCategory}
+            setFilterValueLocation={setFilterValueLocation}
+            setEventsData={setEventsData}
+          />
+          <DropdownComponent
+            title="Sort By"
+            events={eventsData}
+            sortByValue={sortByValue}
+            setSortByValue={setSortByValue}
+          />
+        </View>
+        <EventsList events={eventsData} />
       </View>
     </>
   );
@@ -126,12 +133,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 24,
-    backgroundColor:"white"
+    backgroundColor: 'white',
   },
   filter: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent:"space-between",
-    padding:10
-  }
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 10,
+  },
 });
