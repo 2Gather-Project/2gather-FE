@@ -1,4 +1,4 @@
-import { StyleSheet, View, Text, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Alert, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useState, useEffect } from 'react';
 import {
@@ -14,6 +14,7 @@ export default function HostedEventCard({ event, setDeletedEvent }) {
   const router = useRouter();
   const [eventActivity, setEventActivity] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
     const fetchEventActivity = async () => {
@@ -95,37 +96,15 @@ export default function HostedEventCard({ event, setDeletedEvent }) {
     }
   };
 
-  const handleDeleteEvent = () => {
-    console.log('pressed delete');
-
-    async () => {
-      try {
-        await deleteEvent(event.event_id);
-        setDeletedEvent((current) => {
-          return ++current;
-        });
-        // if (onEventDeleted) {
-        // onEventDeleted(event.event_id);
-        // }
-        router.back();
-      } catch (err) {
-        console.error('Error deleting event:', err);
-        Alert.alert('Error', 'Failed to delete event. Please try again.');
-      }
-    };
-    deleteEvent(event.event_id);
-    // Alert.alert('Delete Event', 'Are you sure you want to delete this event?', [
-    //   {
-    //     text: 'Cancel',
-    //     style: 'cancel',
-    //   },
-    //   {
-    //     text: 'Delete',
-    //     style: 'destructive',
-    //     onPress:
-    //     },
-    //   },
-    // ]);
+  const handleDeleteEvent = async () => {
+    try {
+      await deleteEvent(event.event_id);
+      setDeletedEvent((current) => current + 1);
+      setShowDeleteModal(false);
+    } catch (err) {
+      console.error('Error deleting event:', err);
+      Alert.alert('Error', 'Failed to delete event. Please try again.');
+    }
   };
 
   const formatDate = (dateString) => {
@@ -194,11 +173,40 @@ export default function HostedEventCard({ event, setDeletedEvent }) {
               <Text style={styles.pendingBadgeText}>{pendingRequests.length} pending</Text>
             </View>
           )}
-          <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteEvent}>
+          <TouchableOpacity style={styles.deleteButton} onPress={() => setShowDeleteModal(true)}>
             <Ionicons name="trash-outline" size={20} color="#F44336" />
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={showDeleteModal}
+        onRequestClose={() => setShowDeleteModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Delete Event</Text>
+            <Text style={styles.modalText}>Are you sure you want to delete this event? This action cannot be undone.</Text>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.cancelButton]}
+                onPress={() => setShowDeleteModal(false)}
+              >
+                <Text style={styles.modalButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.deleteConfirmButton]}
+                onPress={handleDeleteEvent}
+              >
+                <Text style={styles.modalButtonText}>Delete</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
 
       <View style={styles.details}>
         <View style={styles.detailRow}>
@@ -393,5 +401,61 @@ const styles = StyleSheet.create({
   },
   deleteButton: {
     padding: 8,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: '80%',
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 20,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 10,
+  },
+  modalText: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  modalButton: {
+    flex: 1,
+    padding: 12,
+    borderRadius: 8,
+    marginHorizontal: 5,
+  },
+  cancelButton: {
+    backgroundColor: '#E0E0E0',
+  },
+  deleteConfirmButton: {
+    backgroundColor: '#F44336',
+  },
+  modalButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center',
   },
 });

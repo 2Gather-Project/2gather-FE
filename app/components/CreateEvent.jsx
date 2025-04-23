@@ -27,6 +27,7 @@ export default function CreateEvent() {
   const [error, setError] = useState(false);
   const [photo, setPhoto] = useState(null);
   const [tags, setTags] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const currentDate = new Date();
   currentDate.setDate(currentDate.getDate() + 1);
 
@@ -40,11 +41,23 @@ export default function CreateEvent() {
   const [showTimePicker, setShowTimePicker] = useState(false);
 
   const [addEvent, setAddEvent] = useState({
-    user_id: `${user.user_id}`,
+    user_id: user?.user_id || '',
     category: 'OTHER',
     event_date: `${currentDate.toJSON()}`,
     image_url: user?.image_url || '',
   });
+
+  // Update addEvent when user data is loaded
+  useEffect(() => {
+    if (user) {
+      setAddEvent(prev => ({
+        ...prev,
+        user_id: user.user_id,
+        image_url: user.image_url || prev.image_url
+      }));
+      setIsLoading(false);
+    }
+  }, [user]);
 
   useEffect(() => {
     console.log('inside tags');
@@ -113,8 +126,6 @@ export default function CreateEvent() {
 
   // Formatted date and time for display
   const formattedDate = date.toLocaleDateString();
-
-  console.log('User is:', user);
   const formattedTime = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
   function handleChange(event) {
@@ -125,30 +136,6 @@ export default function CreateEvent() {
     });
   }
 
-  // const handleUploadPhoto = () => {
-  //   const data = createFormData(photo, { event_id: `${addEvent.event_id}` || '' });
-  //   console.log(data);
-  //   patchEventImage(addEvent)
-  //     .then((response) => response.json())
-  //     .then((response) => {
-  //       console.log('response', response);
-  //     })
-  //     .catch((error) => {
-  //       console.log('error', error);
-  //     });
-  // };
-
-  // const handleChoosePhoto = () => {
-  //   console.log('handleChoosePhoto');
-  //   launchImageLibrary({ noData: true }, (response) => {
-  //     console.log(response);
-  //     if (response) {
-  //       setPhoto(response);
-  //     }
-  //   });
-  // };
-
-  console.log(addEvent);
   const onDateChange = (event, selectedDate) => {
     if (selectedDate) {
       setDate(selectedDate);
@@ -194,7 +181,7 @@ export default function CreateEvent() {
 
   const handleCancle = () => {
     setAddEvent({
-      user_id: `${user.user_id}`,
+      user_id: user?.user_id || '',
       category: 'OTHER',
       event_date: `${currentDate.toJSON()}`,
       image_url: user?.image_url || '',
@@ -202,6 +189,22 @@ export default function CreateEvent() {
     setError(false);
     router.back();
   };
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <Text>Loading...</Text>
+      </SafeAreaView>
+    );
+  }
+
+  if (!user) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <Text>Please log in to create an event</Text>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -233,10 +236,6 @@ export default function CreateEvent() {
                 </View>
               )}
             </TouchableOpacity>
-            {/* <Text style={styles.profileName}>
-              {profile.first_name + ' ' + profile.last_name || 'Username'}
-            </Text>
-            <Text style={styles.profileTagline}>@{profile.email || 'user'} </Text> */}
           </View>
         </View>
 
@@ -320,15 +319,6 @@ export default function CreateEvent() {
           onChange={handleChange}
           multiline
         />
-
-        {/* <Text style={styles.label}>Add a link</Text>
-        <TextInput
-          style={styles.input}
-          id="link"
-          value={addEvent.link || ''}
-          onChange={handleChange}
-          placeholder="https://..."
-        /> */}
 
         <Text style={styles.label}>Tag</Text>
         <View style={styles.tagsContainer}>

@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../contexts/UserContext';
 import { getEventAttendance, patchEventAttendance, postEventAttendance, updateEventStatus } from '../services/eventsAPI';
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator } from 'react-native';
 
 export const EventAttendanceButtons = ({ event }) => {
   const [isDisabled, setIsDisabled] = useState(false);
@@ -11,11 +11,21 @@ export const EventAttendanceButtons = ({ event }) => {
   const [optimisticAttendance, setOptimisticAttendance] = useState(null);
   const [eventStatus, setEventStatus] = useState(event);
 
-
   const { user } = useContext(UserContext);
+
+  // Add check for user loading state
+  if (!user) {
+    return (
+      <View style={styles.attendanceButtons}>
+        <ActivityIndicator size="large" color="#669BBC" />
+      </View>
+    );
+  }
 
   useEffect(() => {
     const fetchAttendance = async () => {
+      if (!event?.event_id) return;
+      
       try {
         const res = await getEventAttendance(event.event_id);
         console.log('getEventAttendance response:', res);
@@ -44,7 +54,7 @@ export const EventAttendanceButtons = ({ event }) => {
       }
     };
     fetchAttendance();
-  }, [event.event_id]);
+  }, [event?.event_id]);
 
   // useEffect(() => {
   //   const checkEventStatus = async () => {

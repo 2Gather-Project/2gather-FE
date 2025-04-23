@@ -1,15 +1,15 @@
 import { Stack, useFocusEffect } from 'expo-router';
-import { Button, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Button, StyleSheet, TouchableOpacity, View, Text } from 'react-native';
 import EventsList from '../components/EventsList';
 import EventsModal from '../components/EventsModal';
 import { getEvents } from '../services/eventsAPI';
 import { UserContext } from '../contexts/UserContext';
+import { useContext, useEffect, useState } from 'react';
+import { Ionicons } from '@expo/vector-icons';
 
 // import React, { useState } from 'react';
 import DropdownComponent from '../components/Dropdown';
 import { useRoute } from '@react-navigation/native';
-import { useContext, useEffect, useState } from 'react';
-import { Ionicons } from '@expo/vector-icons';
 
 export default function Explore() {
   const { user } = useContext(UserContext);
@@ -19,10 +19,10 @@ export default function Explore() {
   const [filterValueLocation, setFilterValueLocation] = useState(null);
   const [filterEvent, setFilterEvent] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
-
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   console.log(filterValueLocation);
-
 
   // const route = useRoute();
   // const { location } = route.params
@@ -76,7 +76,7 @@ export default function Explore() {
   //   {
   //     creator_id: 6,
   //     title: 'Street Food Lunch',
-  //     description: 'Grab a bite and discover new flavors together at the city’s food market.',
+  //     description: 'Grab a bite and discover new flavors together at the city's food market.',
   //     location: 'Manchester',
   //     time: '14:15:00',
   //     category: "Food",
@@ -98,15 +98,54 @@ export default function Explore() {
   //   useCallback(() => {  //tobe checked
 
   useEffect(() => {
-    //if no user, redirect to login TODO
-    getEvents({ columnNam: 'user_id', value: `${user.user_id}`, not_equal: true })
-      .then((eventsData) => {
-        setEventsData(eventsData);
-      })
-      .catch((error) => {
+    const fetchEvents = async () => {
+      if (!user) {
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        const events = await getEvents({ 
+          columnNam: 'user_id', 
+          value: `${user.user_id}`, 
+          not_equal: true 
+        });
+        setEventsData(events);
+        setError(null);
+      } catch (error) {
         console.error('Failed to fetch events:', error);
-      });
-  }, [filterValueLocation, filterValueCategory]);
+        setError('Failed to load events. Please try again.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, [user, filterValueLocation, filterValueCategory]);
+
+  if (!user) {
+    return (
+      <View style={styles.container}>
+        <Text>Please log in to view events</Text>
+      </View>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <View style={styles.container}>
+        <Text>Loading events...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.container}>
+        <Text>{error}</Text>
+      </View>
+    );
+  }
 
   return (
     <>
@@ -142,6 +181,8 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 24,
     backgroundColor: 'white',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   filter: {
     display: 'flex',

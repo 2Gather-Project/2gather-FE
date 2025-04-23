@@ -33,7 +33,6 @@ export default function UpcomingEvents() {
         }, [user])
     );
 
-
     if (error) {
         return (
             <View style={styles.errorContainer}>
@@ -41,7 +40,6 @@ export default function UpcomingEvents() {
             </View>
         );
     }
-
 
     if (isLoading) {
         return (
@@ -51,6 +49,14 @@ export default function UpcomingEvents() {
         );
     }
 
+    const handleEventPress = (event) => {
+        if (event.user_id === user.user_id) {
+            router.push(`/event/${event.event_id}`);
+        } else {
+            // Using replace instead of push to prevent navigation stack buildup
+            router.replace(`/SingleEvent?event_id=${event.event_id}`);
+        }
+    };
 
     return (
         <View style={styles.container}>
@@ -67,12 +73,9 @@ export default function UpcomingEvents() {
             ) : (
                 <FlatList
                     data={upcomingEvents}
-                    keyExtractor={(item) => item.event_id}
+                    keyExtractor={(item) => item.event_id.toString()}
                     renderItem={({ item }) => (
-
-                        <TouchableOpacity onPress={() => router.push(
-                            item.user_id === user.user_id ? `/event/${item.event_id}` :
-                                `SingleEvent?event_id=${item.event_id}`)}>
+                        <TouchableOpacity onPress={() => handleEventPress(item)}>
                             <UpcomingEventCard event={item} />
                         </TouchableOpacity>
                     )}

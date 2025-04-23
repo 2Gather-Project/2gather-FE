@@ -13,6 +13,16 @@ export default function HostedEvents() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [deletedEvent, setDeletedEvent] = useState(1);
+  const [isUserLoading, setIsUserLoading] = useState(true);
+
+  useEffect(() => {
+    // Set isUserLoading to false after a short delay to allow AsyncStorage to load
+    const timer = setTimeout(() => {
+      setIsUserLoading(false);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const fetchHostedEvents = async () => {
@@ -32,10 +42,24 @@ export default function HostedEvents() {
     };
 
     fetchHostedEvents();
-    console.log('getting hosted event', deletedEvent);
   }, [user, deletedEvent]);
 
-  if (!user) {
+  const handleBack = () => {
+    // Navigate to the home tab
+    router.replace('/(tabs)');
+  };
+
+  // Show loading state while user data is being loaded from AsyncStorage
+  if (isUserLoading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <Text>Loading...</Text>
+      </SafeAreaView>
+    );
+  }
+
+  // Only show login message if we're sure there's no user
+  if (!isUserLoading && !user) {
     return (
       <SafeAreaView style={styles.container}>
         <Text>Please log in to view hosted events</Text>
@@ -46,7 +70,7 @@ export default function HostedEvents() {
   if (isLoading) {
     return (
       <SafeAreaView style={styles.container}>
-        <Text>Loading...</Text>
+        <Text>Loading events...</Text>
       </SafeAreaView>
     );
   }
@@ -69,7 +93,7 @@ export default function HostedEvents() {
           },
           headerTintColor: 'white',
           headerLeft: () => (
-            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <TouchableOpacity onPress={handleBack} style={styles.backButton}>
               <Ionicons name="arrow-back" size={24} color="white" />
             </TouchableOpacity>
           ),

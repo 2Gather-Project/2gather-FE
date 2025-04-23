@@ -1,5 +1,5 @@
 import { StyleSheet, View, TextInput, Text, TouchableOpacity, ScrollView, SafeAreaView, StatusBar, Image, Dimensions, Animated } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, Stack } from 'expo-router';
 import { useState, useRef, useContext, useEffect } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { UserContext } from './contexts/UserContext';
@@ -10,27 +10,52 @@ export default function Profile() {
   const { user, setUser, logOut } = useContext(UserContext);
   const [isEditing, setIsEditing] = useState(false);
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
   const editButtonScale = useRef(new Animated.Value(1)).current;
   const editIconRotate = useRef(new Animated.Value(0)).current;
   const closeButtonScale = useRef(new Animated.Value(1)).current;
   const closeIconRotate = useRef(new Animated.Value(0)).current;
   const [profile, setProfile] = useState({
-    address: user?.address || '',
-    bio: user?.bio || '',
-    coffee_tea: user?.coffee_tea || 'coffee',
-    date_of_birth: user?.date_of_birth || '',
-    email: user?.email || '',
-    fav_food: user?.fav_food || '',
-    first_name: user?.first_name || '',
-    gender: user?.gender || '',
-    image_url: user?.image_url || '',
-    job_title: user?.job_title || '',
-    personality: user?.personality || '',
-    reason: user?.reason || '',
-    last_name: user?.last_name || '',
-    phone_number: user?.phone_number || '',
-    user_id: user?.user_id || 0
+    address: '',
+    bio: '',
+    coffee_tea: 'coffee',
+    date_of_birth: '',
+    email: '',
+    fav_food: '',
+    first_name: '',
+    gender: '',
+    image_url: '',
+    job_title: '',
+    personality: '',
+    reason: '',
+    last_name: '',
+    phone_number: '',
+    user_id: 0
   });
+
+  // Update profile when user data is loaded
+  useEffect(() => {
+    if (user) {
+      setProfile({
+        address: user.address || '',
+        bio: user.bio || '',
+        coffee_tea: user.coffee_tea || 'coffee',
+        date_of_birth: user.date_of_birth || '',
+        email: user.email || '',
+        fav_food: user.fav_food || '',
+        first_name: user.first_name || '',
+        gender: user.gender || '',
+        image_url: user.image_url || '',
+        job_title: user.job_title || '',
+        personality: user.personality || '',
+        reason: user.reason || '',
+        last_name: user.last_name || '',
+        phone_number: user.phone_number || '',
+        user_id: user.user_id || 0
+      });
+      setIsLoading(false);
+    }
+  }, [user]);
 
   useEffect(() => {
     ImagePicker.requestMediaLibraryPermissionsAsync().then(({ status }) => {
@@ -124,30 +149,7 @@ export default function Profile() {
   };
 
   const handleBackToMenu = () => {
-    // Animation for button press
-    Animated.sequence([
-      Animated.timing(closeButtonScale, {
-        toValue: 0.8,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-      Animated.timing(closeButtonScale, {
-        toValue: 1,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-    ]).start();
-
-    // Animation for icon rotation
-    Animated.timing(closeIconRotate, {
-      toValue: 1,
-      duration: 300,
-      useNativeDriver: true,
-    }).start(() => {
-      // Toggle edit mode
-      setIsEditing(!isEditing);
-      // router.push('/(tabs)');
-    });
+    router.replace('/(tabs)');
   };
 
   const closeIconRotation = closeIconRotate.interpolate({
@@ -155,43 +157,74 @@ export default function Profile() {
     outputRange: ['0deg', '90deg'],
   });
 
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <Text>Loading...</Text>
+      </SafeAreaView>
+    );
+  }
+
+  if (!user) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <Text>Please log in to view your profile</Text>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
+      <Stack.Screen 
+        options={{
+          headerShown: true,
+          title: "Profile",
+          headerStyle: {
+            backgroundColor: '#669BBC',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+        }} 
+      />
       <StatusBar barStyle="light-content" />
 
       <View style={styles.header}>
-        {isEditing &&
-          <Animated.View style={{ transform: [{ scale: closeButtonScale }] }}>
+        <View style={styles.headerRight}>
+          {isEditing &&
+            <Animated.View style={{ transform: [{ scale: closeButtonScale }] }}>
+              <TouchableOpacity
+                onPress={handleBackToMenu}
+                style={styles.closeButton}
+                activeOpacity={0.7}
+              >
+                <Animated.View style={{ transform: [{ rotate: closeIconRotation }] }}>
+                  <Ionicons name="close" size={22} color="white" />
+                </Animated.View>
+                <Text style={styles.buttonText}>Cancel</Text>
+              </TouchableOpacity>
+            </Animated.View>
+          }
+          <Animated.View style={{ transform: [{ scale: editButtonScale }] }}>
             <TouchableOpacity
-              onPress={handleBackToMenu}
-              style={styles.closeButton}
+              onPress={isEditing ? handleSave : handleToggleEdit}
+              style={[styles.editButton, isEditing && styles.saveEditButton]}
               activeOpacity={0.7}
             >
-              <Animated.View style={{ transform: [{ rotate: closeIconRotation }] }}>
-                <Ionicons name="close" size={22} color="white" />
+              <Animated.View style={{ transform: [{ rotate: iconRotation }] }}>
+                <Ionicons
+                  name={isEditing ? "checkmark-outline" : "pencil-outline"}
+                  size={22}
+                  color="white"
+                />
               </Animated.View>
-              <Text style={styles.buttonText}>Cancel</Text>
+              <Text style={styles.buttonText}>
+                {isEditing ? "Save" : "Edit"}
+              </Text>
             </TouchableOpacity>
           </Animated.View>
-        }
-        <Animated.View style={{ transform: [{ scale: editButtonScale }] }}>
-          <TouchableOpacity
-            onPress={isEditing ? handleSave : handleToggleEdit}
-            style={[styles.editButton, isEditing && styles.saveEditButton]}
-            activeOpacity={0.7}
-          >
-            <Animated.View style={{ transform: [{ rotate: iconRotation }] }}>
-              <Ionicons
-                name={isEditing ? "checkmark-outline" : "pencil-outline"}
-                size={22}
-                color="white"
-              />
-            </Animated.View>
-            <Text style={styles.buttonText}>
-              {isEditing ? "Save" : "Edit"}
-            </Text>
-          </TouchableOpacity>
-        </Animated.View>
+        </View>
       </View>
 
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
@@ -221,8 +254,14 @@ export default function Profile() {
                 </View>
               )}
             </TouchableOpacity>
-            <Text style={styles.profileName}>{profile.first_name + ' ' + profile.last_name || "Username"}</Text>
-            <Text style={styles.profileTagline}>@{profile.email || "user"} </Text>
+            <Text style={styles.profileName}>
+              {profile.first_name && profile.last_name 
+                ? `${profile.first_name} ${profile.last_name}`
+                : "Username"}
+            </Text>
+            <Text style={styles.profileTagline}>
+              {profile.email ? `@${profile.email}` : "user"}
+            </Text>
           </View>
         </View>
 
@@ -322,16 +361,44 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 2,
   },
-  headerTitle: {
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  closeButton: {
+    backgroundColor: '#780000',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.5,
+    elevation: 2,
+  },
+  editButton: {
+    backgroundColor: '#003049',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.5,
+    elevation: 2,
+  },
+  saveEditButton: {
+    backgroundColor: '#C1121F',
+  },
+  buttonText: {
     color: 'white',
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  backButton: {
-    padding: 8,
-  },
-  headerButton: {
-    padding: 8,
+    fontWeight: '600',
+    fontSize: 15,
+    marginLeft: 6,
   },
   scrollView: {
     flex: 1,
@@ -512,40 +579,5 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     fontWeight: 'bold',
     fontSize: 16,
-  },
-  editButton: {
-    backgroundColor: '#003049',
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-    borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 1.5,
-    elevation: 2,
-  },
-  saveEditButton: {
-    backgroundColor: '#C1121F',
-  },
-  buttonText: {
-    color: 'white',
-    fontWeight: '600',
-    fontSize: 15,
-    marginLeft: 6,
-  },
-  closeButton: {
-    backgroundColor: '#780000',
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-    borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 1.5,
-    elevation: 2,
   },
 });
