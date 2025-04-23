@@ -1,16 +1,20 @@
+import { AntDesign, Ionicons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import { Link, Tabs, useRouter } from 'expo-router';
+import { useContext } from 'react';
 import { TouchableOpacity, View, StyleSheet, Text } from 'react-native';
 // import { HeaderButton } from '../../components/HeaderButton';
 // import { TabBarIcon } from '../../components/TabBarIcon';
-import { AntDesign, Ionicons } from '@expo/vector-icons';
+
+import UserContext from '../contexts/UserContext';
 
 export default function TabLayout() {
   const router = useRouter();
+  const { user } = useContext(UserContext);
 
   const goToProfile = () => {
     router.push('/profile');
   };
-
 
   const goToHostedEvents = () => {
     router.push('/HostedEvents');
@@ -29,15 +33,17 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <Ionicons name="home" color={color} size={24} />,
           headerRight: () => (
             <View style={{ flexDirection: 'row', padding: '20px', alignItems: 'center' }}>
-
               <TouchableOpacity onPress={goToHostedEvents} style={styles.createButton}>
                 <Text style={styles.createButtonText}>Hosted Events</Text>
               </TouchableOpacity>
 
               <TouchableOpacity onPress={goToProfile} style={{ marginRight: 15, marginLeft: 15 }}>
-                <Ionicons name="person-circle-outline" color="#333" size={36} />
+                {user?.image_url ? (
+                  <Image source={{ uri: user.image_url }} style={styles.profileImageIcon} />
+                ) : (
+                  <Ionicons name="person-circle-outline" color="#333" size={36} />
+                )}
               </TouchableOpacity>
-
             </View>
           ),
         }}
@@ -78,7 +84,6 @@ export default function TabLayout() {
             <TouchableOpacity onPress={goToProfile} style={{ marginRight: 15 }}>
               <Ionicons name="person-circle-outline" color="#333" size={36} />
             </TouchableOpacity>
-
           ),
         }}
       />
@@ -94,20 +99,22 @@ export default function TabLayout() {
 }
 
 const styles = StyleSheet.create({
-
   createButton: {
     backgroundColor: '#C1121F',
     paddingVertical: 6,
     paddingHorizontal: 10,
     borderRadius: 5,
 
-    textAlign: 'center'
+    textAlign: 'center',
   },
   createButtonText: {
     color: 'white',
     fontWeight: 'bold',
     fontSize: 12,
-
-  }
-
-})
+  },
+  profileImageIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+  },
+});
