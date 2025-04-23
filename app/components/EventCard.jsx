@@ -21,7 +21,7 @@ export default function EventCard({ title, location, time, event_id, image_url }
           />
         </View>
         <View style={styles.textContainer}>
-          <Pressable onPress={() => navigation.navigate('SingleEvent', { event_id: event_id })}>
+          <Pressable onPress={() => navigation.navigate('SingleEvent', { event_id})}>
             <Text style={styles.title}>{title}</Text>
           </Pressable>
           <Text style={styles.time}>{time}</Text>

@@ -21,10 +21,38 @@ export function getEvents({ columnNam, value, not_equal }) {
 
 export function getEventById(event_id) {
   return baseApi.get(`/events/${event_id}`).then(({ data: { event } }) => {
-    console.log('events is', event);
+    console.log('events is id', event);
     return event;
   });
 }
+
+
+export function postEventAttendance(attendanceRequest) {
+  return baseApi
+    .post('/event-user-activity', attendanceRequest)
+    .then(({ data: { event_user_activity } }) => {
+      return event_user_activity;
+    });
+}
+
+  export function getEventAttendance(event_id) {
+    return baseApi
+      .get(`/event-user-activity/${event_id}`)
+      .then(({ data: { event_user_activity  } }) => {
+        // console.log({ event_user_activity  });
+        return event_user_activity ;
+      });
+  }
+
+  export function patchEventAttendance(attendanceData) {
+    const { event_id, attendee_id } = attendanceData;
+    return baseApi
+        .patch(`/event-user-activity/${event_id}/${attendee_id}`, attendanceData)
+        .then(({data: {event_user_activity}}) => { 
+          return event_user_activity
+        });
+      }
+
 
 export function postNewEvent(addEvent) {
   return baseApi.post(`/events`, addEvent).then(({ data: { event } }) => {

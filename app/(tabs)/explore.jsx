@@ -1,4 +1,4 @@
-import { Stack } from 'expo-router';
+import { Stack, useFocusEffect } from 'expo-router';
 import { Button, StyleSheet, TouchableOpacity, View } from 'react-native';
 import EventsList from '../components/EventsList';
 import EventsModal from '../components/EventsModal';
@@ -89,6 +89,10 @@ export default function Explore() {
   //     created_at: '2025-04-14',
   //   },
   // ];
+
+
+  // useFocusEffect(
+  //   useCallback(() => {  //tobe checked
 
   useEffect(() => {
     getEvents({ columnNam: 'user_id', value: `${user.user_id}`, not_equal: true })
