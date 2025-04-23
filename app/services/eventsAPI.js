@@ -46,3 +46,30 @@ export function getTags() {
     return interests;
   });
 }
+
+export function postEventUserActivity(activity) {
+  return baseApi
+    .post(`/event-user-activity`, activity)
+    .then(({ data: { event_user_activity } }) => {
+      console.log('event_user_activity is', event_user_activity);
+      return event_user_activity;
+    });
+}
+
+export function patchUserActivityForEvent(activity) {
+  return baseApi
+    .patch(`/event-user-activity/patch`, activity)
+    .then(({ data: { event_user_activity } }) => {
+      console.log('event_user_activity is', event_user_activity);
+      return event_user_activity;
+    });
+}
+
+export function getUserActivityForEvent(event_id) {
+  return baseApi
+    .get(`/event-user-activity/${event_id}`)
+    .then(({ data: { event_user_activity } }) => {
+      console.log('event_user_activity is', event_user_activity);
+      return event_user_activity;
+    });
+}

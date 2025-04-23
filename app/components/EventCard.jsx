@@ -3,7 +3,7 @@ import { useNavigation } from 'expo-router';
 import { Text, View, Image, StyleSheet, TouchableOpacity, Pressable } from 'react-native';
 
 export default function EventCard({ title, location, time, event_id, image_url }) {
-  console.log('Inside event card:', title, event_id);
+  //console.log('Inside event card:', title, event_id);
   const navigation = useNavigation();
   return (
     <>

@@ -1,15 +1,28 @@
 import { Link, useRoute } from '@react-navigation/native';
 import { router, Stack, useNavigation } from 'expo-router';
-import { useState, useEffect } from 'react';
+
+import { useState, useEffect, useContext } from 'react';
 import { Button, Image, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Explore from './(tabs)/explore';
 import { Ionicons } from '@expo/vector-icons';
 import { Background } from '@react-navigation/elements';
-import { getEventById } from './services/eventsAPI';
+import {
+  getEventById,
+  getUserActivityForEvent,
+  patchUserActivityForEvent,
+  postEventUserActivity,
+} from './services/eventsAPI';
+import UserContext from './contexts/UserContext';
 
 export default function SingleEvent() {
+  const { user } = useContext(UserContext);
   const [date, setDate] = useState(new Date());
   const [event, setEvent] = useState({});
+  const [activity, setActivity] = useState({});
+  const [requested, setRequested] = useState(false);
+  const [cancelled, setCancelled] = useState(false);
+  //const [allActivities,]
+  console.log(requested);
 
   const navigation = useNavigation();
   const [isError, setIsError] = useState();
@@ -19,6 +32,7 @@ export default function SingleEvent() {
   const { event_id } = route.params;
 
   useEffect(() => {
+    console.log('inside use effect');
     const fetchSingleEvent = async () => {
       try {
         const res = await getEventById(event_id);
@@ -30,11 +44,55 @@ export default function SingleEvent() {
       }
     };
     fetchSingleEvent();
+    setRequested(false);
+    const fetchingUserActivityforEvent = async () => {
+      try {
+        console.log('inside fetchingUserActivityforEvent');
+        const res = await getUserActivityForEvent(event_id);
+        console.log('user activity:', res);
+        res.filter((act) => {
+          if (act.attendee_id === user.user_id && act.user_status === 'REQUESTED') {
+            console.log('requested:', requested);
+            setRequested(true);
+          }
+        });
+      } catch (error) {
+        console.log('error is', error);
+        setIsError(error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchingUserActivityforEvent();
   }, [event_id]);
 
   const handleAttendance = async () => {
     // const res = await PATCH( event_id, host_id, user_id, user_status="request", user_approved = "false")
     console.log('Holla attendance');
+    const activity = {
+      host_id: `${event.host_id}`,
+      attendee_id: `${user.user_id}`,
+      event_id: `${event.event_id}`,
+      user_status: 'REQUESTED',
+      user_approved: false,
+    };
+
+    setActivity(activity);
+    console.log(event.host_id);
+    console.log('activity:', activity);
+    try {
+      const res = await postEventUserActivity(activity);
+
+      console.log(res);
+      setCancelled(false);
+      //set(res);
+    } catch (error) {
+      setIsError(error);
+    } finally {
+      setIsLoading(false);
+      // fetchingUserActivityforEvent();
+    }
   };
 
   const handleCancelation = async () => {
@@ -43,7 +101,26 @@ export default function SingleEvent() {
     //   res.user_status = "cancel"
     //   res.user_approved = "false"
     // }
+    setActivity({
+      host_id: `${event.host_id}`,
+      attendee_id: `${user.user_id}`,
+      event_id: `${event.event_id}`,
+      user_status: 'CANCELLED',
+      user_approved: false,
+    });
     console.log('Holla cancel');
+    try {
+      const res = await patchUserActivityForEvent(activity);
+      setCancelled(true);
+      setRequested(false);
+      console.log(res);
+      //set(res);
+    } catch (error) {
+      setIsError(error);
+      setCancelled(false);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const formattedTime = new Date(`${event.event_date}`).toLocaleTimeString([], {
@@ -61,8 +138,6 @@ export default function SingleEvent() {
       </TouchableOpacity>
     </View>
   );
-
-  console.log(event);
 
   return (
     <>
@@ -109,13 +184,16 @@ export default function SingleEvent() {
           <Text style={styles.description}>{event.description}</Text>
         </View>
         <View style={styles.attendanceButtons}>
-          <TouchableOpacity onPress={handleAttendance} style={[styles.button, styles.attendButton]}>
-            <Text style={styles.buttonText}>Attend</Text>
+          <TouchableOpacity
+            onPress={handleAttendance}
+            style={[styles.button, styles.attendButton]}
+            disabled={requested}>
+            <Text style={styles.buttonText}>{requested ? 'Requested' : 'Attend'}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={handleCancelation}
             style={[styles.button, styles.cancelButton]}>
-            <Text style={styles.buttonText}>Cancel Attendance</Text>
+            <Text style={styles.buttonText}>{cancelled ? 'Cancelled' : 'Cancel Attendance'}</Text>
           </TouchableOpacity>
         </View>
       </View>

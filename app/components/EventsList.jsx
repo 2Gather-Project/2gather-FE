@@ -82,7 +82,7 @@ export default function EventsList({ events }) {
               image_url={item.image_url}
             />
           )}
-          keyExtractor={(item) => item.user_id}
+          keyExtractor={(item) => item.event_id}
         />
       </View>
     </>
