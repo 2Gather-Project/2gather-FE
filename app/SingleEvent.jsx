@@ -69,25 +69,33 @@ export default function SingleEvent() {
 
   const Header = () => (
     <View style={styles.header}>
-      <TouchableOpacity onPress={() => router.push('(tabs)')}>
-        <Ionicons name="home" size={30} color="#003049" />
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => router.push('/profile')}>
-        {user?.image_url ? (
-          <Image source={{ uri: user.image_url }} style={styles.profileImageIcon} />
-        ) : (
-          <Ionicons name="person-circle-outline" color="#333" size={36} />
-        )}
-      </TouchableOpacity>
+      <View style={styles.leftSection}>
+        <TouchableOpacity onPress={() => router.push('(tabs)')} style={styles.iconButton}>
+          <Ionicons name="home" size={30} color="#003049" />
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.backButton} onPress={() => router.push('/explore')}>
+          <Text style={styles.backButtonText}>Back</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.rightSection}>
+        <TouchableOpacity onPress={() => router.push('/profile')} style={{ marginHorizontal: 15 }}>
+          {user?.image_url ? (
+            <View style={styles.profileImageContainer}>
+              <Image source={{ uri: user.image_url }} style={styles.profileImage} />
+            </View>
+          ) : (
+            <Ionicons name="person-circle-outline" color="#333" size={36} />
+          )}
+        </TouchableOpacity>
+      </View>
     </View>
   );
 
   return (
     <>
       <Header />
-      <TouchableOpacity style={styles.backButton} onPress={() => router.push('/explore')}>
-        <Text style={styles.backButtonText}>Back</Text>
-      </TouchableOpacity>
       <View style={styles.container}>
         <View style={styles.imageContainer}>
           <Image
@@ -99,6 +107,7 @@ export default function SingleEvent() {
             }}
           />
         </View>
+
         <View style={styles.text}>
           <Text style={styles.title}>{event.title}</Text>
           <Text style={styles.host}>
@@ -151,9 +160,11 @@ const styles = StyleSheet.create({
   },
   logo: {
     width: '90%',
-    height: 200,
-    borderRadius: 20,
+    height: 175,
     resizeMode: 'cover',
+    borderRadius: 20,
+    marginVertical: 16,
+    alignSelf: 'center',
   },
   title: {
     fontSize: 20,
@@ -183,28 +194,50 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   backButton: {
-    width: '20%',
-    padding: 12,
-    borderRadius: 15,
-    alignContent: 'flex-start',
     backgroundColor: '#DC3545',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-    borderRadius: 8,
-    margin: 10,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  profileImageIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+  profileImage: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+  },
+  profileImageContainer: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    borderColor: '#003049',
+    borderWidth: 1,
+    padding: 4,
+    backgroundColor: '#ffffff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   backButtonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
+  },
+  leftSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    gap: 10,
+  },
+  rightSection: {
+    flex: 1,
+    alignItems: 'flex-end',
+  },
+  iconButton: {
+    padding: 4,
   },
 });
