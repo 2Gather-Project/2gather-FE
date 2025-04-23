@@ -55,7 +55,11 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <Ionicons name="calendar" color={color} size={24} />,
           headerRight: () => (
             <TouchableOpacity onPress={goToProfile} style={{ marginRight: 15 }}>
-              <Ionicons name="person-circle-outline" color="#333" size={36} />
+              {user?.image_url ? (
+                <Image source={{ uri: user.image_url }} style={styles.profileImageIcon} />
+              ) : (
+                <Ionicons name="person-circle-outline" color="#333" size={36} />
+              )}
             </TouchableOpacity>
           ),
         }}
@@ -67,7 +71,11 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <Ionicons name="people-outline" color={color} size={24} />,
           headerRight: () => (
             <TouchableOpacity onPress={goToProfile} style={{ marginRight: 15 }}>
-              <Ionicons name="person-circle-outline" color="#333" size={36} />
+              {user?.image_url ? (
+                <Image source={{ uri: user.image_url }} style={styles.profileImageIcon} />
+              ) : (
+                <Ionicons name="person-circle-outline" color="#333" size={36} />
+              )}
             </TouchableOpacity>
             // <Link href="/modal" asChild>
             //   <HeaderButton />
@@ -82,7 +90,11 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <AntDesign name="message1" color={color} size={24} />,
           headerRight: () => (
             <TouchableOpacity onPress={goToProfile} style={{ marginRight: 15 }}>
-              <Ionicons name="person-circle-outline" color="#333" size={36} />
+              {user?.image_url ? (
+                <Image source={{ uri: user.image_url }} style={styles.profileImageIcon} />
+              ) : (
+                <Ionicons name="person-circle-outline" color="#333" size={36} />
+              )}
             </TouchableOpacity>
           ),
         }}
@@ -92,6 +104,15 @@ export default function TabLayout() {
         options={{
           title: 'New Event',
           tabBarIcon: ({ color }) => <Ionicons name="create-outline" color={color} size={24} />,
+          headerRight: () => (
+            <TouchableOpacity onPress={goToProfile} style={{ marginRight: 15 }}>
+              {user?.image_url ? (
+                <Image source={{ uri: user.image_url }} style={styles.profileImageIcon} />
+              ) : (
+                <Ionicons name="person-circle-outline" color="#333" size={36} />
+              )}
+            </TouchableOpacity>
+          ),
         }}
       />
     </Tabs>
