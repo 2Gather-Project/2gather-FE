@@ -61,10 +61,17 @@ export function createUser({ first_name, last_name, email, address, date_of_birt
 }
 
 export function getEventUserActivity(eventId) {
-  return baseApi.get(`/event-user-activity/${eventId}`).then(({ data: { event_user_activity } }) => {
-    console.log('event user activity', event_user_activity);
-    return event_user_activity;
-  });
+  // return baseApi.get(`/event-user-activity/${eventId}`);
+  return baseApi
+    .get(`/event-user-activity/${eventId}`)
+    .then(({ data: { event_user_activity } }) => {
+      console.log('Event user activity response:', event_user_activity);
+      return event_user_activity || [];
+    })
+    .catch((error) => {
+      console.error('Error in getEventUserActivity:', error);
+      return [];
+    });
 }
 
 export function getHostedEvents(userId) {
@@ -74,28 +81,60 @@ export function getHostedEvents(userId) {
 }
 
 export function postEventUserActivity(event_id, host_id, attendee_id) {
-  return baseApi.post(`/event-user-activity`, {
-    event_id,
-    host_id,
-    attendee_id,
-    user_status: 'REQUESTED',
-    user_approved: false
-  }).then(({ data: { event_user_activity } }) => {
-    return event_user_activity;
-  });
+  return baseApi
+    .post(`/event-user-activity`, {
+      event_id,
+      host_id,
+      attendee_id,
+      user_status: 'REQUESTED',
+      user_approved: false,
+    })
+    .then(({ data: { event_user_activity } }) => {
+      return event_user_activity;
+    });
 }
 
 export function updateEventUserActivityStatus(event_id, attendee_id, user_status, user_approved) {
-  return baseApi.patch(`/event-user-activity/${event_id}/${attendee_id}`, {
-    user_status,
-    user_approved
-  }).then(({ data: { event_user_activity } }) => {
-    return event_user_activity;
-  });
+  return baseApi
+    .patch(`/event-user-activity/${event_id}/${attendee_id}`, {
+      user_status,
+      user_approved,
+    })
+    .then(({ data: { event_user_activity } }) => {
+      return event_user_activity;
+    });
 }
 
 export function fetchApprovedEvents(user_id) {
   return baseApi.get(`/users/${user_id}/approved-events`).then(({ data: { events } }) => {
     return events;
   });
+  // return baseApi
+  //   .patch(`/event-user-activity/${event_id}/${attendee_id}`, {
+  //     user_status,
+  //     user_approved,
+  //   })
+  //   .then(({ data: { event_user_activity } }) => {
+  //     return event_user_activity;
+  //   });
+}
+
+export function updateEvent(event_id, eventData) {
+  return baseApi.patch(`/events/${event_id}`, eventData).then(({ data: { event } }) => {
+    return event;
+  });
+  return baseApi.patch(`/events/status/${event_id}`, eventData).then(({ data: { event } }) => {
+    return event;
+  });
+}
+
+export function deleteEvent(event_id) {
+  return baseApi
+    .delete(`/events/${event_id}`)
+    .then(({ data }) => {
+      return data;
+    })
+    .catch((error) => {
+      throw error;
+    });
 }
