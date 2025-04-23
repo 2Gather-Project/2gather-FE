@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const baseApi = axios.create({
-  baseURL: 'http://127.0.0.1:3000/api',
+  baseURL: 'https://twogather-backend.onrender.com/api',
 });
 
 export function getEvents({ columnNam, value, not_equal }) {
