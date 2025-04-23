@@ -1,4 +1,4 @@
-import { Stack } from 'expo-router';
+import { Stack, useFocusEffect } from 'expo-router';
 import { Button, StyleSheet, TouchableOpacity, View } from 'react-native';
 import EventsList from '../components/EventsList';
 import EventsModal from '../components/EventsModal';
@@ -19,6 +19,11 @@ export default function Explore() {
   const [filterValueLocation, setFilterValueLocation] = useState(null);
   const [filterEvent, setFilterEvent] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
+
+
+  console.log(filterValueLocation);
+
+
   // const route = useRoute();
   // const { location } = route.params
 
@@ -89,6 +94,9 @@ export default function Explore() {
   //   },
   // ];
 
+  // useFocusEffect(
+  //   useCallback(() => {  //tobe checked
+
   useEffect(() => {
     //if no user, redirect to login TODO
     getEvents({ columnNam: 'user_id', value: `${user.user_id}`, not_equal: true })
@@ -116,14 +124,14 @@ export default function Explore() {
             setFilterValueLocation={setFilterValueLocation}
             setEventsData={setEventsData}
           />
-          <DropdownComponent
+          {/* <DropdownComponent
             title="Sort By"
             events={eventsData}
             sortByValue={sortByValue}
             setSortByValue={setSortByValue}
-          />
+          /> */}
         </View>
-        <EventsList events={eventsData} />
+        <EventsList events={eventsData} filterValueLocation={filterValueLocation} />
       </View>
     </>
   );

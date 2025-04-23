@@ -2,14 +2,13 @@
 import { StyleSheet, Text, View, FlatList, TouchableOpacity } from 'react-native';
 import { Link, useNavigation } from 'expo-router';
 import { useState } from 'react';
-
+import UpcomingEvents from '../UpcomingEvents';
 
 const dummyEvents = [
   { id: '1', title: 'Tech Meetup', date: '2025-04-20', location: 'Manchester' },
   { id: '2', title: 'Art Exhibition', date: '2025-04-25', location: 'York' },
   { id: '3', title: 'Cooking Class', date: '2025-05-01', location: 'Sheffield' },
 ];
-
 
 const EventItem = ({ title, date, location }) => (
   <View style={styles.eventItem}>
@@ -19,14 +18,9 @@ const EventItem = ({ title, date, location }) => (
 );
 
 
-
-
 export default function Home() {
 
   const navigation = useNavigation();
-
-
-  const [upComingEvent, setUpcomingEvent] = useState([]);
   const [isError, setIsError] = useState();
   const [isLoading, setIsLoading] = useState(true);
 
@@ -52,43 +46,13 @@ export default function Home() {
         <Text>Find events near you</Text>
       </View>
 
-      <View style={styles.featuredSection}>
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Featured Events</Text>
-          <Link href="/explore" style={styles.seeAllLink}>See all</Link>
-        </View>
 
-        <FlatList
-          data={dummyEvents}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <EventItem
-              title={item.title}
-              date={item.date}
-              location={item.location}
-            />
-          )}
-
-        />
-      </View>
 
       <View style={styles.featuredSection}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Upcoming Events</Text>
         </View>
-
-        <FlatList
-          data={dummyEvents}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <EventItem
-              title={item.title}
-              date={item.date}
-              location={item.location}
-            />
-          )}
-
-        />
+        <UpcomingEvents />
       </View>
     </View>
 
