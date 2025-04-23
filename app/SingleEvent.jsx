@@ -11,6 +11,9 @@ import { EventAttendanceButtons } from './components/EventAttendanceButtons';
 export default function SingleEvent() {
   const [date, setDate] = useState(new Date());
 
+  const [event, setEvent] = useState({});
+  const [user, setUser] = useState({});
+
   const navigation = useNavigation();
 
   const [event, setEvent] = useState({});
@@ -18,7 +21,11 @@ export default function SingleEvent() {
   const [isError, setIsError] = useState();
   const [isLoading, setIsLoading] = useState(true);
 
+  const route = useRoute();
+  const { event_id } = route.params;
+  const { user_id } = route.params;
   const { event_id } = useLocalSearchParams();
+
 
   useEffect(() => {
     const fetchSingleEvent = async () => {
@@ -35,10 +42,71 @@ export default function SingleEvent() {
     fetchSingleEvent();
   }, [event_id]);
 
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await fetch(`https://twogather-backend.onrender.com/api/users/${user_id}`);
+        const data = await response.json();
+        console.log('Fetched user data:', data);
+        setUser(data.users);
+      } catch (error) {
+        console.error('Error fetching user:', error);
+      } finally {
+        setIsUserLoading(false);
+      }
+    };
+    if (user_id) {
+      fetchUser();
+    }
+  }, [user_id]);
+
+  useEffect(() => {
+    console.log('User data:', user);
+  }, [user_id]);
+
+  const handleAttendance = async () => {
+    // const res = await PATCH( event_id, host_id, user_id, user_status="request", user_approved = "false")
+    console.log('Holla attendance');
+  };
+
+  const handleCancelation = async () => {
+    // const res = await PATCH
+    // if(res.user_status!== "cancel" ) {
+    //   res.user_status = "cancel"
+    //   res.user_approved = "false"
+    // }
+    console.log('Holla cancel');
+  };
+
+  const formattedDate = new Date(event.event_date).toLocaleDateString(undefined, {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+
   const formattedTime = new Date(`${event.event_date}`).toLocaleTimeString([], {
     hour: '2-digit',
     minute: '2-digit',
   });
+
+  // const Header = ({ user }) => (
+  //   <View style={styles.header}>
+  //     <TouchableOpacity onPress={() => router.push('(tabs)')}>
+  //       <Ionicons name="home" size={30} color="#003049" />
+  //     </TouchableOpacity>
+  //     <TouchableOpacity onPress={() => router.push('/profile')}>
+  //       <Image
+  //         source={{
+  //           uri:
+  //             user?.image_url ||
+  //             'https://media.istockphoto.com/id/1396814518/vector/image-coming-soon-no-photo-no-thumbnail-image-available-vector-illustration.jpg?s=612x612&w=0&k=20&c=hnh2OZgQGhf0b46-J2z7aHbIWwq8HNlSDaNp2wn_iko=',
+  //         }}
+  //         style={styles.profileImage}
+  //       />
+  //     </TouchableOpacity>
+  //   </View>
+  // );
 
   const Header = () => (
     <View style={styles.header}>
@@ -50,28 +118,21 @@ export default function SingleEvent() {
       </TouchableOpacity>
     </View>
   );
-
-  console.log(event);
-
   return (
     <>
-      <Header />
-      {/* <View > */}
+      <Header user={user} />
       <TouchableOpacity style={styles.backButton} onPress={() => router.push('/explore')}>
         <Text>Back</Text>
       </TouchableOpacity>
-
       <View style={styles.container}>
         <View style={styles.imageContainer}>
           <Image
             style={styles.logo}
-            source={
-              event.image_url
-                ? event.image_url
-                : {
-                    uri: 'https://media.istockphoto.com/id/1396814518/vector/image-coming-soon-no-photo-no-thumbnail-image-available-vector-illustration.jpg?s=612x612&w=0&k=20&c=hnh2OZgQGhf0b46-J2z7aHbIWwq8HNlSDaNp2wn_iko=',
-                  }
-            }
+            source={{
+              uri: user?.image_url
+                ? user.image_url
+                : 'https://media.istockphoto.com/id/1396814518/vector/image-coming-soon-no-photo-no-thumbnail-image-available-vector-illustration.jpg?s=612x612&w=0&k=20&c=hnh2OZgQGhf0b46-J2z7aHbIWwq8HNlSDaNp2wn_iko=',
+            }}
           />
         </View>
         <View style={styles.text}>
@@ -81,15 +142,13 @@ export default function SingleEvent() {
               onPress={() => navigation.navigate('HostProfile', { userId: event.host_id })}
               style={styles.seeAllLink}>
               <Text>
-                Host by {event.host_first_name} {event.host_last_name}
+                Hosted by {event.host_first_name} {event.host_last_name}
               </Text>
             </Pressable>
           </Text>
           <Text style={styles.details}>
             <Ionicons name="calendar" color="#669BBC" size={15} />
-            Event Date{'  |  '}
-            <Ionicons name="time" color="#669BBC" size={15} />
-            {formattedTime}
+            {formattedDate}
           </Text>
           <Text style={styles.details}>
             <Ionicons name="pin" color="#669BBC" size={15} />
@@ -205,5 +264,10 @@ const styles = StyleSheet.create({
   },
   seeAllLink: {
     color: '#C1121F',
+  },
+  profileImage: {
+    width: 70,
+    height: 70,
+    borderRadius: 18,
   },
 });
