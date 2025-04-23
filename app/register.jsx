@@ -6,7 +6,7 @@ import UserContext from './contexts/UserContext';
 
 const Register = () => {
   const [newUser, setNewUser] = useState({});
-  const { user, login } = useContext(UserContext);
+  const { user, loginCreateProfile } = useContext(UserContext);
 
   const router = useRouter();
 
@@ -32,8 +32,7 @@ const Register = () => {
       } else {
         createUser(newUser)
           .then(() => {
-            login(email);
-            router.push('/create-profile');
+            loginCreateProfile(email);
           })
           .catch((err) => {
             console.log(err);
