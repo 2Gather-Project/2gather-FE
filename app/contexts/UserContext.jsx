@@ -1,27 +1,38 @@
-import { createContext, useState } from "react";
-import { useRouter } from "expo-router";
-import { postLogIn } from '../api'
+import { createContext, useState } from 'react';
+import { useRouter } from 'expo-router';
+import { postLogIn } from '../api';
 
 const UserContext = createContext();
 
 const UserProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
-    const router = useRouter();
+  const [user, setUser] = useState(null);
+  const router = useRouter();
 
-    const login = (email) => {
-        return postLogIn(email).then(({ user }) => {
-            setUser(user);
-            router.push('/(tabs)');
-        });
-    };
-    const logOut = () => {
-        setUser(null);
-        router.push('/login');
-    }
+  const login = (email) => {
+    return postLogIn(email).then(({ user }) => {
+      setUser(user);
+      router.push('/(tabs)');
+    });
+  };
 
-    return <UserContext.Provider value={{ user, setUser, login, logOut }}>{children}</UserContext.Provider>
+  const loginCreateProfile = (email) => {
+    return postLogIn(email).then(({ user }) => {
+      setUser(user);
+      router.push('/create-profile');
+    });
+  };
 
-}
+  const logOut = () => {
+    setUser(null);
+    router.push('/login');
+  };
 
-export { UserContext, UserProvider }
+  return (
+    <UserContext.Provider value={{ user, setUser, login, loginCreateProfile, logOut }}>
+      {children}
+    </UserContext.Provider>
+  );
+};
+
+export { UserContext, UserProvider };
 export default UserContext;

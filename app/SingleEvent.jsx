@@ -1,31 +1,37 @@
-import { Link, useRoute } from '@react-navigation/native';
-import { router, Stack, useNavigation } from 'expo-router';
-import { useState, useEffect } from 'react';
-import { Button, Image, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useRoute } from '@react-navigation/native';
+import { router, Stack, useNavigation, useLocalSearchParams } from 'expo-router';
+import { useState, useEffect, useContext } from 'react';
+import { Button, Image, StyleSheet, Pressable, Text, TouchableOpacity, View } from 'react-native';
 import Explore from './(tabs)/explore';
 import { Ionicons } from '@expo/vector-icons';
-import { Background } from '@react-navigation/elements';
-import { getEventById } from './services/eventsAPI';
+
+import { getEventAttendance, getEventById, postEventAttendance } from './services/eventsAPI';
+import { EventAttendanceButtons } from './components/EventAttendanceButtons';
 
 export default function SingleEvent() {
   const [date, setDate] = useState(new Date());
+
   const [event, setEvent] = useState({});
   const [user, setUser] = useState({});
 
-  console.log('this is user', user);
-
   const navigation = useNavigation();
+
+  const [event, setEvent] = useState({});
+  const [isDisabled, setIsDisabled] = useState(false);
   const [isError, setIsError] = useState();
   const [isLoading, setIsLoading] = useState(true);
 
   const route = useRoute();
   const { event_id } = route.params;
   const { user_id } = route.params;
+  const { event_id } = useLocalSearchParams();
+
 
   useEffect(() => {
     const fetchSingleEvent = async () => {
       try {
         const res = await getEventById(event_id);
+        console.log(res, 'event information');
         setEvent(res);
       } catch (error) {
         setIsError(error);
@@ -35,6 +41,7 @@ export default function SingleEvent() {
     };
     fetchSingleEvent();
   }, [event_id]);
+
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -77,6 +84,8 @@ export default function SingleEvent() {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
+
+  const formattedTime = new Date(`${event.event_date}`).toLocaleTimeString([], {
     hour: '2-digit',
     minute: '2-digit',
   });
@@ -147,16 +156,7 @@ export default function SingleEvent() {
           </Text>
           <Text style={styles.description}>{event.description}</Text>
         </View>
-        <View style={styles.attendanceButtons}>
-          <TouchableOpacity onPress={handleAttendance} style={[styles.button, styles.attendButton]}>
-            <Text style={styles.buttonText}>Attend</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={handleCancelation}
-            style={[styles.button, styles.cancelButton]}>
-            <Text style={styles.buttonText}>Cancel Attendance</Text>
-          </TouchableOpacity>
-        </View>
+        <EventAttendanceButtons event={event} event_id={event_id} />
       </View>
     </>
   );
@@ -237,6 +237,9 @@ const styles = StyleSheet.create({
   attendButton: {
     backgroundColor: '#28A745', // Green
   },
+  disabledButton: {
+    backgroundColor: '#ccc',
+  },
   cancelButton: {
     backgroundColor: '#DC3545', // Red
   },
@@ -249,7 +252,7 @@ const styles = StyleSheet.create({
     width: '20%',
     padding: 12,
     borderRadius: 15,
-    alignItems: 'flex-start',
+    alignContent: 'flex-start',
     backgroundColor: '#DC3545',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
