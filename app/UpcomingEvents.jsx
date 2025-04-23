@@ -53,8 +53,8 @@ export default function UpcomingEvents() {
         if (event.user_id === user.user_id) {
             router.push(`/event/${event.event_id}`);
         } else {
-            // Using replace instead of push to prevent navigation stack buildup
-            router.replace(`/SingleEvent?event_id=${event.event_id}`);
+            // Pass setStatus function through URL params
+            router.push(`/SingleEvent?event_id=${event.event_id}&setStatus=${setStatus}`);
         }
     };
 

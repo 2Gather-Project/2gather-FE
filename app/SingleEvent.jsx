@@ -14,6 +14,7 @@ export default function SingleEvent() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const event_id = params.event_id;
+  const setStatus = params.setStatus;
 
   useEffect(() => {
     const fetchSingleEvent = async () => {
@@ -39,6 +40,9 @@ export default function SingleEvent() {
   }, [event_id]);
 
   const handleBack = () => {
+    if (setStatus) {
+      setStatus(prev => !prev); // Toggle status to trigger refresh
+    }
     router.replace('/(tabs)');
   };
 
@@ -157,7 +161,7 @@ export default function SingleEvent() {
           </Text>
           <Text style={styles.description}>{event.description}</Text>
         </View>
-        <EventAttendanceButtons event={event} event_id={event_id} />
+        <EventAttendanceButtons event={event} event_id={event_id} setStatus={setStatus} />
       </View>
     </>
   );

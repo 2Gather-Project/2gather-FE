@@ -1,9 +1,15 @@
 import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../contexts/UserContext';
-import { getEventAttendance, patchEventAttendance, postEventAttendance, updateEventStatus } from '../services/eventsAPI';
+import {
+  getEventAttendance,
+  patchEventAttendance,
+  postEventAttendance,
+  updateEventStatus,
+} from '../services/eventsAPI';
 import { Alert, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator } from 'react-native';
+import { updateEvent } from '../api';
 
-export const EventAttendanceButtons = ({ event }) => {
+export const EventAttendanceButtons = ({ event, setStatus }) => {
   const [isDisabled, setIsDisabled] = useState(false);
   const [isError, setIsError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -33,19 +39,17 @@ export const EventAttendanceButtons = ({ event }) => {
         const hasApprovedAttendee = res.some(
           (att) => att.event_id === event.event_id && att.user_status === 'APPROVED'
         );
-        console.log(`hasApproved for ${event.event_id}:`, hasApprovedAttendee); 
+        console.log(`hasApproved for ${event.event_id}:`, hasApprovedAttendee);
 
         const newStatus = hasApprovedAttendee ? 'INACTIVE' : 'ACTIVE';
 
-        console.log(`newStatus for ${event.event_id}:`, newStatus); 
-
+        console.log(`newStatus for ${event.event_id}:`, newStatus);
 
         if (event.status !== newStatus) {
           await updateEventStatus(event.event_id, { status: newStatus });
           setEventStatus((prev) => ({ ...prev, status: newStatus }));
         }
-        console.log(`Settear el status for ${ event.status}:`); 
-
+        console.log(`Setting status for ${event.status}:`);
       } catch (error) {
         setIsError(error);
         Alert.alert('Error', 'The event attendance could not be loaded.');
@@ -55,39 +59,6 @@ export const EventAttendanceButtons = ({ event }) => {
     };
     fetchAttendance();
   }, [event?.event_id]);
-
-  // useEffect(() => {
-  //   const checkEventStatus = async () => {
-  //     // for (const event of eventsAtt) {
-  //       try {
-  //         const attendance = await getEventAttendance(event.event_id);
-  //         console.log(`getEventAttendance for ${event.event_id}:`, attendance);
-  //         const hasApprovedAttendee = attendance.some(
-  //           (att) => att.event_id === event.event_id && att.user_status === 'APPROVED'
-  //         );
-  //         console.log(`hasApproved for ${event.event_id}:`, hasApprovedAttendee); 
-
-  //         const newStatus = hasApprovedAttendee ? 'INACTIVE' : 'ACTIVE';
-
-  //         console.log(`newStatus for ${event.event_id}:`, newStatus); 
-
-
-  //         if (event.status !== newStatus) {
-  //           await updateEventStatus(event.event_id, { status: newStatus });
-  //           setEventStatus((prev) => ({ ...prev, status: newStatus }));
-  //         }
-  //         console.log(`Settear el status for ${ event.status}:`); 
-
-  //       } catch (error) {
-  //         setIsError(error);
-  //         Alert.alert('Error', 'No se pudo cargar la asistencia al evento.');
-  //       } finally {
-  //         setIsLoading(false);
-  //       }
-  //     }
-  //   // };
-  //   checkEventStatus();
-  // }, [event]);
 
   const handleAttendance = async (eventId) => {
     setIsLoading(true);
@@ -102,7 +73,7 @@ export const EventAttendanceButtons = ({ event }) => {
       user_approved: false,
     };
 
-    setOptimisticAttendance(attendanceRequest); 
+    setOptimisticAttendance(attendanceRequest);
 
     try {
       const existingRequest = eventAttendance.find(
@@ -116,7 +87,7 @@ export const EventAttendanceButtons = ({ event }) => {
           user_status: 'REQUESTED',
           user_approved: false,
         });
-        console.log('patch desde estado CANCELLED:', res);
+        console.log('patch from CANCELLED state:', res);
         setEventAttendance((prev) =>
           prev.map((attendance) =>
             attendance.attendee_id === user.user_id && attendance.event_id === eventId
@@ -131,24 +102,25 @@ export const EventAttendanceButtons = ({ event }) => {
       }
     } catch (error) {
       setIsError(error);
-      setOptimisticAttendance(null); 
+      setOptimisticAttendance(null);
       setIsDisabled(false);
       Alert.alert('Error', 'Attendance could not be recorded');
     } finally {
       setIsLoading(false);
+      setIsDisabled(false);
     }
   };
-
 
   const handleCancelation = async () => {
     setIsLoading(true);
     setIsError(null);
     setIsDisabled(true);
 
-    setOptimisticAttendance(null); 
+    setOptimisticAttendance(null);
     setEventAttendance((prev) =>
       prev.filter(
-        (attendance) => !(attendance.attendee_id === user.user_id && attendance.event_id === event.event_id)
+        (attendance) =>
+          !(attendance.attendee_id === user.user_id && attendance.event_id === event.event_id)
       )
     );
 
@@ -159,69 +131,72 @@ export const EventAttendanceButtons = ({ event }) => {
         user_status: 'CANCELLED',
         user_approved: false,
       });
-      console.log('patch desde estado REQUESTED:', res);
+      console.log('patch from REQUESTED state:', res);
+
+      // Update event status after cancellation
+      await updateEvent(event.event_id, { status: 'ACTIVE' });
+      if (setStatus) {
+        setStatus(true);
+      }
     } catch (error) {
       setIsError(error);
       Alert.alert('Error', 'Attendance could not be canceled.');
       const res = await getEventAttendance(event.event_id);
-      console.log('getEventAttendance tras error:', res);
+      console.log('getEventAttendance after error:', res);
       setEventAttendance(res);
-      setIsDisabled(false);
     } finally {
       setIsLoading(false);
       setIsDisabled(false);
     }
   };
 
-  const isRequested =(optimisticAttendance?.event_id === event.event_id &&
-    optimisticAttendance?.attendee_id === user.user_id &&
-    optimisticAttendance?.user_status === 'REQUESTED') ||
+  const isRequested =
+    (optimisticAttendance?.event_id === event.event_id &&
+      optimisticAttendance?.attendee_id === user.user_id &&
+      optimisticAttendance?.user_status === 'REQUESTED') ||
     eventAttendance.some(
       (attendance) =>
         attendance.attendee_id === user.user_id &&
         attendance.event_id === event.event_id &&
         attendance.user_status === 'REQUESTED'
     );
-    console.log('isDisable:', isDisabled);
 
-  console.log('isRequested:', isRequested);
-  console.log('eventAttendance:', eventAttendance);
-
-  const isApproved =  eventAttendance.some(
+  const isApproved = eventAttendance.some(
     (attendance) =>
       attendance.attendee_id === user.user_id &&
       attendance.event_id === event.event_id &&
-      attendance.user_status === 'APPROVED' 
+      attendance.user_status === 'APPROVED'
   );
 
-  const isOccupied =  eventAttendance.some(
+  const isOccupied = eventAttendance.some(
     (attendance) =>
       attendance.attendee_id !== user.user_id &&
       attendance.event_id === event.event_id &&
-      attendance.user_status === 'APPROVED' 
+      attendance.user_status === 'APPROVED'
   );
-
-  console.log('isApproved:', isApproved);
-  console.log('isOccuoies:', isOccupied);
-
-
 
   return (
     <View style={styles.attendanceButtons}>
       <TouchableOpacity
         onPress={() => handleAttendance(event.event_id)}
-        disabled={(isRequested) || (isOccupied) || (isApproved ) }
+        disabled={isRequested || isOccupied || isApproved}
         style={[styles.button, isRequested ? styles.disabledButton : styles.attendButton]}
-        accessibilityLabel={`Assist  ${event.event_id}`}
-      >
-        <Text style={styles.buttonText}>{isRequested ? 'Request sent' : isApproved ? "Approved" : isOccupied ? "Occupied" : "Attend"}</Text>
+        accessibilityLabel={`Assist ${event.event_id}`}>
+        <Text style={styles.buttonText}>
+          {isRequested
+            ? 'Request sent'
+            : isApproved
+              ? 'Approved'
+              : isOccupied
+                ? 'Occupied'
+                : 'Attend'}
+        </Text>
       </TouchableOpacity>
-      {(isRequested || isApproved ) && (
+      {(isRequested || isApproved) && (
         <TouchableOpacity
           onPress={handleCancelation}
           style={[styles.button, styles.cancelButton]}
-          accessibilityLabel={`Cancel event attendance ${event.event_id}`}
-        >
+          accessibilityLabel={`Cancel event attendance ${event.event_id}`}>
           <Text style={styles.buttonText}>Cancel Attendance</Text>
         </TouchableOpacity>
       )}
