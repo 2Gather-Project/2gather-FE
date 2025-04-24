@@ -12,20 +12,11 @@ export default function HostedEvents() {
   const [events, setEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [deletedEvent, setDeletedEvent] = useState(1);
-  const [isUserLoading, setIsUserLoading] = useState(true);
-
-  useEffect(() => {
-    // Set isUserLoading to false after a short delay to allow AsyncStorage to load
-    const timer = setTimeout(() => {
-      setIsUserLoading(false);
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, []);
+  const [deletedEvent, setDeletedEvent] = useState(false);
 
   useEffect(() => {
     const fetchHostedEvents = async () => {
+      setDeletedEvent(false);
       if (!user || !user.user_id) {
         setIsLoading(false);
         return;
@@ -42,7 +33,8 @@ export default function HostedEvents() {
     };
 
     fetchHostedEvents();
-  }, [user, deletedEvent]);
+    console.log('getting hosted event', deletedEvent);
+  }, [deletedEvent, user]);
 
   const handleBack = () => {
     // Navigate to the home tab

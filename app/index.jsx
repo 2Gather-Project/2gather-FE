@@ -1,13 +1,13 @@
 import { Link } from 'expo-router';
 import * as React from 'react';
-import { View, StyleSheet } from 'react-native';
-// import { NavigationContainer, NavigationIndependentTree } from '@react-navigation/native';
-// import { createNativeStackNavigator } from '@react-navigation/native-stack';
-// import { SingleEvent } from './SingleEvent';
+import { View, StyleSheet, Image } from 'react-native';
 
 export default function LandingPage() {
   return (
     <View style={styles.container}>
+      <View style={styles.logoImageContainer}>
+        <Image style={styles.logoImage} source={require('../assets/image.png')} />
+      </View>
       <View style={styles.actionsSection}>
         <Link href="/login" style={[styles.actionButton, styles.actionLinkText]}>
           Log In
@@ -20,26 +20,35 @@ export default function LandingPage() {
   );
 }
 
-// const Stack = createNativeStackNavigator();
-
-// export default function App() {
-//   return (
-//     <NavigationIndependentTree>
-//       <NavigationContainer>
-//         <Stack.Navigator>
-//           <Stack.Screen name="Home" component={LandingPage} />
-//           {/* <Stack.Screen name="Event" component={SingleEvent} /> */}
-//         </Stack.Navigator>
-//       </NavigationContainer>
-//     </NavigationIndependentTree>
-//   );
-// }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 24,
     justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'white',
+  },
+  logoImageContainer: {
+    width: 210,
+    height: 210,
+    borderRadius: 100,
+    marginBottom: 200,
+    borderColor: '#003049',
+    borderWidth: 1,
+    backgroundColor: '#ffffff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  logoImage: {
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    resizeMode: 'contain',
   },
   actionLinkText: {
     color: 'white',

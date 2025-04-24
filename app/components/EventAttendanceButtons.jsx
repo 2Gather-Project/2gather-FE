@@ -9,8 +9,6 @@ import {
 
 import { Alert, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator } from 'react-native';
 
-
-
 import { updateEvent } from '../api';
 
 export const EventAttendanceButtons = ({ event, setStatus }) => {
@@ -35,7 +33,7 @@ export const EventAttendanceButtons = ({ event, setStatus }) => {
   useEffect(() => {
     const fetchAttendance = async () => {
       if (!event?.event_id) return;
-      
+
       try {
         const res = await getEventAttendance(event.event_id);
         console.log('getEventAttendance response:', res);
@@ -55,9 +53,6 @@ export const EventAttendanceButtons = ({ event, setStatus }) => {
         }
 
         console.log(`Setting status for ${event.status}:`);
-
-
-
       } catch (error) {
         setIsError(error);
         Alert.alert('Error', 'The event attendance could not be loaded.');
@@ -66,10 +61,7 @@ export const EventAttendanceButtons = ({ event, setStatus }) => {
       }
     };
     fetchAttendance();
-
   }, [event?.event_id]);
-
-
 
   const handleAttendance = async (eventId) => {
     setIsLoading(true);
@@ -118,7 +110,18 @@ export const EventAttendanceButtons = ({ event, setStatus }) => {
       Alert.alert('Error', 'Attendance could not be recorded');
     } finally {
       setIsLoading(false);
-      setIsDisabled(false);
+    }
+  };
+
+  const updateEventStatus = async () => {
+    console.log('updating event status');
+
+    try {
+      await updateEvent(event.event_id, { status: 'ACTIVE' });
+      setStatus(true);
+    } catch (error) {
+      setIsError(error);
+      Alert.alert('Error', 'Event still inactive.');
     }
   };
 
@@ -142,13 +145,8 @@ export const EventAttendanceButtons = ({ event, setStatus }) => {
         user_status: 'CANCELLED',
         user_approved: false,
       });
-      console.log('patch from REQUESTED state:', res);
-
-      // Update event status after cancellation
-      await updateEvent(event.event_id, { status: 'ACTIVE' });
-      if (setStatus) {
-        setStatus(true);
-      }
+      console.log('patch desde estado REQUESTED:', res);
+      updateEventStatus();
     } catch (error) {
       setIsError(error);
       Alert.alert('Error', 'Attendance could not be canceled.');
@@ -158,13 +156,6 @@ export const EventAttendanceButtons = ({ event, setStatus }) => {
     } finally {
       setIsLoading(false);
       setIsDisabled(false);
-    }
-    try {
-      await updateEvent(event.event_id, { status: 'ACTIVE' });
-      setStatus(true);
-    } catch (error) {
-      setIsError(error);
-      Alert.alert('Error', 'Event still inactive.');
     }
   };
 
@@ -178,7 +169,7 @@ export const EventAttendanceButtons = ({ event, setStatus }) => {
         attendance.event_id === event.event_id &&
         attendance.user_status === 'REQUESTED'
     );
-    
+
   console.log('isDisabled:', isDisabled);
   console.log('isRequested:', isRequested);
   console.log('eventAttendance:', eventAttendance);
@@ -199,17 +190,14 @@ export const EventAttendanceButtons = ({ event, setStatus }) => {
 
   console.log('isApproved:', isApproved);
   console.log('isOccuoies:', isOccupied);
-    
+
   return (
     <View style={styles.attendanceButtons}>
       <TouchableOpacity
         onPress={() => handleAttendance(event.event_id)}
         disabled={isRequested || isOccupied || isApproved}
         style={[styles.button, isRequested ? styles.disabledButton : styles.attendButton]}
-
         accessibilityLabel={`Assist ${event.event_id}`}>
-
-
         <Text style={styles.buttonText}>
           {isRequested
             ? 'Request sent'

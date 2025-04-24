@@ -3,8 +3,6 @@ import { Image } from 'expo-image';
 import { Link, Tabs, useRouter } from 'expo-router';
 import { useContext } from 'react';
 import { TouchableOpacity, View, StyleSheet, Text } from 'react-native';
-// import { HeaderButton } from '../../components/HeaderButton';
-// import { TabBarIcon } from '../../components/TabBarIcon';
 
 import UserContext from '../contexts/UserContext';
 

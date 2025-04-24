@@ -23,22 +23,17 @@ export default function Explore() {
   console.log(filterValueLocation);
 
   useEffect(() => {
-    const fetchEvents = async () => {
-      if (!user) {
-        setIsLoading(false);
-        return;
-      }
-
-      try {
-        const events = await getEvents({ 
-          columnNam: 'user_id', 
-          value: `${user.user_id}`, 
-          not_equal: true,
-          status: status 
-        });
-        setEventsData(events);
-        setError(null);
-      } catch (error) {
+    getEvents({
+      columnNam: 'user_id',
+      value: `${user.user_id}`,
+      not_equal: true,
+      status: 'active',
+    })
+      .then((eventsData) => {
+        console.log('hello', eventsData);
+        setEventsData(eventsData);
+      })
+      .catch((error) => {
         console.error('Failed to fetch events:', error);
         setError('Failed to load events. Please try again.');
       } finally {

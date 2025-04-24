@@ -1,5 +1,8 @@
 import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../contexts/UserContext';
+import { launchImageLibrary } from 'react-native-image-picker';
+import * as ImageManipulator from 'expo-image-manipulator';
+
 import {
   StyleSheet,
   View,
@@ -39,18 +42,8 @@ export default function CreateEvent() {
     user_id: user?.user_id || '',
     category: 'OTHER',
     event_date: `${currentDate.toJSON()}`,
+    // image_url: user?.image_url || '',
   });
-
-  // Update addEvent when user data is loaded
-  useEffect(() => {
-    if (user) {
-      setAddEvent(prev => ({
-        ...prev,
-        user_id: user.user_id,
-      }));
-      setIsLoading(false);
-    }
-  }, [user]);
 
   useEffect(() => {
     console.log('inside tags');
@@ -82,6 +75,7 @@ export default function CreateEvent() {
     });
   }
 
+  console.log(addEvent);
   const onDateChange = (event, selectedDate) => {
     if (selectedDate) {
       setDate(selectedDate);
@@ -110,6 +104,7 @@ export default function CreateEvent() {
   const handlePost = () => {
     console.log('pressed post');
     setError(false);
+    addEvent.image_url ? compressImage() : null;
     const addEventForUser = async () => {
       try {
         const res = await postNewEvent(addEvent);
@@ -157,6 +152,38 @@ export default function CreateEvent() {
       </View>
 
       <ScrollView style={styles.form}>
+        <View style={styles.coverPhotoContainer}>
+          <View style={styles.profileImageWrapper}>
+            <TouchableOpacity
+              style={styles.imageContainer}
+              disabled={!isEditing}
+              onPress={pickImage}>
+              {addEvent.image_url ? (
+                <Image
+                  source={{ uri: addEvent.image_url }}
+                  style={styles.profileImage}
+                  resizeMode="cover"
+                />
+              ) : (
+                <Image
+                  source={require('../../assets/eventsimage.png')}
+                  style={styles.profileImage}
+                  resizeMode="cover"
+                />
+              )}
+              {isEditing && (
+                <View style={styles.editImageBadge}>
+                  <Ionicons name="camera" size={14} color="white" />
+                </View>
+              )}
+            </TouchableOpacity>
+            {/* <Text style={styles.profileName}>
+              {profile.first_name + ' ' + profile.last_name || 'Username'}
+            </Text>
+            <Text style={styles.profileTagline}>@{profile.email || 'user'} </Text> */}
+          </View>
+        </View>
+
         <Text style={styles.label}>Event Title</Text>
 
         <TextInput
@@ -185,19 +212,12 @@ export default function CreateEvent() {
         )}
 
         <Text style={styles.label}>Time</Text>
-        <TouchableOpacity
-          style={styles.dateTimeButton}
-          onPress={() => setShowTimePicker(true)}>
+        <TouchableOpacity style={styles.dateTimeButton} onPress={() => setShowTimePicker(true)}>
           <Text>{formattedTime}</Text>
         </TouchableOpacity>
 
         {showTimePicker && (
-          <DateTimePicker
-            value={time}
-            mode="time"
-            display="default"
-            onChange={onTimeChange}
-          />
+          <DateTimePicker value={time} mode="time" display="default" onChange={onTimeChange} />
         )}
 
         <Text style={styles.label}>Location</Text>
@@ -223,10 +243,7 @@ export default function CreateEvent() {
           {tags.map((tag) => (
             <TouchableOpacity
               key={tag}
-              style={[
-                styles.tagButton,
-                selectedTags === tag && styles.tagButtonSelected,
-              ]}
+              style={[styles.tagButton, selectedTags === tag && styles.tagButtonSelected]}
               onPress={() => toggleTag(tag)}>
               <Text style={styles.tagText}>{tag}</Text>
             </TouchableOpacity>
@@ -349,5 +366,39 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 15,
     backgroundColor: '#f9f9f9',
+  },
+  addPictureText: {
+    marginTop: 8,
+    fontSize: 14,
+    color: '#333',
+    alignContent: 'center',
+  },
+  coverPhotoContainer: {
+    position: 'relative',
+    height: 80,
+    marginBottom: 80,
+  },
+  coverPhoto: {
+    height: 140,
+    width: '100%',
+    backgroundColor: '#669BBC',
+    overflow: 'hidden',
+  },
+  profileImageWrapper: {
+    position: 'absolute',
+    bottom: -60,
+    alignItems: 'center',
+    width: '100%',
+  },
+  profileImage: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: '#669BBC',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 4,
+    borderColor: 'white',
+    overflow: 'hidden',
   },
 });
