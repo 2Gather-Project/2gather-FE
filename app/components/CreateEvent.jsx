@@ -43,7 +43,7 @@ export default function CreateEvent() {
     user_id: user?.user_id || '',
     category: 'OTHER',
     event_date: `${currentDate.toJSON()}`,
-    image_url: user?.image_url || '',
+    image_url: '',
   });
   const pickImage = async () => {
     // Only allow picking an image when in edit mode
