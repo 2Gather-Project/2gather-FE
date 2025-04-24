@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../contexts/UserContext';
 import { launchImageLibrary } from 'react-native-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
+
 import {
   StyleSheet,
   View,
@@ -43,7 +44,7 @@ export default function CreateEvent() {
     user_id: `${user.user_id}`,
     category: 'OTHER',
     event_date: `${currentDate.toJSON()}`,
-    image_url: user?.image_url || '',
+    // image_url: user?.image_url || '',
   });
 
   useEffect(() => {
@@ -125,29 +126,6 @@ export default function CreateEvent() {
     });
   }
 
-  // const handleUploadPhoto = () => {
-  //   const data = createFormData(photo, { event_id: `${addEvent.event_id}` || '' });
-  //   console.log(data);
-  //   patchEventImage(addEvent)
-  //     .then((response) => response.json())
-  //     .then((response) => {
-  //       console.log('response', response);
-  //     })
-  //     .catch((error) => {
-  //       console.log('error', error);
-  //     });
-  // };
-
-  // const handleChoosePhoto = () => {
-  //   console.log('handleChoosePhoto');
-  //   launchImageLibrary({ noData: true }, (response) => {
-  //     console.log(response);
-  //     if (response) {
-  //       setPhoto(response);
-  //     }
-  //   });
-  // };
-
   console.log(addEvent);
   const onDateChange = (event, selectedDate) => {
     if (selectedDate) {
@@ -223,9 +201,11 @@ export default function CreateEvent() {
                   resizeMode="cover"
                 />
               ) : (
-                <View style={styles.profileImage}>
-                  <Ionicons name={isEditing ? 'add' : 'person'} size={40} color="white" />
-                </View>
+                <Image
+                  source={require('../../assets/eventsimage.png')}
+                  style={styles.profileImage}
+                  resizeMode="cover"
+                />
               )}
               {isEditing && (
                 <View style={styles.editImageBadge}>
@@ -481,7 +461,7 @@ const styles = StyleSheet.create({
   },
   coverPhotoContainer: {
     position: 'relative',
-    height: 180,
+    height: 80,
     marginBottom: 80,
   },
   coverPhoto: {
