@@ -8,6 +8,7 @@ import { getUserById } from './api';
 import HostProfileCard from './HostProfileCard';
 
 export default function HostProfile() {
+
   const [isError, setIsError] = useState();
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState([]);
@@ -29,26 +30,9 @@ export default function HostProfile() {
     fetchUserById();
   }, [userId]);
 
-  const Header = () => (
-    <View style={styles.header}>
-      <TouchableOpacity onPress={() => router.push('(tabs)')}>
-        <Ionicons name="home" size={30} color="#003049" />
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => router.push('/profile')}>
-        {user?.image_url ? (
-          <View style={styles.profileImageContainer}>
-            <Image source={{ uri: user.image_url }} style={styles.profileImage} />
-          </View>
-        ) : (
-          <Ionicons name="person-circle-outline" color="#333" size={36} />
-        )}
-      </TouchableOpacity>
-    </View>
-  );
-
   return (
     <>
-      <Header />
+
       <View style={styles.container}>
         <HostProfileCard user={user} />
       </View>
