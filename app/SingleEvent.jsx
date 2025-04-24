@@ -14,7 +14,7 @@ export default function SingleEvent() {
    const router = useRouter();
   const params = useLocalSearchParams();
   const event_id = params.event_id;
-  const setStatus = params.setStatus;
+  // const setStatus = params.setStatus;
   useEffect(() => {
     const fetchSingleEvent = async () => {
       if (!event_id) {
@@ -22,7 +22,7 @@ export default function SingleEvent() {
         setIsLoading(false);
         return;
       }
-      
+
       try {
         const res = await getEventById(event_id);
         console.log('Event information:', res);
@@ -39,9 +39,9 @@ export default function SingleEvent() {
   }, [event_id]);
 
   const handleBack = () => {
-    if (setStatus) {
-      setStatus(prev => !prev); // Toggle status to trigger refresh
-    }
+    // if (setStatus) {
+    //   setStatus(prev => !prev); // Toggle status to trigger refresh
+    // }
     router.replace('/(tabs)');
   };
 
@@ -92,7 +92,7 @@ export default function SingleEvent() {
 
   return (
     <>
-      <Stack.Screen 
+      <Stack.Screen
         options={{
           headerShown: true,
           title: "Event Details",
@@ -101,7 +101,7 @@ export default function SingleEvent() {
           },
           headerTintColor: '#003049',
           headerLeft: () => (
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={handleBack}
               style={styles.headerButton}
             >
@@ -109,8 +109,8 @@ export default function SingleEvent() {
             </TouchableOpacity>
           ),
           headerRight: () => (
-            <TouchableOpacity 
-              onPress={() => router.push('/profile')} 
+            <TouchableOpacity
+              onPress={() => router.push('/profile')}
               style={styles.headerButton}
             >
               {user?.image_url ? (
@@ -122,7 +122,7 @@ export default function SingleEvent() {
               )}
             </TouchableOpacity>
           ),
-        }} 
+        }}
       />
       <View style={styles.container}>
         <View style={styles.imageContainer}>
@@ -160,7 +160,7 @@ export default function SingleEvent() {
           </Text>
           <Text style={styles.description}>{event.description}</Text>
         </View>
-        <EventAttendanceButtons event={event} event_id={event_id} setStatus={setStatus} />
+        <EventAttendanceButtons event={event} event_id={event_id} />
       </View>
     </>
   );

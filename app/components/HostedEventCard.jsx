@@ -15,6 +15,7 @@ export default function HostedEventCard({ event, setDeletedEvent }) {
   const [eventActivity, setEventActivity] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasApprovedDeclined, setHasApprovedDeclined] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
     setHasApprovedDeclined(false);

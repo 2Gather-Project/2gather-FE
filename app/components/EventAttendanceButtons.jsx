@@ -11,7 +11,7 @@ import { Alert, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator } fr
 
 import { updateEvent } from '../api';
 
-export const EventAttendanceButtons = ({ event, setStatus }) => {
+export const EventAttendanceButtons = ({ event }) => {
   const [isDisabled, setIsDisabled] = useState(false);
   const [isError, setIsError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -55,7 +55,7 @@ export const EventAttendanceButtons = ({ event, setStatus }) => {
         console.log(`Setting status for ${event.status}:`);
       } catch (error) {
         setIsError(error);
-        Alert.alert('Error', 'The event attendance could not be loaded.');
+        console.alert('Error', 'The event attendance could not be loaded.');
       } finally {
         setIsLoading(false);
       }
@@ -118,7 +118,6 @@ export const EventAttendanceButtons = ({ event, setStatus }) => {
 
     try {
       await updateEvent(event.event_id, { status: 'ACTIVE' });
-      setStatus(true);
     } catch (error) {
       setIsError(error);
       Alert.alert('Error', 'Event still inactive.');

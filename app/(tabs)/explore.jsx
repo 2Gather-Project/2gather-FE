@@ -18,7 +18,7 @@ export default function Explore() {
   const [modalVisible, setModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [status, setStatus] = useState('active');
+  // const [status, setStatus] = useState('active');
 
   console.log(filterValueLocation);
 
@@ -40,7 +40,7 @@ export default function Explore() {
       .finally(() => {
         setIsLoading(false);
       });
-  }, [user, filterValueLocation, filterValueCategory, status]);
+  }, [user, filterValueLocation, filterValueCategory]);
 
   if (!user) {
     return (
@@ -83,11 +83,7 @@ export default function Explore() {
             setEventsData={setEventsData}
           />
         </View>
-        <EventsList
-          events={eventsData}
-          filterValueLocation={filterValueLocation}
-          setStatus={setStatus}
-        />
+        <EventsList events={eventsData} filterValueLocation={filterValueLocation} />
       </View>
     </>
   );

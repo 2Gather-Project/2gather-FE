@@ -1,7 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../contexts/UserContext';
-import { launchImageLibrary } from 'react-native-image-picker';
-import * as ImageManipulator from 'expo-image-manipulator';
 
 import {
   StyleSheet,
@@ -12,9 +10,12 @@ import {
   ScrollView,
   SafeAreaView,
   Platform,
+  Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import * as ImagePicker from 'expo-image-picker';
+
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { getTags, postNewEvent } from '../services/eventsAPI';
 import ErrorMessage from './ErrorMessage';
@@ -42,8 +43,39 @@ export default function CreateEvent() {
     user_id: user?.user_id || '',
     category: 'OTHER',
     event_date: `${currentDate.toJSON()}`,
-    // image_url: user?.image_url || '',
+    image_url: user?.image_url || '',
   });
+  const pickImage = async () => {
+    // Only allow picking an image when in edit mode
+    if (!isEditing) return;
+
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.5,
+      base64: true,
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const selectedAsset = result.assets[0];
+
+      // Make sure we have base64 data
+      if (!selectedAsset.base64) {
+        alert('Unable to process image. Please try another one.');
+        return;
+      }
+
+      // Create a data URI from the base64 string
+      const imageSource = `data:image/jpeg;base64,${selectedAsset.base64}`;
+
+      // Update the profile state with the base64 data URI
+      setAddEvent({
+        ...addEvent,
+        image_url: imageSource,
+      });
+    }
+  };
 
   useEffect(() => {
     console.log('inside tags');
@@ -55,6 +87,7 @@ export default function CreateEvent() {
         });
 
         setTags(interestArray);
+        setIsLoading(false);
         console.log(res);
       } catch (error) {
         setError(error);
@@ -67,11 +100,10 @@ export default function CreateEvent() {
   const formattedDate = date.toLocaleDateString();
   const formattedTime = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-  function handleChange(event) {
-    event.preventDefault();
+  function handleChange(field, value) {
     setError(false);
     setAddEvent((addEvent) => {
-      return { ...addEvent, [event.target.id]: `${event.target.value}` };
+      return { ...addEvent, [field]: value };
     });
   }
 
@@ -104,7 +136,7 @@ export default function CreateEvent() {
   const handlePost = () => {
     console.log('pressed post');
     setError(false);
-    addEvent.image_url ? compressImage() : null;
+    // addEvent.image_url ? addEvent.image_url : null;
     const addEventForUser = async () => {
       try {
         const res = await postNewEvent(addEvent);
@@ -189,7 +221,7 @@ export default function CreateEvent() {
         <TextInput
           style={styles.input}
           id="title"
-          onChange={handleChange}
+          onChangeText={(text) => handleChange('title', text)}
           value={addEvent.title || ''}
         />
 
@@ -224,7 +256,7 @@ export default function CreateEvent() {
         <TextInput
           style={styles.input}
           id="location"
-          onChange={handleChange}
+          onChangeText={(text) => handleChange('location', text)}
           value={addEvent.location || ''}
         />
 
@@ -232,7 +264,7 @@ export default function CreateEvent() {
         <TextInput
           style={[styles.input, styles.textArea]}
           id="description"
-          onChange={handleChange}
+          onChangeText={(text) => handleChange('description', text)}
           value={addEvent.description || ''}
           multiline
           numberOfLines={4}

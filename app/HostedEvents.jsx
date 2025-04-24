@@ -42,7 +42,7 @@ export default function HostedEvents() {
   };
 
   // Show loading state while user data is being loaded from AsyncStorage
-  if (isUserLoading) {
+  if (isLoading) {
     return (
       <SafeAreaView style={styles.container}>
         <Text>Loading...</Text>
@@ -51,7 +51,7 @@ export default function HostedEvents() {
   }
 
   // Only show login message if we're sure there's no user
-  if (!isUserLoading && !user) {
+  if (!isLoading && !user) {
     return (
       <SafeAreaView style={styles.container}>
         <Text>Please log in to view hosted events</Text>
@@ -74,7 +74,7 @@ export default function HostedEvents() {
       </SafeAreaView>
     );
   }
-
+  console.log(events);
   return (
     <SafeAreaView style={styles.container}>
       <Stack.Screen

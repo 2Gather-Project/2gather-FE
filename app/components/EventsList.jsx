@@ -3,7 +3,7 @@ import EventCard from './EventCard';
 import { Alert, FlatList, StyleSheet, View } from 'react-native';
 import { updateEventStatus } from '../services/eventsAPI';
 
-export default function EventsList({ events, filterValueLocation, setStatus }) {
+export default function EventsList({ events, filterValueLocation }) {
   const eventsFilter = events.filter((event) => {
     if (!filterValueLocation && event.status !== 'INACTIVE') {
       return event;
@@ -30,7 +30,6 @@ export default function EventsList({ events, filterValueLocation, setStatus }) {
               event_id={item.event_id}
               image_url={item.image_url}
               description={item.description}
-              setStatus={setStatus}
             />
           )}
         />
