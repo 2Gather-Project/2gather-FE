@@ -55,7 +55,7 @@ export const EventAttendanceButtons = ({ event }) => {
         console.log(`Setting status for ${event.status}:`);
       } catch (error) {
         setIsError(error);
-        console.alert('Error', 'The event attendance could not be loaded.');
+        console.error('Error', 'The event attendance could not be loaded.');
       } finally {
         setIsLoading(false);
       }
