@@ -36,12 +36,10 @@ export default function Explore() {
       .catch((error) => {
         console.error('Failed to fetch events:', error);
         setError('Failed to load events. Please try again.');
-      } finally {
+      })
+      .finally(() => {
         setIsLoading(false);
-      }
-    };
-
-    fetchEvents();
+      });
   }, [user, filterValueLocation, filterValueCategory, status]);
 
   if (!user) {
@@ -109,4 +107,4 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 10,
   },
-}); 
+});
