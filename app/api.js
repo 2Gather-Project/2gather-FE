@@ -120,9 +120,6 @@ export function fetchApprovedEvents(user_id) {
 }
 
 export function updateEvent(event_id, eventData) {
-  return baseApi.patch(`/events/${event_id}`, eventData).then(({ data: { event } }) => {
-    return event;
-  });
   return baseApi.patch(`/events/status/${event_id}`, eventData).then(({ data: { event } }) => {
     return event;
   });

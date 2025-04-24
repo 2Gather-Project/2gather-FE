@@ -155,7 +155,7 @@ export default function CreateEvent() {
   const handlePost = () => {
     console.log('pressed post');
     setError(false);
-    compressImage();
+    addEvent.image_url ? compressImage() : null;
     const addEventForUser = async () => {
       try {
         const res = await postNewEvent(addEvent);

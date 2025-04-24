@@ -131,6 +131,18 @@ export const EventAttendanceButtons = ({ event, setStatus }) => {
     }
   };
 
+  const updateEventStatus = async () => {
+    console.log('updating event status');
+
+    try {
+      await updateEvent(event.event_id, { status: 'ACTIVE' });
+      setStatus(true);
+    } catch (error) {
+      setIsError(error);
+      Alert.alert('Error', 'Event still inactive.');
+    }
+  };
+
   const handleCancelation = async () => {
     setIsLoading(true);
     setIsError(null);
@@ -152,6 +164,7 @@ export const EventAttendanceButtons = ({ event, setStatus }) => {
         user_approved: false,
       });
       console.log('patch desde estado REQUESTED:', res);
+      updateEventStatus();
     } catch (error) {
       setIsError(error);
       Alert.alert('Error', 'Attendance could not be canceled.');
@@ -162,13 +175,6 @@ export const EventAttendanceButtons = ({ event, setStatus }) => {
     } finally {
       setIsLoading(false);
       setIsDisabled(false);
-    }
-    try {
-      await updateEvent(event.event_id, { status: 'ACTIVE' });
-      setStatus(true);
-    } catch (error) {
-      setIsError(error);
-      Alert.alert('Error', 'Event still inactive.');
     }
   };
 
