@@ -14,8 +14,10 @@ export default function HostedEventCard({ event, setDeletedEvent }) {
   const router = useRouter();
   const [eventActivity, setEventActivity] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [hasApprovedDeclined, setHasApprovedDeclined] = useState(false);
 
   useEffect(() => {
+    setHasApprovedDeclined(false);
     const fetchEventActivity = async () => {
       try {
         const activity = await getEventUserActivity(event.event_id);
@@ -58,7 +60,7 @@ export default function HostedEventCard({ event, setDeletedEvent }) {
     };
 
     fetchEventActivity();
-  }, [event.event_id]);
+  }, [hasApprovedDeclined, event.event_id, event.user_status]);
 
   const handleApproveRequest = async (attendee_id) => {
     try {
@@ -78,6 +80,7 @@ export default function HostedEventCard({ event, setDeletedEvent }) {
     } catch (err) {
       console.error('Error approving request:', err);
     }
+    setHasApprovedDeclined(true);
   };
 
   const handleDeclineRequest = async (attendee_id) => {
@@ -93,6 +96,7 @@ export default function HostedEventCard({ event, setDeletedEvent }) {
     } catch (err) {
       console.error('Error declining request:', err);
     }
+    setHasApprovedDeclined(true);
   };
 
   const handleDeleteEvent = () => {
@@ -101,12 +105,6 @@ export default function HostedEventCard({ event, setDeletedEvent }) {
     async () => {
       try {
         await deleteEvent(event.event_id);
-        setDeletedEvent((current) => {
-          return ++current;
-        });
-        // if (onEventDeleted) {
-        // onEventDeleted(event.event_id);
-        // }
         router.back();
       } catch (err) {
         console.error('Error deleting event:', err);
@@ -114,18 +112,7 @@ export default function HostedEventCard({ event, setDeletedEvent }) {
       }
     };
     deleteEvent(event.event_id);
-    // Alert.alert('Delete Event', 'Are you sure you want to delete this event?', [
-    //   {
-    //     text: 'Cancel',
-    //     style: 'cancel',
-    //   },
-    //   {
-    //     text: 'Delete',
-    //     style: 'destructive',
-    //     onPress:
-    //     },
-    //   },
-    // ]);
+    setDeletedEvent(true);
   };
 
   const formatDate = (dateString) => {
