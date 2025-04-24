@@ -139,12 +139,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   profileImageContainer: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
+    width: 36, // Reduced from 52 to 36
+    height: 36, // Reduced from 52 to 36
+    borderRadius: 18, // Half of width/height
     borderColor: '#003049',
     borderWidth: 1,
-    padding: 4,
+    padding: 2, // Reduced from 4 to 2
     backgroundColor: '#ffffff',
     justifyContent: 'center',
     alignItems: 'center',
@@ -154,8 +154,8 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   profileImage: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 30, // Reduced from 44 to 30
+    height: 30, // Reduced from 44 to 30
+    borderRadius: 15, // Half of width/height
   },
 });
