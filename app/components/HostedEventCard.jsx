@@ -58,7 +58,7 @@ export default function HostedEventCard({ event, setDeletedEvent }) {
     };
 
     fetchEventActivity();
-  }, [event.event_id]);
+  }, [event.event_id, event.user_status]);
 
   const handleApproveRequest = async (attendee_id) => {
     try {
@@ -101,12 +101,6 @@ export default function HostedEventCard({ event, setDeletedEvent }) {
     async () => {
       try {
         await deleteEvent(event.event_id);
-        setDeletedEvent((current) => {
-          return ++current;
-        });
-        // if (onEventDeleted) {
-        // onEventDeleted(event.event_id);
-        // }
         router.back();
       } catch (err) {
         console.error('Error deleting event:', err);
@@ -114,18 +108,7 @@ export default function HostedEventCard({ event, setDeletedEvent }) {
       }
     };
     deleteEvent(event.event_id);
-    // Alert.alert('Delete Event', 'Are you sure you want to delete this event?', [
-    //   {
-    //     text: 'Cancel',
-    //     style: 'cancel',
-    //   },
-    //   {
-    //     text: 'Delete',
-    //     style: 'destructive',
-    //     onPress:
-    //     },
-    //   },
-    // ]);
+    setDeletedEvent(true);
   };
 
   const formatDate = (dateString) => {

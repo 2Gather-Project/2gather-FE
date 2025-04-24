@@ -12,10 +12,12 @@ export default function HostedEvents() {
   const [events, setEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [deletedEvent, setDeletedEvent] = useState(1);
+  const [deletedEvent, setDeletedEvent] = useState(false);
+
 
   useEffect(() => {
     const fetchHostedEvents = async () => {
+      setDeletedEvent(false);
       if (!user || !user.user_id) {
         setIsLoading(false);
         return;
@@ -33,7 +35,7 @@ export default function HostedEvents() {
 
     fetchHostedEvents();
     console.log('getting hosted event', deletedEvent);
-  }, [user, deletedEvent]);
+  }, [deletedEvent, user]);
 
   if (!user) {
     return (
