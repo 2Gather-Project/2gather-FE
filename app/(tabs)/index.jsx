@@ -1,4 +1,3 @@
-
 import { StyleSheet, Text, View, FlatList, TouchableOpacity } from 'react-native';
 import { Link, useNavigation } from 'expo-router';
 import { useState } from 'react';
@@ -13,13 +12,13 @@ const dummyEvents = [
 const EventItem = ({ title, date, location }) => (
   <View style={styles.eventItem}>
     <Text style={styles.eventTitle}>{title}</Text>
-    <Text>{date} • {location}</Text>
+    <Text>
+      {date} • {location}
+    </Text>
   </View>
 );
 
-
 export default function Home() {
-
   const navigation = useNavigation();
   const [isError, setIsError] = useState();
   const [isLoading, setIsLoading] = useState(true);
@@ -34,19 +33,16 @@ export default function Home() {
   //     } finally {
   //       setIsLoading(false)
   //     }
-  //   } 
+  //   }
   //   fetchEvents()
   // }, [])
 
   return (
-
     <View style={styles.container}>
       <View style={styles.welcomeSection}>
         <Text style={styles.title}>Welcome to 2Gather!</Text>
         <Text>Find events near you</Text>
       </View>
-
-
 
       <View style={styles.featuredSection}>
         <View style={styles.sectionHeader}>
@@ -55,7 +51,6 @@ export default function Home() {
         <UpcomingEvents />
       </View>
     </View>
-
   );
 }
 
@@ -69,12 +64,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 8,
     textAlign: 'center',
-    color: '#003049'
+    color: '#003049',
   },
   welcomeSection: {
     padding: 16,
     backgroundColor: '#f5f5f5',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   featuredSection: {
     padding: 16,
@@ -89,7 +84,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#003049'
+    color: '#003049',
   },
   seeAllLink: {
     color: '#C1121F',
@@ -107,5 +102,5 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 18,
     marginBottom: 4,
-  }
+  },
 });
